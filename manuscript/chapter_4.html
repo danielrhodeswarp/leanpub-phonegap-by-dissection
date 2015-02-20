@@ -1,0 +1,213 @@
+<h2 id="quick_runthrough_of_the_default_app">Quick run-through of the default app</h2>
+   
+<p>Our app starts life as the PhoneGap "Hello world" app (unless you went <a href="#getting_started_ii">The fiddly older way</a> in which case
+it's empty). This is a good starting point and has some things we can build on and learn from.
+Of course we'll need to ditch a lot of it as well!</p>
+
+<p>Go ahead, hit CTRL-F11 in Eclipse to run the app on your virtual or actual device. We get a little robot icon
+and a pulsing (via CSS3) "device is ready" message. Rotate your device, it redraws itself accordingly and changes the layout slightly if needed.
+It also doesn't present or allow any kind of scrolling or pinching which is A Good Thing for most apps -
+including Japxlate.</p>
+
+<div class="figure">
+    <img src="img/figure/fig_10.png">
+    <p>Figure 1. The default PhoneGap app (landscape)</p>
+</div>
+        
+<p>The files that we'll be wanting to edit (CSS, HTML5, JavaScript) to make our own app can be found in the assets/www
+folder of our Eclipse project.</p>
+
+<p>Let's take a look at the generated assets/www/index.html (Apache licence text removed for brevity):</p>
+
+
+<code class="multiline"><span style='color:#7f0055; '>&lt;!DOCTYPE html></span>
+<span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>html</span><span style='color:#7f0055; '>></span>
+    <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>head</span><span style='color:#7f0055; '>></span>
+        <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>meta</span> charset=<span style='color:#2a00ff; '>"utf-8"</span> <span style='color:#7f0055; '>/></span>
+        <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>meta</span> name=<span style='color:#2a00ff; '>"format-detection"</span> content=<span style='color:#2a00ff; '>"telephone=no"</span> <span style='color:#7f0055; '>/></span>
+        <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>meta</span> name=<span style='color:#2a00ff; '>"viewport"</span> content=<span style='color:#2a00ff; '>"user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi"</span> <span style='color:#7f0055; '>/></span>
+        <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>link</span> rel=<span style='color:#2a00ff; '>"stylesheet"</span> type=<span style='color:#2a00ff; '>"text/css"</span> href=<span style='color:#2a00ff; '>"css/index.css"</span> <span style='color:#7f0055; '>/></span>
+        <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>title</span><span style='color:#7f0055; '>></span>Hello World<span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>title</span><span style='color:#7f0055; '>></span>
+    <span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>head</span><span style='color:#7f0055; '>></span>
+    <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>body</span><span style='color:#7f0055; '>></span>
+        <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>div</span> class=<span style='color:#2a00ff; '>"app"</span><span style='color:#7f0055; '>></span>
+            <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>h1</span><span style='color:#7f0055; '>></span>PhoneGap<span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>h1</span><span style='color:#7f0055; '>></span>
+            <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>div</span> id=<span style='color:#2a00ff; '>"deviceready"</span> class=<span style='color:#2a00ff; '>"blink"</span><span style='color:#7f0055; '>></span>
+                <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>p</span> class=<span style='color:#2a00ff; '>"event listening"</span><span style='color:#7f0055; '>></span>Connecting to Device<span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>p</span><span style='color:#7f0055; '>></span>
+                <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>p</span> class=<span style='color:#2a00ff; '>"event received"</span><span style='color:#7f0055; '>></span>Device is Ready<span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>p</span><span style='color:#7f0055; '>></span>
+            <span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>div</span><span style='color:#7f0055; '>></span>
+        <span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>div</span><span style='color:#7f0055; '>></span>
+        <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>script type="text/javascript" src="phonegap.js"</span><span style='color:#7f0055; '>></span><span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>script</span><span style='color:#7f0055; '>></span>
+        <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>script type="text/javascript" src="js/index.js"</span><span style='color:#7f0055; '>></span><span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>script</span><span style='color:#7f0055; '>></span>
+        <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>script type="text/javascript"</span><span style='color:#7f0055; '>></span>
+            app.initialize();
+        <span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>script</span><span style='color:#7f0055; '>></span>
+    <span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>body</span><span style='color:#7f0055; '>></span>
+<span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>html</span><span style='color:#7f0055; '>></span></code>
+
+<p><span class="new_3_3_0">(PhoneGap v3.3.0 adds a comment talking about a workaround for iOS 7.)</span>
+We've got the simplified "html" DOCTYPE for HTML5.
+We explicity set a charset of utf-8 Unicode which is clearly going to be very important for this app!
+We've got a lot of "viewport" settings which are mostly self-explanatory, but essentially say
+   "this app fills the device display, defaults to 100% zoom and can not be zoomed in or out". This
+is really going to help our PhoneGap app look and feel more like a native app and not a web browser
+view.</p>
+
+<p>We then link to some CSS which we'll look at shortly.
+The <code>&lt;title></code> needs updating, but this won't normally be visible to the app user anyway. Especially as
+	PhoneGap build puts a theme setting of <code>Theme.Black.NoTitleBar</code> in <code class="file">AndroidManifest.xml</code>.</p>
+
+<p>Then the <code>&lt;body></code> starts and we have whatever markup the app needs.
+Just before the <code>&lt;body></code> closes, we have links to some JavaScript (this is debated but considered to be something of a <a href="http://elegantcode.com/2010/03/30/your-javascript-goes-where/">performance improvement</a>).
+<code class="file">phonegap.js</code> (in <code class="file">assets/www</code>) is the PhoneGap library and is how we can access phone hardware (ie. camera)
+from JavaScript in our PhoneGap app.
+Commenting out this file will enable you to <em>somewhat</em> preview the app just by opening the <code class="file">index.html</code> file
+in Chrome desktop browser. We'll talk about this later.
+</p>
+
+<p><code class="file">js/index.js</code> is JavaScript specifically for this app. We then call <code>app.initialize()</code>. The <code>app</code> object is in
+<code class="file">index.js</code> which we'll look at after taking a quick peek at the key things in the CSS file we mentioned
+a moment ago (Apache licence text removed for brevity):</p>
+
+<code class="multiline">* {
+    -webkit-tap-highlight-color: rgba(0,0,0,0); <span style='color:#3f7f59; '>/* make transparent link selection, adjust last value opacity 0 to 1.0 */</span>
+}
+
+<span style='color:#7f0055; font-weight:bold; '>body</span> {
+    -webkit-touch-callout: none;                <span style='color:#3f7f59; '>/* prevent callout to copy image, etc when tap to hold */</span>
+    -webkit-text-size-adjust: none;             <span style='color:#3f7f59; '>/* prevent webkit from resizing text to fit */</span>
+    -webkit-user-select: none;                  <span style='color:#3f7f59; '>/* prevent copy paste, to allow, change 'none' to 'text' */</span>
+    <span style='color:#7f0055; font-weight:bold; '>background-color</span>:#E4E4E4;
+    <span style='color:#7f0055; font-weight:bold; '>background-image</span>:linear-gradient(top, #A7A7A7 0%, #E4E4E4 51%);
+    <span style='color:#7f0055; font-weight:bold; '>background-image</span>:-webkit-linear-gradient(top, #A7A7A7 0%, #E4E4E4 51%);
+    <span style='color:#7f0055; font-weight:bold; '>background-image</span>:-ms-linear-gradient(top, #A7A7A7 0%, #E4E4E4 51%);
+    <span style='color:#7f0055; font-weight:bold; '>background-image</span>:-webkit-gradient(
+        linear,
+        left top,
+        left bottom,
+        color-stop(0, #A7A7A7),
+        color-stop(0.51, #E4E4E4)
+    );
+    <span style='color:#7f0055; font-weight:bold; '>background-attachment</span>:fixed;
+    <span style='color:#7f0055; font-weight:bold; '>font-family</span>:<span style='color:#2a00ff; '>'</span><span style='color:#2a00ff; '>HelveticaNeue-Light</span><span style='color:#2a00ff; '>'</span>, <span style='color:#2a00ff; '>'</span><span style='color:#2a00ff; '>HelveticaNeue</span><span style='color:#2a00ff; '>'</span>, Helvetica, Arial, sans-serif;
+    <span style='color:#7f0055; font-weight:bold; '>font-size</span>:12px;
+    <span style='color:#7f0055; font-weight:bold; '>height</span>:100%;
+    <span style='color:#7f0055; font-weight:bold; '>margin</span>:0px;
+    <span style='color:#7f0055; font-weight:bold; '>padding</span>:0px;
+    <span style='color:#7f0055; font-weight:bold; '>text-transform</span>:uppercase;
+    <span style='color:#7f0055; font-weight:bold; '>width</span>:100%;
+}
+
+<span style='color:#3f7f59; '>/* Portrait layout (default) */</span>
+.app {
+    <span style='color:#7f0055; font-weight:bold; '>background</span>:<span style='color:#7f0055; font-weight:bold; '>url</span><span style='color:#2a00ff; '>(</span><span style='color:#3f3fbf; '>../img/logo.png</span><span style='color:#2a00ff; '>)</span> no-repeat center top; <span style='color:#3f7f59; '>/* 170px x 200px */</span>
+    <span style='color:#7f0055; font-weight:bold; '>position</span>:absolute;             <span style='color:#3f7f59; '>/* position in the center of the screen */</span>
+    <span style='color:#7f0055; font-weight:bold; '>left</span>:50%;
+    <span style='color:#7f0055; font-weight:bold; '>top</span>:50%;
+    <span style='color:#7f0055; font-weight:bold; '>height</span>:50px;                   <span style='color:#3f7f59; '>/* text area height */</span>
+    <span style='color:#7f0055; font-weight:bold; '>width</span>:225px;                   <span style='color:#3f7f59; '>/* text area width */</span>
+    <span style='color:#7f0055; font-weight:bold; '>text-align</span>:center;
+    <span style='color:#7f0055; font-weight:bold; '>padding</span>:180px 0px 0px 0px;     <span style='color:#3f7f59; '>/* image height is 200px (bottom 20px are overlapped with text) */</span>
+    <span style='color:#7f0055; font-weight:bold; '>margin</span>:-115px 0px 0px -112px;  <span style='color:#3f7f59; '>/* offset vertical: half of image height and text area height */</span>
+                                   <span style='color:#3f7f59; '>/* offset horizontal: half of text area width */</span>
+}
+
+<span style='color:#3f7f59; '>/* Landscape layout (with min-width) */</span>
+@<span style='color:#7f0055; '>media</span> <span style='color:#7f0055; '>screen and (min-aspect-ratio: 1/1) and (min-width:400px) </span>{
+    .app {
+        <span style='color:#7f0055; font-weight:bold; '>background-position</span>:left center;
+        <span style='color:#7f0055; font-weight:bold; '>padding</span>:75px 0px 75px 170px;  <span style='color:#3f7f59; '>/* padding-top + padding-bottom + text area = image height */</span>
+        <span style='color:#7f0055; font-weight:bold; '>margin</span>:-90px 0px 0px -198px;  <span style='color:#3f7f59; '>/* offset vertical: half of image height */</span>
+                                      <span style='color:#3f7f59; '>/* offset horizontal: half of image width and text area width */</span>
+    }
+}
+&vellip;</code>
+
+<p>The clause for <code>*</code> simply removes, from any element that we might make tappable, the default sickly orange
+highlight that Android WebView gives to links and buttons and things.</p>
+
+<p>The <code>body</code> clause starts by disabling some default Android WebView interations. This makes our PhoneGap
+app feel a bit more nativey.</p>
+
+<p>Then we set a grey gradient as the background.</p>
+
+<p>Then we set the font type and size (12px).
+Height and width are both set to 100% which makes our <code>&lt;body></code> fill the size of the WebView screen.
+We specify no margin (which is gap space <em>outside</em> the <code>&lt;body></code>) and no padding (which is gap space <em>inside</em> the <code>&lt;body></code>).</p>
+
+<p>in <code>.app</code> - our top level div in the markup - we set the layout of our app specific things.
+Portrait orientation is assumed - a safe assumption for most phone apps.
+I won't bore you with this too much (but if you are baffled then please see a CSS refresher) other than to say it pulls some strings with absolute positioning
+and negative margins to centre a background image and some text.</p>
+
+<p>Then we have another <code>.app</code> block wrapped in what's called a media query (<a href="http://cssmediaqueries.com/what-are-css-media-queries.html">http://cssmediaqueries.com/what-are-css-media-queries.html</a> is a useful introduction)
+which triggers when the phone is rotated into landscape view. It moves the background image to the left of the text and
+also moves the text such that things are still centred.</p>
+
+
+<p>Right, let's get back to that <code class="file">js/index.js</code> file that we've almost forgotten about! (Apache licence text removed for brevity):</p>
+
+<code class="multiline"><span style='color:#7f0055; font-weight:bold; '>var</span> app = {
+    <span style='color:#3f7f59; '>// Application Constructor</span>
+    initialize: <span style='color:#7f0055; font-weight:bold; '>function</span>() {
+        <span style='color:#7f0055; font-weight:bold; '>this</span>.bindEvents();
+    },
+    <span style='color:#3f7f59; '>// Bind Event Listeners</span>
+    <span style='color:#3f7f59; '>//</span>
+    <span style='color:#3f7f59; '>// Bind any events that are required on startup. Common events are:</span>
+    <span style='color:#3f7f59; '>// 'load', 'deviceready', 'offline', and 'online'.</span>
+    bindEvents: <span style='color:#7f0055; font-weight:bold; '>function</span>() {
+        document.addEventListener(<span style='color:#2a00ff; '>'deviceready'</span>, <span style='color:#7f0055; font-weight:bold; '>this</span>.onDeviceReady, <span style='color:#7f0055; font-weight:bold; '>false</span>);
+    },
+    <span style='color:#3f7f59; '>// deviceready Event Handler</span>
+    <span style='color:#3f7f59; '>//</span>
+    <span style='color:#3f7f59; '>// The scope of 'this' is the event. In order to call the 'receivedEvent'</span>
+    <span style='color:#3f7f59; '>// function, we must explicity call 'app.receivedEvent(...);'</span>
+    onDeviceReady: <span style='color:#7f0055; font-weight:bold; '>function</span>() {
+        app.receivedEvent(<span style='color:#2a00ff; '>'deviceready'</span>);
+    },
+    <span style='color:#3f7f59; '>// Update DOM on a Received Event</span>
+    receivedEvent: <span style='color:#7f0055; font-weight:bold; '>function</span>(id) {
+        <span style='color:#7f0055; font-weight:bold; '>var</span> parentElement = document.getElementById(id);
+        <span style='color:#7f0055; font-weight:bold; '>var</span> listeningElement = parentElement.querySelector(<span style='color:#2a00ff; '>'.listening'</span>);
+        <span style='color:#7f0055; font-weight:bold; '>var</span> receivedElement = parentElement.querySelector(<span style='color:#2a00ff; '>'.received'</span>);
+
+        listeningElement.setAttribute(<span style='color:#2a00ff; '>'style'</span>, <span style='color:#2a00ff; '>'display:none;'</span>);
+        receivedElement.setAttribute(<span style='color:#2a00ff; '>'style'</span>, <span style='color:#2a00ff; '>'display:block;'</span>);
+
+        console.<span style='color:#7f0055; font-weight:bold; '>log</span>(<span style='color:#2a00ff; '>'Received Event: '</span> + id);
+    }
+};</code>
+
+<p>All we have is one object called <code>app</code> which represents - wait for it! - our PhoneGap app.
+<code>initialize()</code> is the constructor. We call this directly from <code class="file">index.html</code> if you remember.
+<code>initialize()</code> simply calls <code>app.bindEvents()</code> which in turn uses a DOM standard way of adding an event listener.
+The event we listen for here is 'deviceready' which is fired from the PhoneGap library when our Android device
+is, well, ready. We specify that this event is to be handled by <code>app.onDeviceReady()</code> which simply calls
+<code>app.receivedEvent('deviceready')</code>.</p>
+
+<p><code>app.receivedEvent('deviceready')</code> simply hides the "connecting" message and displays the "ready" message
+(which are displayed and hidden, respectively, via the default <code class="file">index.css</code>).</p>
+
+<p><code>someElement.querySelector()</code> is very interesting here and we'll look at that later.</p>
+
+<p><code>console.log(someMessage)</code> is worth talking about now because we are going to be hammering it during development!
+Basically this logs something to the browser's console without disturbing the user. 
+When running your app via Eclipse's F11, <code>console.log()</code> messages that fire on the device will show up in your
+Eclipse's "LogCat" thus:</p>
+
+<div class="figure">
+    <img src="img/figure/fig_20.png">
+    <p>Figure 2. <code>console.log()</code> messages as appearing in Eclipse's LogCat</p>
+</div>
+
+<p>Or, if debugging in Chrome desktop, you can see it by pressing F12 on the page in question then clicking the console tab:</p>
+
+<div class="figure">
+    <img src="img/figure/fig_30.png">
+    <p>Figure 3. <code>console.log()</code> messages as appearing in Chrome desktop's debugger</p>
+</div>
+
+<p><code>console.log()</code> (and there are actually some other methods) is a general JavaScript development technique that
+isn't specific to mobile development. It works on all major browsers (though IE needs help!).</p>
+

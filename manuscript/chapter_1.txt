@@ -1,9 +1,16 @@
-# Chapter 1
-Hello, world!
+# What you'll need {#chapter-1}
+        
+To keep things small and simple we'll focus solely on developing on **Linux** for an app that we'll make for
+**Android**. Though one huge benefit of PhoneGap is that you can package the same(ish) code into a working app
+for many different mobile platforms. We also won't be using any third-party JavaScript or CSS libraries, though
+these will be useful to you going forward with your app development. What you'll need:
 
-![This is the Image Caption](images/fig_10.png)
-
-## Subheading in chapter 1
-blah de blah
-
+* A Linux desktop box
+* PhoneGap (which requires NodeJS) on the above box - at time of writing this tutorial I was using version 3.1.0.
+Don't worry, we'll install this in the [Getting started](#chapter-3) chapter
+* As many Android devices as you can get your hands on! At least one
+* Google's "Android Developer Tools" bundle - or at least Eclipse with the Android plugins. 
+Again we'll cover this in the [Getting started](#chapter-3) chapter
+* At least a lower-intermediate knowledge of HTML5, JavaScript and CSS
+* To not be terrified of the Linux command line!
 

@@ -1,0 +1,386 @@
+<h2 id="first_things_first_the_layout">First things first: The layout</h2>
+
+<p>Japxlate is going to have a single screen or "intent". It won't jump out to, for example, your phone's
+camera intent or "share to" list. The single screen is going to have three tab options - Search, Discover and Write.
+We want the tab navigation and current tab content to all fit on the device display without scrolling.
+OK, the PhoneGap Hello World app we just looked at is a good start, but let's see what tweaks we can do.</p>
+
+<p>The Japxlate app is a spinoff of the <a href="https://twitter.com/japxlate">@japxlate</a> Twitter channel, so let's look at that to get some design
+ideas:</p>
+
+<div class="figure">
+    <img src="img/figure/fig_40.png">
+    <p>Figure 4. The @japxlate Twitter channel</p>
+</div>
+
+<p>OK, so we've got a greyish background. The logo is a red 'J' on a white background. The red is our signature red
+and is actually #990000. The red 'J' on a white background is going to be a good launcher icon for our app which we'll talk about in a later chapter.</p>
+
+<p>Right, so we need three tabs and we have some colour ideas. Here's a quick wireframe:</p>
+
+<div class="figure">
+    <img src="img/figure/fig_50.png">
+    <p>Figure 5. Quick wireframe of the Japxlate app layout</p>
+</div>
+
+<p>Let's put our tabs at the top so they're out of the way of our device's core Android buttons (back, home, menu / special).
+Let's have a little footer and see if we need that.
+The footer and header have grey backgrounds. The tab content area is bog-standard black text on a white background.
+When a tab is tapped, the header and footer will stay the same (though possibly with some kind of current tab
+highlight) but the content area will load the appropriate content for that tab.</p>
+
+<p>HTML5 gives us <code>&lt;header></code> and <code>&lt;footer></code> elements, so let's try those. Change the <code>&lt;body></code> in <code class="file">index.html</code> to look like:</p>
+
+<code class="multiline"><span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>body</span><span style='color:#7f0055; '>></span>
+    <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; '>header</span><span style='color:#7f0055; '>></span>
+        header
+    <span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; '>header</span><span style='color:#7f0055; '>></span>
+    <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>div</span> class=<span style='color:#2a00ff; '>"japxlate_app"</span><span style='color:#7f0055; '>></span>    <span style='color:#3f7f59; '>&lt;!--note we've changed the class name--></span>
+        content area
+    <span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>div</span><span style='color:#7f0055; '>></span>
+    <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; '>footer</span><span style='color:#7f0055; '>></span>
+        footer
+    <span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; '>footer</span><span style='color:#7f0055; '>></span>
+    <span style='color:#3f7f59; '>&lt;!--&lt;script type="text/javascript" src="phonegap.js">&lt;/script>--></span>
+    <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>script type="text/javascript" src="js/index.js"</span><span style='color:#7f0055; '>></span><span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>script</span><span style='color:#7f0055; '>></span>
+    <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>script type="text/javascript"</span><span style='color:#7f0055; '>></span>
+        app.initialize();
+    <span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>script</span><span style='color:#7f0055; '>></span>
+<span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>body</span><span style='color:#7f0055; '>></span>
+</code>
+
+<p>Fire this up on your device (or desktop Chrome) and it looks like this:</p>
+
+<div class="figure">
+    <img src="img/figure/fig_60.png">
+    <p>Figure 6. Unstyled <code>&lt;header></code> and <code>&lt;footer></code></p>
+</div>
+
+<p>Not quite what we had in mind! The <code>&lt;header></code> and <code>&lt;footer></code> are both 100% wide which is great, but we need to give them positions and heights (with tab content
+taking up the remaining space inbetween). Also let's get rid of the PhoneGap background gradient and put our own background
+colours in. Also let's take out the forced uppercase. Change the <code>body</code> clause in <code class="file">index.css</code> to look like this:</p>
+
+<code class="multiline"><span style='color:#7f0055; font-weight:bold; '>body</span> {
+    -webkit-touch-callout: none;                <span style='color:#3f7f59; '>/* prevent callout to copy image, etc when tap to hold */</span>
+    -webkit-text-size-adjust: none;             <span style='color:#3f7f59; '>/* prevent webkit from resizing text to fit */</span>
+    -webkit-user-select: none;                  <span style='color:#3f7f59; '>/* prevent copy paste, to allow, change 'none' to 'text' */</span>
+    <span style='color:#7f0055; font-weight:bold; '>font-family</span>:<span style='color:#2a00ff; '>'</span><span style='color:#2a00ff; '>HelveticaNeue-Light</span><span style='color:#2a00ff; '>'</span>, <span style='color:#2a00ff; '>'</span><span style='color:#2a00ff; '>HelveticaNeue</span><span style='color:#2a00ff; '>'</span>, Helvetica, Arial, sans-serif;
+    <span style='color:#7f0055; font-weight:bold; '>font-size</span>:12px;
+    <span style='color:#7f0055; font-weight:bold; '>height</span>:100%;
+    <span style='color:#7f0055; font-weight:bold; '>margin</span>:0px;
+    <span style='color:#7f0055; font-weight:bold; '>padding</span>:0px;
+    <span style='color:#7f0055; font-weight:bold; '>width</span>:100%;
+}</code>
+
+<p>Then add a clause for <code>header</code> like this:</p>
+
+<code class="multiline">header {
+    <span style='color:#7f0055; font-weight:bold; '>background-color</span>:#555;  <span style='color:#3f7f59; '>/*medium grey*/</span>
+    <span style='color:#7f0055; font-weight:bold; '>color</span>:#ccc;             <span style='color:#3f7f59; '>/*slightly greyish white*/</span>
+    <span style='color:#7f0055; font-weight:bold; '>height</span>:40px;
+    <span style='color:#7f0055; font-weight:bold; '>line-height</span>:40px;       <span style='color:#3f7f59; '>/*height of a *text* line*/</span>
+}</code>
+
+<p>Then add a clause for <code>footer</code> like this:</p>
+
+<code class="multiline">footer {
+    <span style='color:#7f0055; font-weight:bold; '>background-color</span>:#555;  <span style='color:#3f7f59; '>/*medium grey*/</span>
+    <span style='color:#7f0055; font-weight:bold; '>color</span>:#ccc;             <span style='color:#3f7f59; '>/*slightly greyish white*/</span>
+    <span style='color:#7f0055; font-weight:bold; '>height</span>:20px;
+    <span style='color:#7f0055; font-weight:bold; '>line-height</span>:20px;
+}</code>
+
+<p>Running this looks like:</p>
+
+<div class="figure">
+    <img src="img/figure/fig_70.png">
+    <p>Figure 7. <code>&lt;footer></code> is too high</p>
+</div>
+
+<p>Hmm, the footer isn't at the bottom! Let's position it absolutely and make it flush with the bottom of its parent
+(the document body). Add to the <code>footer</code> rule so that it looks like:</p>
+
+<code class="multiline">footer {
+    <span style='color:#7f0055; font-weight:bold; '>background-color</span>:#555;  <span style='color:#3f7f59; '>/*medium grey*/</span>
+    <span style='color:#7f0055; font-weight:bold; '>color</span>:#ccc;             <span style='color:#3f7f59; '>/*slightly greyish white*/</span>
+    <span style='color:#7f0055; font-weight:bold; '>height</span>:20px;             
+    <span style='color:#7f0055; font-weight:bold; '>line-height</span>:20px;
+    <span style='color:#7f0055; font-weight:bold; '>position</span>:absolute;
+    <span style='color:#7f0055; font-weight:bold; '>bottom</span>:0;
+    <span style='color:#7f0055; font-weight:bold; '>width</span>:100%;             <span style='color:#3f7f59; '>/*no default width for position:absolute*/</span>
+}</code>
+
+<p>Running this looks like:</p>
+
+<div class="figure">
+    <img src="img/figure/fig_80.png">
+    <p>Figure 8. <code>&lt;footer></code> flush with bottom of document body</p>
+</div>
+
+<p>Great! Now let's put our three tabs into the header. We'll do it as an unordered list of links. Make
+<code>&lt;header></code> of <code class="file">index.html</code> look like this:</p>
+
+<code class="multiline"><span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; '>header</span><span style='color:#7f0055; '>></span>
+    <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>ul</span> id=<span style='color:#2a00ff; '>"tab-bar"</span><span style='color:#7f0055; '>></span>
+        <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>li</span> <span style='color:#7f0055; '>></span>
+            <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>a</span> href=<span style='color:#2a00ff; '>"#search"</span><span style='color:#7f0055; '>></span>Search<span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>a</span><span style='color:#7f0055; '>></span>
+        <span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>li</span><span style='color:#7f0055; '>></span>
+        <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>li</span> <span style='color:#7f0055; '>></span>
+            <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>a</span> href=<span style='color:#2a00ff; '>"#discover"</span><span style='color:#7f0055; '>></span>Discover<span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>a</span><span style='color:#7f0055; '>></span>
+        <span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>li</span><span style='color:#7f0055; '>></span>
+        <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>li</span><span style='color:#7f0055; '>></span>
+            <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>a</span> href=<span style='color:#2a00ff; '>"#write"</span><span style='color:#7f0055; '>></span>Write<span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>a</span><span style='color:#7f0055; '>></span>
+        <span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>li</span><span style='color:#7f0055; '>></span>
+    <span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>ul</span><span style='color:#7f0055; '>></span>
+<span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; '>header</span><span style='color:#7f0055; '>></span></code>
+
+<p>Running this looks like:</p>
+
+<div class="figure">
+    <img src="img/figure/fig_90.png">
+    <p>Figure 9. First attempt at tabs</p>
+</div>
+
+<p>Clearly a disaster! We need some styling to line up the list items horizontally in the header.
+Add the following three clauses to the CSS file:</p>
+
+<code class="multiline"><span style='color:#3f7f59; '>/*entire tab row*/</span>
+#tab-bar {
+    <span style='color:#3f7f59; '>/*clear any inside and outside gap space*/</span>
+    <span style='color:#7f0055; font-weight:bold; '>margin</span>:0;
+    <span style='color:#7f0055; font-weight:bold; '>padding</span>:0;
+}
+
+<span style='color:#3f7f59; '>/*each tab*/</span>
+#tab-bar <span style='color:#7f0055; font-weight:bold; '>li</span> {
+    <span style='color:#7f0055; font-weight:bold; '>display</span>: inline;    <span style='color:#3f7f59; '>/*prevent each item from newlining*/</span>
+    <span style='color:#7f0055; font-weight:bold; '>float</span>:left;         <span style='color:#3f7f59; '>/*stack left*/</span>
+    <span style='color:#7f0055; font-weight:bold; '>width</span>: 33.3333%;    <span style='color:#3f7f59; '>/*have a third of total tab-bar space*/</span>
+}
+
+<span style='color:#3f7f59; '>/*tappable link in each tab*/</span>
+#tab-bar <span style='color:#7f0055; font-weight:bold; '>li</span> <span style='color:#7f0055; font-weight:bold; '>a</span> { 
+    <span style='color:#7f0055; font-weight:bold; '>color</span>: #ccc;
+    <span style='color:#7f0055; font-weight:bold; '>display</span>: block;         <span style='color:#3f7f59; '>/*make "width-having"*/</span>
+    <span style='color:#7f0055; font-weight:bold; '>font-weight</span>: bold;
+    <span style='color:#7f0055; font-weight:bold; '>overflow</span>: hidden;       <span style='color:#3f7f59; '>/*so long link text words get cropped*/</span>
+    <span style='color:#7f0055; font-weight:bold; '>text-align</span>: center;
+    <span style='color:#7f0055; font-weight:bold; '>text-decoration</span>: none;  <span style='color:#3f7f59; '>/*remove default link underline*/</span>
+}</code>
+
+<p>Running this looks like:</p>
+
+<div class="figure">
+    <img src="img/figure/fig_100.png">
+    <p>Figure 10. Tabs line up horizontally</p>
+</div>
+
+<p>Looking good! But the tabs need a few more things to look more useful. Namely, horizontal dividers,
+icons and some kind of current tab highlight.
+For the horizontal dividers, let's try giving the second and third tabs a left border. CSS version 2
+(the latest version being 3) has a nifty selector where we can say "element type Y only where it follows an
+element type X". With this we can target any tab after the first one and apply a left border. Add the
+following clause to the CSS:</p>
+
+<code class="multiline"><span style='color:#3f7f59; '>/*a border-left for the middle and rightmost tab*/</span>
+#tab-bar <span style='color:#7f0055; font-weight:bold; '>li</span> + <span style='color:#7f0055; font-weight:bold; '>li</span>
+{
+    <span style='color:#7f0055; font-weight:bold; '>border-left</span>:1px solid #aaa;    <span style='color:#3f7f59; '>/*light grey*/</span>
+}</code>
+
+<p>Running this looks like:</p>
+
+<div class="figure">
+    <img src="img/figure/fig_110.png">
+    <p>Figure 11. <code>&lt;header></code> too wide for document body</p>
+</div>
+
+<p>Ouch, that's not a good look. What's happened here is that the border has <em>added</em> 1px to the total width of the 
+second and third tabs. These tabs are now wider than a 3rd of the <code>&lt;header></code> row and so the last tab gets
+bumped onto the next line. This is A Very Annoying Thing. One cheesy little workaround for this is to
+use a simple background image to simulate the border.
+Make a 1 pixel wide by 16 pixel tall image in <a href="http://www.gimp.org/">GIMP</a> (or what-have-you) and floodfill with #aaaaaa which
+is a very light grey. Export to a PNG image in <code class="file">assests/www/img</code> called <code class="file">aaaaaa_16_v.png</code>.
+Then change the previously added CSS clause to look like this:</p>
+
+<code class="multiline"><span style='color:#3f7f59; '>/*simulate a border-left for the middle and rightmost tab*/</span>
+#tab-bar <span style='color:#7f0055; font-weight:bold; '>li</span> + <span style='color:#7f0055; font-weight:bold; '>li</span>
+{
+    <span style='color:#7f0055; font-weight:bold; '>background-image</span>:<span style='color:#7f0055; font-weight:bold; '>url</span><span style='color:#2a00ff; '>(</span><span style='color:#3f3fbf; '>../img/aaaaaa_16_v.png</span><span style='color:#2a00ff; '>)</span>;
+    <span style='color:#7f0055; font-weight:bold; '>background-repeat</span>:repeat-y;
+    <span style='color:#7f0055; font-weight:bold; '>background-position</span>:left;
+}</code>
+
+<p>Running this looks like:</p>
+
+<div class="figure">
+    <img src="img/figure/fig_120.png">
+    <p>Figure 12. <code>&lt;header></code> fits nicely</p>
+</div>
+
+<p>Pretty good! OK, we'll do the icons next. We want each tab to have a little icon on it. There are millions of icon sets floating around these days. They tend to be one of three types:</p>
+<ul>
+	<li>Always free</li>
+	<li>Free only for personal use (else you should pay)</li>
+	<li>Always paid-for</li>
+</ul>
+
+<p>There's also new school <em>flat</em> icons versus traditional deep icons. Design memes come and go but we'll go with
+something a little flat. We'll use these rather nice ones which are royalty-free, free for personal and commercial use:</p>
+
+<p><a href="http://www.graphicsfuel.com/2013/04/20-flat-icons-psd">http://www.graphicsfuel.com/2013/04/20-flat-icons-psd</a></p>
+
+<p>Note that these icons are in PNG format which is a raster format. Raster icons are easy to use, but can only be
+shrunk or enlarged by extracting or guessing information (respectively). This means they only really look good
+at their <em>native</em> size which means that, depending on the pixel density of the device display, they might be too tiny
+and hard to make out or really massive and Legoish. But we'll use them for simplicity.</p>
+
+<p>One alternative would be to use a vector format - such as SVG - for the icons which stores the image such that
+it can be scaled up or down without losing information.
+Another new trend is to have the browser load something called an icon font. This is like a normal font but where
+each character is an icon (remember Wingdings?!). This has the advantage that the icons are sizeable just like
+any other text. Also they can be bolded or italicised. <strong>But</strong> they can only be of one colour.</p>
+
+<p>Go ahead and put all of the PNG icons in <code class="file">assets/www/img</code> (though we won't use all of them).
+Let's reference some of these icons in our tab markup, change <code>&lt;header></code> in <code class="file">index.html</code>
+to look like this:</p>
+
+<code class="multiline"><span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; '>header</span><span style='color:#7f0055; '>></span>
+    <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>ul</span> id=<span style='color:#2a00ff; '>"tab-bar"</span><span style='color:#7f0055; '>></span>
+        <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>li</span><span style='color:#7f0055; '>></span>
+            <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>a</span> href=<span style='color:#2a00ff; '>"#search"</span><span style='color:#7f0055; '>></span><span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>img</span> src=<span style='color:#2a00ff; '>"img/search.png"</span><span style='color:#7f0055; '>></span> Search<span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>a</span><span style='color:#7f0055; '>></span>
+        <span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>li</span><span style='color:#7f0055; '>></span>
+        <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>li</span><span style='color:#7f0055; '>></span>
+            <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>a</span> href=<span style='color:#2a00ff; '>"#discover"</span><span style='color:#7f0055; '>></span><span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>img</span> src=<span style='color:#2a00ff; '>"img/chat-bubble.png"</span><span style='color:#7f0055; '>></span> Discover<span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>a</span><span style='color:#7f0055; '>></span>
+        <span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>li</span><span style='color:#7f0055; '>></span>
+        <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>li</span><span style='color:#7f0055; '>></span>
+            <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>a</span> href=<span style='color:#2a00ff; '>"#write"</span><span style='color:#7f0055; '>></span><span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>img</span> src=<span style='color:#2a00ff; '>"img/file.png"</span><span style='color:#7f0055; '>></span> Write<span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>a</span><span style='color:#7f0055; '>></span>
+        <span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>li</span><span style='color:#7f0055; '>></span>
+    <span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>ul</span><span style='color:#7f0055; '>></span>
+<span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; '>header</span><span style='color:#7f0055; '>></span></code>
+
+<p>Note the space after the image and before the link text. Running this gives:</p>
+
+<div class="figure">
+    <img src="img/figure/fig_130.png">
+    <p>Figure 13. Icons we sourced are way too big</p>
+</div>
+
+<p>Woah, those icons are pretty big eh? The icons are a mix of square, tall or wide, but they all have a biggest
+side of about 128 pixels. That's clearly way too big for us here. Let's use GIMP to resize <code class="file">search.png</code>,
+<code class="file">chat-bubble.png</code> and <code class="file">file.png</code> to have a biggest side of 16px - the same as our app font size (in <code class="file">index.css</code>) [NOTETOSELF double check this].
+So go ahead and make those changes and overwrite the original icon files. While you're at it, do the same
+for <code class="file">paste.png</code> because we'll be using that later on. (Feel free to trash the other icon files from
+<code class="file">assets/www/img</code> as we won't be needing them in this little app.) Those scalable icon formats are looking real
+attractive now huh?</p>
+
+<p>After changing the icon sizes, it looks like this:</p>
+
+<div class="figure">
+    <img src="img/figure/fig_140.png">
+    <p>Figure 14. Icons at correct size</p>
+</div>
+
+<p>Not bad at all. But hmmmm, don't you think the icons look a little out of whack? Like they're slightly
+higher than the line of text? We can remedy this by adding to the CSS:</p>
+
+<code class="multiline"><span style='color:#7f0055; font-weight:bold; '>a</span> <span style='color:#7f0055; font-weight:bold; '>img</span> {
+    <span style='color:#7f0055; font-weight:bold; '>vertical-align</span>:middle;    <span style='color:#3f7f59; '>/*make more sensible relative to text baseline*/</span>
+}</code>
+
+<p>(Yes, we could do these icons as CSS background images but what the heck.) That's better.
+We restrict this only to images in <code>&lt;a></code>'s so we don't screw up any other images we might
+have in the markup.</p>
+
+<p>All we need now is a highlight for the currently selected tab, and while we're at it we should
+choose our default tab that we want to be displayed first on app load. Let's plump for the
+Search tab. Add a class name of "current" to the Search tab thus:</p>
+
+<code class="multiline"><span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>ul</span> id=<span style='color:#2a00ff; '>"tab-bar"</span><span style='color:#7f0055; '>></span>
+    <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>li</span> class=<span style='color:#2a00ff; '>"current"</span><span style='color:#7f0055; '>></span>
+        <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>a</span> href=<span style='color:#2a00ff; '>"#search"</span><span style='color:#7f0055; '>></span><span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>img</span> src=<span style='color:#2a00ff; '>"img/search.png"</span><span style='color:#7f0055; '>></span> Search<span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>a</span><span style='color:#7f0055; '>></span>
+    <span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>li</span><span style='color:#7f0055; '>></span>
+    &vellip;
+<span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>ul</span><span style='color:#7f0055; '>></span></code>
+
+<p>Then, in the CSS, modify <code>#tab-bar li{}</code> and add <code>#tab-bar li.current{}</code> thus:</p>
+
+<code class="multiline"><span style='color:#3f7f59; '>/*each tab*/</span>
+#tab-bar <span style='color:#7f0055; font-weight:bold; '>li</span> {
+    <span style='color:#7f0055; font-weight:bold; '>display</span>: inline;
+    <span style='color:#7f0055; font-weight:bold; '>float</span>:left;
+    <span style='color:#7f0055; font-weight:bold; '>width</span>: 33.3333%;
+    <span style='color:#7f0055; font-weight:bold; '>border-bottom</span>:3px solid #555;   <span style='color:#3f7f59; '>/*same bg as header*/</span>
+}
+
+<span style='color:#3f7f59; '>/*current tab*/</span>
+#tab-bar <span style='color:#7f0055; font-weight:bold; '>li</span>.current {
+    <span style='color:#7f0055; font-weight:bold; '>border-bottom</span>:3px solid #990000;    <span style='color:#3f7f59; '>/*signature red*/</span>
+}</code>
+
+<p>We simply add a bottom border, in our signature red, to any tab bar list item that has a class of "current". 
+We also add a border of the same size but using the header's background colour to <em>non</em> current tabs.
+This keeps everything looking flush horizontally. Later on (soon actually!) we will use JavaScript
+to detect tap events on the tabs and change the current tab. Running what you have so far looks like:</p>
+
+<div class="figure">
+    <img src="img/figure/fig_150.png">
+    <p>Figure 15. Current tab highlight</p>
+</div>
+
+<p>Pretty good! Only two little things are bugging us now. The content area text starts a little too
+close to the tab bar, and, thinking about it this app doesn't really need a footer at all!
+Change the HTML footer to simply look like this:</p>
+
+<code class="multiline"><span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; '>footer</span><span style='color:#7f0055; '>></span><span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; '>footer</span><span style='color:#7f0055; '>></span></code>
+
+<p>Then add <code>.japxlate_app{}</code> to CSS and also change the height of <code>footer{}</code> thus:</p>
+
+<code class="multiline">.japxlate_app {
+    <span style='color:#7f0055; font-weight:bold; '>padding-top</span>:1em;        <span style='color:#3f7f59; '>/*move content away from tab bar*/</span>
+}
+
+footer {
+    <span style='color:#7f0055; font-weight:bold; '>background-color</span>:#555;
+    <span style='color:#7f0055; font-weight:bold; '>color</span>:#ccc;
+    <span style='color:#7f0055; font-weight:bold; '>height</span>:2px;             <span style='color:#3f7f59; '>/*down to 2px from 20px*/</span>          
+    <span style='color:#7f0055; font-weight:bold; '>line-height</span>:20px;       <span style='color:#3f7f59; '>/*no longer meaningful...*/</span>
+    <span style='color:#7f0055; font-weight:bold; '>position</span>:absolute;
+    <span style='color:#7f0055; font-weight:bold; '>bottom</span>:0;
+    <span style='color:#7f0055; font-weight:bold; '>width</span>:100%;
+}</code>
+
+<p>Running this looks like:</p>
+
+<div class="figure">
+    <img src="img/figure/fig_160.png">
+    <p>Figure 16. Final app layout</p>
+</div>
+
+<p>Which we'll stick with for the rest of the tutorial - and app! We have a 2px footer which is
+a bit gimmicky, but will help us a bit with scroll debugging a bit later on. The tab content text is now
+one newline(ish) down from the tab bar.</p>
+
+<div class="sidenote">
+<strong>To fullscreen or not?</strong>
+<p>You might have noticed by now that the default PhoneGap app, and our own app's layout that we've just finished,
+fill the <em>entire</em> screen of the device. Even the Android status bar (which shows the time, battery charge and
+signal strength etc) is obliterated.</p>
+
+<p>Game apps tend to fill the entire screen, but almost every utility app out there leaves the status bar.
+The good news is that we can get the status bar back quite easily by opening <code class="file">PROJECTROOT/platforms/android/res/xml/config.xml</code>
+and changing:</p>
+
+<code class="multiline">&lt;preference name="fullscreen" value="true" /></code>
+
+<p>to</p>
+
+<code class="multiline">&lt;preference name="fullscreen" value="false" /></code>
+
+<p>and then re-running the app.</p>
+
+<p>You can choose which style you like and the rest of this tutorial is valid either way.
+Note that figures showing device screenshots <em>won't</em> have the status bar.</p>
+
+</div>
+

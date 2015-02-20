@@ -1,0 +1,1094 @@
+<h2 id="the_write_tab">The <em>Write</em> tab</h2>
+
+<h3 id="the_write_tab_i">Layout and interface</h3>
+
+<p>Our third and final tab now which is Write. This is more complex than the previous
+Discover tab, but slightly quicker to implement than the first Search tab - mostly
+due to not having any scrolling woes to care about.</p>
+
+<p>The write tab is going to be a little scratchpad area for the user to practice
+writing Japanese phonic characters. We'll present a random character and then an empty
+canvas for the user to finger draw the character. A wireframe might look like this:</p>
+
+<div class="figure">
+    <img src="img/figure/fig_430.png">
+    <p>Figure 43. Quick wireframe of the Write tab layout</p>
+</div>
+
+<p>We simply present a character and a space for them to practice drawing it in.</p>
+
+<p>Let's start with the markup, and a dollop of CSS, first. Edit the write &lt;div> of <code class="file">index.html</code>
+to look like this:</p>
+
+<code class="multiline"><span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>div</span> id=<span style='color:#2a00ff; '>"write"</span> class=<span style='color:#2a00ff; '>"current"</span><span style='color:#7f0055; '>></span>
+    <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>p</span> style=<span style='color:#2a00ff; '>"</span><span style='color:#7f0055; font-weight:bold; '>text-align</span>:center;<span style='color:#2a00ff; '>"</span><span style='color:#7f0055; '>></span>Write this character:
+        <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>span</span> style=<span style='color:#2a00ff; '>"</span><span style='color:#7f0055; font-weight:bold; '>font-size</span>:2em;<span style='color:#2a00ff; '>"</span> id=<span style='color:#2a00ff; '>"char-to-write"</span><span style='color:#7f0055; '>></span><span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>span</span><span style='color:#7f0055; '>></span>
+        <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>span</span> id=<span style='color:#2a00ff; '>"char-explanation"</span><span style='color:#7f0055; '>></span><span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>span</span><span style='color:#7f0055; '>></span>
+    <span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>p</span><span style='color:#7f0055; '>></span>
+    <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; '>canvas</span> id=<span style='color:#2a00ff; '>"paper"</span> width=<span style='color:#2a00ff; '>"300"</span> height=<span style='color:#2a00ff; '>"300"</span><span style='color:#7f0055; '>></span><span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; '>canvas</span><span style='color:#7f0055; '>></span>
+    <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>br</span><span style='color:#7f0055; '>></span>    
+    <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>button</span> type=<span style='color:#2a00ff; '>"button"</span> id=<span style='color:#2a00ff; '>"canvas-clear"</span> style=<span style='color:#2a00ff; '>"</span><span style='color:#7f0055; font-weight:bold; '>width</span>:45%; <span style='color:#7f0055; font-weight:bold; '>margin-right</span>:1%; <span style='color:#7f0055; font-weight:bold; '>float</span>:right;<span style='color:#2a00ff; '>"</span><span style='color:#7f0055; '>></span>
+        <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>img</span> src=<span style='color:#2a00ff; '>"img/paste.png"</span><span style='color:#7f0055; '>></span> Clear
+    <span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>button</span><span style='color:#7f0055; '>></span>
+    <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>button</span> type=<span style='color:#2a00ff; '>"button"</span> id=<span style='color:#2a00ff; '>"canvas-new"</span> style=<span style='color:#2a00ff; '>"</span><span style='color:#7f0055; font-weight:bold; '>width</span>:45%; <span style='color:#7f0055; font-weight:bold; '>margin-left</span>:1%;<span style='color:#2a00ff; '>"</span><span style='color:#7f0055; '>></span>
+        <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>img</span> src=<span style='color:#2a00ff; '>"img/file.png"</span><span style='color:#7f0055; '>></span> New character
+    <span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>button</span><span style='color:#7f0055; '>></span>
+<span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>div</span><span style='color:#7f0055; '>></span></code>
+
+<p>(Note that, like we did with the Discover tab, we've temporarily made this content div - and it's corresponding tab - 
+<code>class="current"</code> to speed up our development a tad.)</p>
+
+<p>We have an explanatory paragraph for our random character, and placeholders for both the character
+to write (in a larger font) and its explanation.</p>
+
+<p>Then comes the magic and the main focus of this chapter, the whizz-bang HTML5 &lt;canvas>
+element which you may or may not have seen before. It's an element that allows for
+programmatic and interactive display and manipulation of simple 2D graphics.
+It's kind of like Microsoft Paint but in the browser and you have to program it with JavaScript.
+(It's actually <em>waaaaay</em> better than I've just made it sound!)</p>
+
+<p>If you've got alarm bells ringing because we appear to have hard-coded the canvas dimensions
+(300px x 300px) then you are right. We will come back and improve this shortly.</p>
+
+<p>We end with two buttons, a Clear button which we want to erase the user's scribbling so far,
+and a New character button which will display a new random Japanese character to draw.
+Well if you run all of this, it looks like:</p>
+
+<div class="figure">
+    <img src="img/figure/fig_440.png">
+    <p>Figure 44. Initial Write tab appearance</p>
+</div>
+
+<p>Clearly the &lt;canvas> needs a bit of styling. Add a style for the &lt;canvas> element to
+<code class="file">index.css</code> thus:</p>
+
+<code class="multiline">canvas {
+    <span style='color:#7f0055; font-weight:bold; '>border</span>:1px solid grey;
+    <span style='color:#7f0055; font-weight:bold; '>background-color</span>:#ffa;  <span style='color:#3f7f59; '>/*Post-It yellow*/</span>
+    <span style='color:#7f0055; font-weight:bold; '>margin-left</span>:auto;       <span style='color:#3f7f59; '>/*these two lines will*/</span>
+    <span style='color:#7f0055; font-weight:bold; '>margin-right</span>:auto;      <span style='color:#3f7f59; '>/*centre the element horizontally*/</span>
+    <span style='color:#7f0055; font-weight:bold; '>display</span>:block;
+}</code>
+
+<p>Running looks like this now:</p>
+
+<div class="figure">
+    <img src="img/figure/fig_450.png">
+    <p>Figure 45. Write tab appearance with styled &lt;canvas></p>
+</div>
+
+<p>Better!</p>
+
+<h3 id="the_write_tab_ii">Filling the screen</h3>
+
+<p>Hmmm, but Android devices come in all shapes and sizes. What to do about the size of the canvas?
+We would want, ideally, the biggest square (Japanese characters tend to be rather squareish) 
+that would fit on the screen at that time - for portrait or lanscape.</p>
+
+<p>We'll take an approach like this:</p>
+
+<ol class="roman">
+<li>Put the two buttons at the bottom of the screen</li>
+<li>Make a containing &lt;div> for the &lt;canvas> that fills 100% of its available width and height
+    (the height under "Write this character" and above the buttons, then the full width of the screen)</li>
+<li>Set the size of the canvas to be the biggest <em>square</em> that will fit in this container. Centred
+    in the container</li>
+<li>When the device is rotated, we will have to resize the &lt;canvas> to be the biggest square
+    in the newly created container size</li>
+</ol>
+
+<p>OK, tackling [i] and [ii] first, we need a new layout. We are going to do the same thing we did for
+the app's header, content and footer; position them absolutely relative to parent. But this time the parent will be our .japxlate_app div.
+Edit the write div in <code class="file">index.html</code> to look like this:</p>
+
+<code class="multiline"><span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>div</span> id=<span style='color:#2a00ff; '>"write"</span> class=<span style='color:#2a00ff; '>"current"</span><span style='color:#7f0055; '>></span>
+    <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>p</span> id=<span style='color:#2a00ff; '>"write-intro"</span><span style='color:#7f0055; '>></span>Write this character: <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>span</span> style=<span style='color:#2a00ff; '>"</span><span style='color:#7f0055; font-weight:bold; '>font-size</span>:2em;<span style='color:#2a00ff; '>"</span> id=<span style='color:#2a00ff; '>"char-to-write"</span><span style='color:#7f0055; '>></span><span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>span</span><span style='color:#7f0055; '>></span>
+                <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>span</span> id=<span style='color:#2a00ff; '>"char-explanation"</span><span style='color:#7f0055; '>></span><span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>span</span><span style='color:#7f0055; '>></span>
+    <span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>p</span><span style='color:#7f0055; '>></span>
+    <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>div</span> id=<span style='color:#2a00ff; '>"write-canvas-container"</span><span style='color:#7f0055; '>></span>
+        <span style='color:#3f7f59; '>&lt;!--&lt;canvas id="paper" width="300" height="300">&lt;/canvas>--></span>
+    <span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>div</span><span style='color:#7f0055; '>></span>
+    <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>div</span> id=<span style='color:#2a00ff; '>"write-buttons"</span><span style='color:#7f0055; '>></span>
+        <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>button</span> type=<span style='color:#2a00ff; '>"button"</span> id=<span style='color:#2a00ff; '>"canvas-clear"</span> style=<span style='color:#2a00ff; '>"</span><span style='color:#7f0055; font-weight:bold; '>width</span>:45%; <span style='color:#7f0055; font-weight:bold; '>margin-right</span>:1%; <span style='color:#7f0055; font-weight:bold; '>float</span>:right;<span style='color:#2a00ff; '>"</span><span style='color:#7f0055; '>></span>
+            <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>img</span> src=<span style='color:#2a00ff; '>"img/paste.png"</span><span style='color:#7f0055; '>></span> Clear
+        <span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>button</span><span style='color:#7f0055; '>></span>
+        <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>button</span> type=<span style='color:#2a00ff; '>"button"</span> id=<span style='color:#2a00ff; '>"canvas-new"</span> style=<span style='color:#2a00ff; '>"</span><span style='color:#7f0055; font-weight:bold; '>width</span>:45%; <span style='color:#7f0055; font-weight:bold; '>margin-left</span>:1%;<span style='color:#2a00ff; '>"</span><span style='color:#7f0055; '>></span>
+            <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>img</span> src=<span style='color:#2a00ff; '>"img/file.png"</span><span style='color:#7f0055; '>></span> New character
+        <span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>button</span><span style='color:#7f0055; '>></span>
+    <span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>div</span><span style='color:#7f0055; '>></span>
+<span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>div</span><span style='color:#7f0055; '>></span></code>
+
+<p>We've given the intro paragraph an id. We've commmented the &lt;canvas> out for the time being
+but we've put it in a container div of #write-canvas-container.
+The buttons have also been placed in a containing div of #write-buttons.
+Now we need to position and size these elements such that the intro paragraph will be right at the
+top, the buttons will be right at the bottom, and the canvas container will fill <strong>all</strong>
+the space inbetween.
+Add these CSS rules to <code class="file">index.css</code>:</p>
+
+<code class="multiline">#write-intro {
+    <span style='color:#7f0055; font-weight:bold; '>position</span>:absolute;
+    <span style='color:#7f0055; font-weight:bold; '>top</span>:0;              <span style='color:#3f7f59; '>/*absolute top of .japxlate_app*/</span>
+    <span style='color:#7f0055; font-weight:bold; '>height</span>:40px;        <span style='color:#3f7f59; '>/*make arbitrarily big enough for our 2em character*/</span>
+    <span style='color:#7f0055; font-weight:bold; '>width</span>:100%;
+    <span style='color:#7f0055; font-weight:bold; '>margin-bottom</span>:0;    <span style='color:#3f7f59; '>/*so #write-canvas-container is flush*/</span>
+    <span style='color:#7f0055; font-weight:bold; '>margin-top</span>:10px;     <span style='color:#3f7f59; '>/*so we aren't directly under the navigation tabs*/</span>
+    <span style='color:#7f0055; font-weight:bold; '>text-align</span>:center;  <span style='color:#3f7f59; '>/*centre text horizontally*/</span>
+    <span style='color:#3f7f59; '>/*background-color:green;*/</span>
+}
+
+#write-canvas-container {
+    <span style='color:#7f0055; font-weight:bold; '>position</span>:absolute;
+    <span style='color:#7f0055; font-weight:bold; '>top</span>:50px;           <span style='color:#3f7f59; '>/*make flush with #write-intro*/</span>
+    <span style='color:#7f0055; font-weight:bold; '>bottom</span>:40px;        <span style='color:#3f7f59; '>/*stop 40px up from the botton of .japxlate_app*/</span>
+    <span style='color:#7f0055; font-weight:bold; '>width</span>:100%;    
+}
+
+#write-buttons {
+    <span style='color:#7f0055; font-weight:bold; '>position</span>:absolute;
+    <span style='color:#7f0055; font-weight:bold; '>bottom</span>:0;           <span style='color:#3f7f59; '>/*absolute bottom of .japxlate_app*/</span>
+    <span style='color:#7f0055; font-weight:bold; '>height</span>:40px;        <span style='color:#3f7f59; '>/*make flush with bottom of #write-canvas-container*/</span>
+    <span style='color:#7f0055; font-weight:bold; '>width</span>:100%;
+}</code>
+
+<p>We simply make write-intro and write-buttons a little bit bigger than they need to be, and set
+canvas container to fill the remaining space.
+We set margin-top of #write-intro to 10px so that the intro paragraph text is not too close to the tabs
+and so that we know the top of #write-canvas-container is 50px.
+We have previously set padding-top of .japxlate_app to 1em but this is obliterated with the
+<code>position:absolute</code> and <code>top:0</code> of #write-intro.
+(So yes, we've set a default top padding of 1em on .japxlate_app but only used it in the Search tab
+as we positioned over it on the Discover tab and this tab!).
+If you like you can confirm the size and shape of these divs by setting a different background-color
+in each of the CSS rules and then changing the size of desktop Chrome or rotating your device.</p>
+
+<p>For [iii] we need to programatically get the dimensions of #write-canvas-container,
+work out the biggest square that will fit in those dimensions (possibly trimming a bit off
+so our canvas isn't too close to the buttons etc), and then dynamically add the appropriate
+canvas element into #write-canvas-container - centreing it.</p>
+
+<p>For [iv] we need to catch a device rotation event and then do the steps for [iii] again.</p>
+
+<p>Create a file called <code class="file">canvas.js</code> in <code class="file">assets/www/js</code>. Include this JavaScipt file from the bottom
+of <code class="file">index.html</code> (above the include for <code class="file">index.js</code>).</p>
+
+<p>We are going to implement a function in <code class="file">canvas.js</code> called <code>adjustCanvas()</code> which will be our step
+[iii]. <code>adjustCanvas()</code> looks like this:</p>
+
+<code class="multiline"><span style='color:#3f7f59; '>//adjust - creating if necessary - the canvas element</span>
+<span style='color:#7f0055; font-weight:bold; '>function</span> adjustCanvas()
+{
+    <span style='color:#7f0055; font-weight:bold; '>var</span> container = document.getElementById(<span style='color:#2a00ff; '>'write-canvas-container'</span>);
+    
+    <span style='color:#7f0055; font-weight:bold; '>var</span> style = window.getComputedStyle(container);
+    
+    <span style='color:#7f0055; font-weight:bold; '>var</span> width = <span style='color:#7f0055; font-weight:bold; '>parseInt</span>(style.width);
+    <span style='color:#7f0055; font-weight:bold; '>var</span> height = <span style='color:#7f0055; font-weight:bold; '>parseInt</span>(style.height);
+    
+    <span style='color:#7f0055; font-weight:bold; '>var</span> smallestDim = width;    <span style='color:#3f7f59; '>//smallest dimension is width (= portrait)</span>
+    
+    <span style='color:#7f0055; font-weight:bold; '>if</span>(height &lt; width)  <span style='color:#3f7f59; '>//ie. landscape</span>
+    {
+        smallestDim = height;
+    }
+    
+    <span style='color:#3f7f59; '>//invisible frame around canvas so it's not flush with buttons etc</span>
+    <span style='color:#7f0055; font-weight:bold; '>var</span> frameGap = 15;
+    smallestDim -= (frameGap * 2);  <span style='color:#3f7f59; '>//gap at top and bottom (left and right)</span>
+    
+    <span style='color:#7f0055; font-weight:bold; '>var</span> canvas = <span style='color:#7f0055; font-weight:bold; '>null</span>;  <span style='color:#3f7f59; '>//we proceed to get or create this</span>
+    
+    <span style='color:#3f7f59; '>//element existence check</span>
+    <span style='color:#7f0055; font-weight:bold; '>var</span> firstTime = !document.getElementById(<span style='color:#2a00ff; '>'paper'</span>);
+    
+    <span style='color:#7f0055; font-weight:bold; '>if</span>(firstTime)   <span style='color:#3f7f59; '>//create canvas element with correct id</span>
+    {
+        canvas = document.createElement(<span style='color:#2a00ff; '>'canvas'</span>);
+        canvas.id = <span style='color:#2a00ff; '>'paper'</span>;
+        canvas.style.position = <span style='color:#2a00ff; '>'relative'</span>; <span style='color:#3f7f59; '>//so we can "top" the canvas down</span>
+    }
+    
+    <span style='color:#7f0055; font-weight:bold; '>else</span>    <span style='color:#3f7f59; '>//get existing canvas element</span>
+    {
+        canvas = document.getElementById(<span style='color:#2a00ff; '>'paper'</span>);
+    }
+    
+    <span style='color:#3f7f59; '>//size and position the canvas</span>
+    canvas.width = smallestDim;
+    canvas.height = smallestDim;
+    canvas.style.top = frameGap + <span style='color:#2a00ff; '>'px'</span>;
+    
+    <span style='color:#3f7f59; '>//add canvas (as child of container) if first time</span>
+    <span style='color:#7f0055; font-weight:bold; '>if</span>(firstTime)
+    {
+        container.appendChild(canvas);
+    }
+}</code>
+
+<p>Wow, this is our longest piece of JavaScript so far.
+With the first two lines we get the container element for the &lt;canvas>, and its style.
+We then save the width and height of the container.
+We get the smallest dimension of the container (which will be the squared size of
+our canvas) by assuming the container is portrait shaped. If container height is less than
+container width, we say it is landscape shaped. (A perfectly square container will be covered by the
+portrait assumption which will be fine as <em>any</em> of its side measurements is fine to use in that case.)
+We then put an imaginary frame around the canvas of 15 pixels so that the bottom of the canvas
+is not flush with our buttons.</p>
+
+<p>Thinking ahead to step [iv], it would be nice if this function to set up the &lt;canvas> initially could
+also be used to adjust the canvas for a device rotate.
+We tackle this with the concept of "first time". Basically, if the function is happening for the first time
+ - ie. the canvas does not exist - then it must <em>create</em> the canvas. If not the first time
+then it simply needs to alter the existing canvas.
+We action this by:</p>
+
+<code class="multiline">var firstTime = !document.getElementById('paper');</code>
+
+<p>Which relies on <code>document.getElementById('someId')</code> returning boolean false if an element with the id
+of someId does not exist on the page.
+So we get or create the canvas element and set its size to the smallest dimension of the container.
+Minus our frame gap of course.
+The first time around we have to insert the created &lt;canvas> element into the DOM
+(<code>document.createElement('elementname');</code> creates the element in memory only)
+which we do with <code>container.appendChild(canvas);</code>.</p>
+
+<p>Go ahead and delete the line:</p>
+
+<code class="multiline">canvas.style.position = 'relative';</code>
+
+<p>and put that in the <code>canvas{}</code> rule in <code class="file">index.css</code> as that makes more sense.</p>
+
+<p>Next, mosey on over to <code>firstLoadForTab_Write()</code> in <code class="file">japxlate.js</code> and add a call to
+<code>adjustCanvas()</code> thus:</p>
+
+<code class="multiline"><span style='color:#7f0055; font-weight:bold; '>function</span> firstLoadForTab_Write()
+{
+    console.<span style='color:#7f0055; font-weight:bold; '>log</span>(<span style='color:#2a00ff; '>'first load for write tab'</span>);
+    
+    adjustCanvas();    <span style='color:#3f7f59; '>//create canvas element of correct size</span>
+    
+    global_pagesLoaded.write = <span style='color:#7f0055; font-weight:bold; '>true</span>;
+}</code>
+
+<p>Remember <code>firstLoadForTab_Write()</code> is our one-off initialiser for the Write tab
+and so running the app now looks like:</p>
+
+<div class="figure">
+    <img src="img/figure/fig_460.png">
+    <p>Figure 46. &lt;canvas> now fills available space</p>
+</div>
+
+<p>Pretty good! You can test that the &lt;canvas> fills the available space by closing the page,
+resizing the browser and loading the page again (desktop Chrome) or closing the app, rotating your phone,
+reopening the app (device).
+
+<p>OK, that was actually the easy bit! Our next step is [iv] and this is a bit fiddly as we
+need to figure out how to detect a device rotation.</p>
+
+<p>Well, the proper way is to catch the "orientationchange" event (of the window object)
+with a handler.
+(Interestingly there is no PhoneGap API to do this.)
+ Orientationchange will fire for each and every orientation <em>change</em>
+of the device. And then in that handler you can use the window.orientation
+property to work out the device orientation.
+Window.orientation will be 0 meaning portrait,
+90 meaning landscape (top of phone pointing right) or
+-90 meaning landscape (top of phone pointing left).
+These values represent the number of degrees the phone has
+been rotated from the resting - or zero - position which is
+portrait.
+Android does not allow the screen to be rotated upside-down and so there is no 180 value.</p>
+
+<p>As you would expect, our desktop Chrome browser doesn't
+support the orientationchange event. (You can try to spin your monitor around but don't blame me if you wreck anything!).
+Keeping our spirit of making the app work as an app and in 
+the desktop Chrome, we are going to do something a little
+different. (Although orientationchange is the "correct" way to do it.)</p>
+
+<p>The closest thing to orientationchange on a desktop browser,
+and something that will also work on our WebView browser,
+is the "resize" event of the window object. This event fires
+for every resize - big or small - of the browser window.
+This includes the resize that our device will do to the
+WebView when we rotate the device.</p>
+
+<p>OK, let's get the ball rolling (or should that be rotating? LOL). Stick a call to <code>configureCanvasRotationAdjustment();</code>
+at the bottom of </code>receivedEvent()</code> in </code>index.js</code>.
+We define this function in </code>canvas.js</code>:</p>
+
+<code class="multiline"><span style='color:#3f7f59; '>//device "rotation" handler</span>
+<span style='color:#7f0055; font-weight:bold; '>function</span> configureCanvasRotationAdjustment()
+{
+    window.addEventListener(<span style='color:#2a00ff; '>'resize'</span>, adjustCanvas, <span style='color:#7f0055; font-weight:bold; '>false</span>);
+}</code>
+
+<p>Run this and you can see that the &lt;canvas> resizes when
+you rotate the device OR when you resize the desktop
+Chrome.</p>
+
+<p>But there's a problem, if you click on a different tab (not Write), rotate the device / resize
+the browser and then click back on the Write tab, you get a tiny canvas like this:</p>
+
+<div class="figure">
+    <img src="img/figure/fig_470.png">
+    <p>Figure 47. &lt;canvas> can become too small</p>
+</div>
+
+<p>What's happening is this: Our onresize handler (<code>adjustCanvas()</code>) triggers when the <strong>browser</strong>
+resizes, regardless of whichever tab we are on.
+The &lt;canvas> container will not be visible when not on the Write tab because of
+our whole tabbing mechanism. But <code>adjustCanvas()</code> will still get called and create or adjust
+the canvas. It seems like <code>.getComputedStyle()</code> picks up the &lt;canvas> container smallest dimension as
+100px when it is not visible. This resizes the &lt;canvas> to a tiny size - it just isn't visible
+until you click the Write tab.</p>
+<p>Remember we put <code>adjustCanvas()</code> in <code>firstLoadForTab_Write()</code>?
+This means that when we go back to the Write tab after clicking another tab, <code>adjustCanvas()</code> is <strong>not</strong> called.
+One solution would be to somehow only action the resize handler when on the Write tab.
+But what we will do instead is move the call to <code>adjustCanvas()</code> out of <code>firstLoadForTab_Write()</code>
+and into <code>onclickForTab_Write()</code> such that the canvas is adjusted on every clicking
+of the Write tab. So remove <code>adjustCanvas()</code> from <code>firstLoadForTab_Write()</code> and stick it in
+<code>onclickForTab_Write()</code> so it looks like this:</p>
+
+<code class="multiline"><span style='color:#7f0055; font-weight:bold; '>function</span> onclickForTab_Write()
+{
+    console.<span style='color:#7f0055; font-weight:bold; '>log</span>(<span style='color:#2a00ff; '>'click on write tab'</span>);
+    
+    <span style='color:#7f0055; font-weight:bold; '>if</span>(!global_pagesLoaded.write)
+    {
+        firstLoadForTab_Write();
+    }
+    
+    adjustCanvas(); <span style='color:#3f7f59; '>//adjust - creating if necessary - the canvas element</span>
+}</code>
+
+<p>Run this and the problem has been resolved. Nice.</p>
+
+<p>Phew, so the canvas display and layout is pretty hot and tasty right now and should be appropriate
+for any device that the app runs on.</p>
+
+<h3 id="the_write_tab_iii">Displaying a random character</h3>
+
+<p>Now, even before we get to the New character and Clear buttons, we need to present a random
+Japanese character for the user to draw. And of course we need to make finger movements on the
+canvas actually write something!</p>
+
+<p>Put a call to the soon-to-be-implemented <code>doNewChar()</code> at the end of <code>onclickForTab_Write()</code> (so
+that every click on the Write tab will present a new character to practice) such that it looks
+like this:</p>
+
+<code class="multiline"><span style='color:#7f0055; font-weight:bold; '>function</span> onclickForTab_Write()
+{
+    console.<span style='color:#7f0055; font-weight:bold; '>log</span>(<span style='color:#2a00ff; '>'click on write tab'</span>);
+    
+    <span style='color:#7f0055; font-weight:bold; '>if</span>(!global_pagesLoaded.write)
+    {
+        firstLoadForTab_Write();
+    }
+    
+    adjustCanvas(); <span style='color:#3f7f59; '>//adjust - creating if necessary - the canvas element</span>
+    
+    <span style='color:#3f7f59; '>//get and display a random Japanese character to practice writing</span>
+    doNewChar();
+}</code>
+
+<p><code>doNewChar()</code> is going to get a random Japanese character, and display it above the canvas
+for the user's reference. So before we implement <code>doNewChar()</code>, we need a slight detour - we
+need the function to get a random Japanese character!
+We will put this in, you guessed, <code class="file">linguistics.js</code>.:</p>
+
+<code class="multiline"><span style='color:#3f7f59; '>//return a random (non-chiisai, non-obsolete) hiragana or katakana</span>
+<span style='color:#3f7f59; '>//RETURNs object like {char:'く', romaji:'ku', type:'hiragana'}</span>
+<span style='color:#7f0055; font-weight:bold; '>function</span> getRandomKana()
+{
+    <span style='color:#3f7f59; '>//indices to ignore from coreHiragana:</span>
+    <span style='color:#3f7f59; '>//64,65,68,>=74</span>
+    <span style='color:#3f7f59; '>//so this is indices of coreHiragana of chars that we WANT to practice</span>
+    <span style='color:#3f7f59; '>//(ie. not chiisai or obsolete):</span>
+    <span style='color:#7f0055; font-weight:bold; '>var</span> coreIndices =
+    [
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
+        10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+        20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
+        30, 31, 32, 33, 34, 35, 36, 37, 38, 39,
+        40, 41, 42, 43, 44, 45, 46, 47, 48, 49,
+        50, 51, 52, 53, 54, 55, 56, 57, 58, 59,
+        60, 61, 62, 63, 66, 67, 69, 70, 71, 72,
+        73
+    ];
+    
+    <span style='color:#3f7f59; '>//get one of above indices at random</span>
+    <span style='color:#7f0055; font-weight:bold; '>var</span> index = coreIndices[Math.<span style='color:#7f0055; font-weight:bold; '>floor</span>(Math.<span style='color:#7f0055; font-weight:bold; '>random</span>() * coreIndices.length)];
+    
+    <span style='color:#3f7f59; '>//default to hiragana...</span>
+    <span style='color:#7f0055; font-weight:bold; '>var</span> char = coreHiragana[index]; <span style='color:#3f7f59; '>//use our random index</span>
+    <span style='color:#7f0055; font-weight:bold; '>var</span> type = <span style='color:#2a00ff; '>'hiragana'</span>;
+    
+    <span style='color:#3f7f59; '>//...but have a 50% chance of returning katakana</span>
+    <span style='color:#7f0055; font-weight:bold; '>if</span>(Math.<span style='color:#7f0055; font-weight:bold; '>random</span>() > 0.50)
+    {
+        char = hira_to_kata(char);
+        type = <span style='color:#2a00ff; '>'katakana'</span>;
+    }
+    
+    <span style='color:#3f7f59; '>//return a useful object</span>
+    <span style='color:#7f0055; font-weight:bold; '>return</span> {char:char, romaji:kana_to_romaji(char), type:type};
+}</code>
+
+<p>This again might be something that's best ignored and treated as a black box, but basically we 
+cherry pick a phonetic character from coreHiragana based on some desired indices (to give us a 
+full size and non-obsolete character). We then convert that character into katakana
+50% of the time. We return an object with the character itself and some metadata.</p>
+
+<p>Let's use this function in <code>doNewChar()</code> which we define in <code class="file">canvas.js</code>:</p>
+
+<code class="multiline"><span style='color:#3f7f59; '>//Get and display (with explanation) a random Japanese character</span>
+<span style='color:#3f7f59; '>//to practice writing</span>
+<span style='color:#7f0055; font-weight:bold; '>function</span> doNewChar()
+{
+    <span style='color:#7f0055; font-weight:bold; '>var</span> randomKana = getRandomKana();
+    
+    document.getElementById(<span style='color:#2a00ff; '>'char-to-write'</span>).innerHTML = randomKana.char;
+    
+    document.getElementById(<span style='color:#2a00ff; '>'char-explanation'</span>).innerHTML = <span style='color:#2a00ff; '>'("'</span> + randomKana.romaji + <span style='color:#2a00ff; '>'" in '</span> + randomKana.type + <span style='color:#2a00ff; '>')'</span>;
+}</code>
+
+<p>Running the app now looks like this:</p>
+
+<div class="figure">
+    <img src="img/figure/fig_480.png">
+    <p>Figure 48. Random Japanese character with metadata is displayed</p>
+</div>
+
+<p>Pretty cool! We get the random character to practice writing in a nice big font, the English
+spelling / pronunciation and the type of script it's from.</p>
+
+<p>Wait, I've just had a good idea. How about, before we let them start writing, if we flash up
+the character on the canvas, filling the canvas and then fading out for them to start copying
+it! That's gonna be awesome!</p>
+
+<hr>
+
+
+<p>Note that this next bit (an initial, fading character on the &lt;canvas>) is going to be somewhat difficult and involves recursive
+JavaScript.</p>
+
+<p>We'll want to do this character fading for every new character that we present. So a good place
+to call our fading function will be from <code>doNewChar()</code> in <code class="file">canvas.js</code>.
+Add this as the last line in <code>doNewChar()</code>:</p>
+
+<code class="multiline"><span style='color:#3f7f59; '>//put character on canvas and fade to nothing (starting at 1 opacity)</span>
+<span style='color:#3f7f59; '>//our trademark #990000 red is rgb(153, 0, 0)</span>
+fadeCharOnCanvas(randomKana.char, 153, 0, 0, 1, 1, 100, 10);</code>
+
+<p>We call <code>fadeCharOnCanvas()</code> with a <strong>lot</strong> of parameters.
+Let's implement <code>fadeCharOnCanvas()</code> - also in <code class="file">canvas.js</code> - right now.
+It's a biggie because it uses a few helper functions and variables that we'll implement shortly.
+So don't be scared if you see something that hasn't been referenced yet! OK, implement <code>fadeCharOnCanvas()</code>
+to look like this:</p>
+
+<code class="multiline"><span style='color:#3f7f59; '>//Animate a fade out of a single (Japanese) character on the canvas.</span>
+<span style='color:#3f7f59; '>//Starting from opacity of startAlpha and stepping down to zero opacity</span>
+<span style='color:#7f0055; font-weight:bold; '>function</span> fadeCharOnCanvas(char, startR, startG, startB, startAlpha, thisAlpha, msDelay, frameCount)
+{
+    <span style='color:#3f7f59; '>//calc the step down amount</span>
+    <span style='color:#7f0055; font-weight:bold; '>var</span> dec = startAlpha / frameCount;
+    
+    <span style='color:#3f7f59; '>//what will the *next* opacity be?</span>
+    <span style='color:#7f0055; font-weight:bold; '>var</span> nextAlpha = thisAlpha - dec;
+    
+    <span style='color:#3f7f59; '>//console.log('thisAlpha:' + thisAlpha + ' -- nextAlpha:' + nextAlpha);</span>
+    
+    <span style='color:#3f7f59; '>//dues to floating point rounding we prob won't reach exactly zero</span>
+    <span style='color:#3f7f59; '>//BUT we want exactly zero for the char to disappear</span>
+    <span style='color:#3f7f59; '>//SO if thisAlpha is on the last frame, force to zero</span>
+    <span style='color:#7f0055; font-weight:bold; '>if</span>(thisAlpha &lt;= (startAlpha - ((frameCount - 1) * dec)))
+    {
+        <span style='color:#3f7f59; '>//console.log('last frame reached');</span>
+        thisAlpha = 0;
+    }
+    
+    clearCanvas();  <span style='color:#3f7f59; '>//else we are drawing a lighter char over a darker one!</span>
+    
+    <span style='color:#3f7f59; '>//console.log(global_canvasElement.width);</span>
+    <span style='color:#7f0055; font-weight:bold; '>var</span> fontSize = <span style='color:#7f0055; font-weight:bold; '>parseInt</span>(global_canvasElement.width * 0.833);
+    <span style='color:#3f7f59; '>//console.log(fontSize);</span>
+    global_canvas.font = <span style='color:#2a00ff; '>'normal '</span> + fontSize + <span style='color:#2a00ff; '>'px serif'</span>;
+    global_canvas.fillStyle = <span style='color:#2a00ff; '>'rgba('</span> + startR + <span style='color:#2a00ff; '>','</span> + startG + <span style='color:#2a00ff; '>','</span> + startB + <span style='color:#2a00ff; '>','</span> + thisAlpha + <span style='color:#2a00ff; '>')'</span>;    <span style='color:#3f7f59; '>//rgb alpha</span>
+    global_canvas.fillText(char, <span style='color:#7f0055; font-weight:bold; '>parseInt</span>(global_canvasElement.width * 0.05), <span style='color:#7f0055; font-weight:bold; '>parseInt</span>(global_canvasElement.width * 0.78));
+    
+    <span style='color:#7f0055; font-weight:bold; '>if</span>(nextAlpha &lt; 0)
+    {
+        <span style='color:#3f7f59; '>//console.log('last frame drawn - exiting');</span>
+        <span style='color:#7f0055; font-weight:bold; '>return</span>;
+    }
+    
+    <span style='color:#3f7f59; '>//recurse!</span>
+    setTimeout(<span style='color:#7f0055; font-weight:bold; '>function</span>(){fadeCharOnCanvas(char, startR, startG, startB, startAlpha, nextAlpha, msDelay, frameCount)}, msDelay);
+}</code>
+
+
+
+
+
+<p>The &lt;canvas> API lets us write text in any colour and at any opacity. We set the opacity using what's called an <em>alpha</em>
+value; one meaning fully opaque and zero meaning fully transparent. In a nutshell, we simply
+draw the character on the canvas a bunch of times and increase the transparency at each step.
+OK, let's have a fuller explanation..</p>
+
+<p>We accept, in order of appearance, these parameters:</p>
+
+<ol>
+<li>char - the single Japanese character to draw</li>
+<li>startR - red element of colour to use for drawing (integer 0 - 255)</li>
+<li>startG - green element of colour to use for drawing (integer 0 - 255)</li>
+<li>startB - blue element of colour to use for drawing (integer 0 - 255)</li>
+<li>startAlpha - opacity used to draw the <em>first</em> frame (float 0.0 - 1.0)</li>
+<li>thisAlpha - opacity used to draw the <em>current</em> frame (float 0.0 - 1.0)</li>
+<li>msDelay - the delay, in milliseconds, between each frame</li>
+<li>frameCount - how many frames to take to get down to zero opacity</li>
+</ol>
+
+<p>(Note that startR, startG and startB don't actually change value at any step of the recursion.)
+</p>
+
+<p>We save in <code>dec</code> the amount we have to decrement the starting opacity (startAlpha) by each step
+to reach zero opacity after the specified number of frames (frameCount).</p>
+<p>We then use <code>dec</code> to work out what the opacity of the <em>next</em> frame will be. We'll use this value a bit later on.</p>
+
+<p>Next we have a workaround for the vagaries of floating point arithmetic. Basically, due to
+rounding, we might not reach an opacity of exactly zero on our last frame. So we do an <code>if</code>
+check here to see if we are more-or-less on the last frame now (ie. (frameCount - 1) frames have already happened).
+If we are, we force the current opacity to zero.</p>
+
+<p>Next, and before we draw anything, we clear the canvas. We will define <code>clearCanvas()</code> shortly.</p>
+
+<p>Next we calculate <code>fontSize</code> to make the character best fill the canvas.
+During development I saw that for a 300px by 300px canvas, a font size of 250px was best.
+This is the equivalent of the font size being 83.3% of the canvas size. Trial-and-error
+with some different canvas sizes told me that this percentage <em>just works</em>.
+<code>global_canvasElement</code> is the &lt;canvas> DOM element
+which we need to have available when this function is called.
+</p>
+
+<p>Next we use the <code>font</code> property of <code>global_canvas</code> to set the font size
+we just calculated. <code>global_canvas</code> is the <em>drawing context</em> of our &lt;canvas> element
+which we need to have available when this function is called. We cover this shortly so don't worry.</p>
+
+<p>Next we use an rgba ("red, green, blue, alpha") value to set the <code>global_canvas.fillStyle</code> property. This sets
+the colour and opacity that our character will get drawn with.</p>
+
+<p>Then we call <code>global_canvas.fillText()</code> which actually writes our character on the canvas.
+The second argument is the canvas x coordinate where you want the (left edge of the) text to start drawing.
+The third argument is the canvas y coordinate where you want the (bottom baseline of the) text to be.
+Again by trial-and-error I saw it was best for the x coordinate to be 5% of the canvas total width,
+and the y coordinate to be 78% of the canvas total height.</p>
+
+<p>OK, that's one frame drawn, but we are still in the function and so we need to exit the function
+if we have just drawn the last frame. That's what we do with the next <code>if</code> check.</p>
+
+<p>Last but not least, if we are still in the function then we have another frame to draw. We
+make the function call itself (<em>recursion</em>) at the end. <strong>But</strong> this should
+only happen after the specified delay (msDelay) and so we use JavaScript's builtin <code>setTimeout()</code>
+method (of the <code>window</code> object) to call ourself after the delay. <code>setTimeout()</code> works like
+<code>setTimeout(someCallableThing, delayInMilliseconds);</code>. We simply call ourself with the updated
+value for nextAlpha - all the other arguments are the same.</p>
+
+<p>Great! But we still need to define <code>clearCanvas()</code> and initialise <code>global_canvas</code>
+and <code>global_canvasElement</code>. Let's do the globals first, define them at the top of <code class="file">canvas.js</code>
+like this:</p>
+
+<code class="multiline"><span style='color:#3f7f59; '>//The drawing context of our &lt;canvas></span>
+<span style='color:#7f0055; font-weight:bold; '>var</span> global_canvasElement;
+
+<span style='color:#3f7f59; '>//Our &lt;canvas> DOM element</span>
+<span style='color:#7f0055; font-weight:bold; '>var</span> global_canvas;</code>
+
+
+
+<p>Nothing difficult there. Now, again in <code class="file">canvas.js</code>, define <code>initialiseCanvas()</code>
+thus:</p>
+
+<code class="multiline"><span style='color:#3f7f59; '>//Save our global canvas variables</span>
+<span style='color:#7f0055; font-weight:bold; '>function</span> initialiseCanvas()
+{
+    <span style='color:#3f7f59; '>//set the globals</span>
+    global_canvasElement = document.getElementById(<span style='color:#2a00ff; '>'paper'</span>);
+    global_canvas = global_canvasElement.getContext(<span style='color:#2a00ff; '>'2d'</span>);
+}</code>
+
+<p>Good old <code>document.getElementById()</code> is used to save the canvas DOM element into <code>global_canvasElement</code>.
+For <code>global_canvas</code> we call <code>getContext('2d')</code> on our canvas DOM element.
+This is a builtin method of the HTML5 canvas object and will return an API for 2D drawing.
+(Yes, there's a 3D API - <code>getContext('webgl')</code> - but it won't work in as many browsers as the 2D API.)
+</p>
+
+<p>The question now is where to call <code>initialiseCanvas()</code>?
+If you're thinking that we need to call it once and only once, then you're thinking the same as me.
+However, during development I noticed an obscure quirk with the canvas drawing context whenever
+the canvas was resized (ie. we rotate our device): the canvas drawing context would reset!
+With this in mind we need to call <code>initialiseCanvas()</code> <strong>every</strong> time
+the canvas is adjusted. This is actually easy to do and simply involves adding:</p>
+
+<code class="multiline">initialiseCanvas();</code>
+
+<p>as the very last line of <code>adjustCanvas()</code>.</p>
+
+<p>Just <code>clearCanvas()</code> left now. Stick it in <code class="file">canvas.js</code> and it goes like:</p>
+
+<code class="multiline"><span style='color:#3f7f59; '>//Clear the canvas</span>
+<span style='color:#7f0055; font-weight:bold; '>function</span> clearCanvas()
+{
+    global_canvas.clearRect(0, 0, global_canvasElement.width, global_canvasElement.height);
+}</code>
+
+<p>We use the <code>clearRect()</code> canvas API method to clear a rectangle on the canvas. The rectangle we clear starts at (0, 0) in canvas space
+and the width and height matches that of the canvas itself. This clears the entire canvas.</p>
+
+<p>All done! You should now get the Japanese character fading down on the canvas for each new character!</p>
+
+
+
+
+<h3 id="the_write_tab_iv">Finger doodling</h3>
+
+<p>Right, on to the biggie now which is making something draw on the canvas when the user moves
+their finger in there.
+Do you remember our work on finger scrolling for the Search tab? Remember we got it working
+on the device first then we simulated finger presses - using mouse events - for debugging
+in desktop Chrome? Well, let's do it the other way round this time. Let's get canvas
+writing working on desktop Chrome first.</p>
+
+<p>When the mouse is down in the canvas, and then the mouse is moved, we want to leave a "trail"
+on the canvas as if drawing with a calligraphy brush or what-have-you.
+I mentioned earlier that HTML5 canvas is somewhat like MS Paint in the browser. Like MS Paint,
+it has a line drawing API where we can start the "brush" at a certain coordinate, and then
+paint a line from there to any other coordinate.</p>
+
+<p>And, like we did for simulated finger scrolling, we are going to need a global variable
+to track the mouse downness. In fact, we'll recycle the same global variable (so yes, it
+might not <em>logically</em> belong in a file called search_interface.js).</p>
+
+<p>You remember our <code>initialiseCanvas()</code> in </code>canvas.js</code> which is where we stored the canvas
+in global variables just after creating it for the first time.
+That seems like a good place to put the event listeners we're going to need
+for our mouse drawing.
+Add three <code>addEventListener()</code> calls - on the canvas element - at the bottom of <code>initialiseCanvas()</code>
+such that it now looks like this:</p>
+
+<code class="multiline"><span style='color:#7f0055; font-weight:bold; '>function</span> initialiseCanvas()
+{
+    <span style='color:#3f7f59; '>//set the globals</span>
+    global_canvasElement = document.getElementById(<span style='color:#2a00ff; '>'paper'</span>);
+    global_canvas = global_canvasElement.getContext(<span style='color:#2a00ff; '>'2d'</span>);
+    
+    <span style='color:#3f7f59; '>//simulated touch (ie. mouse) dragging for writing pad</span>
+    global_canvasElement.addEventListener(<span style='color:#2a00ff; '>'mousedown'</span>, mousedownForCanvas, <span style='color:#7f0055; font-weight:bold; '>false</span>);
+    global_canvasElement.addEventListener(<span style='color:#2a00ff; '>'mousemove'</span>, mousemoveForCanvas, <span style='color:#7f0055; font-weight:bold; '>false</span>);
+    global_canvasElement.addEventListener(<span style='color:#2a00ff; '>'mouseup'</span>, mouseupForCanvas, <span style='color:#7f0055; font-weight:bold; '>false</span>);
+}</code>
+
+<p>You've guessed it we're going to define <code>mousedownForCanvas()</code>, <code>mousemoveForCanvas()</code> and
+<code>mouseupForCanvas()</code> right now; also in <code class="file">canvas.js</code>:</p>
+
+<code class="multiline"><span style='color:#3f7f59; '>//Mousedown event handler for canvas - set "now drawing" state</span>
+<span style='color:#7f0055; font-weight:bold; '>function</span> mousedownForCanvas(event)
+{
+    global_mouseButtonDown = <span style='color:#7f0055; font-weight:bold; '>true</span>;
+    event.preventDefault();
+}
+
+<span style='color:#3f7f59; '>//Mousemove event handler for canvas - draw on canvas</span>
+<span style='color:#7f0055; font-weight:bold; '>function</span> mousemoveForCanvas(event)
+{
+    <span style='color:#7f0055; font-weight:bold; '>var</span> x, y;
+    
+    <span style='color:#3f7f59; '>// Get the mouse position relative to the canvas element.</span>
+    <span style='color:#3f7f59; '>//(ie. the mouse position IN CANVAS SPACE)</span>
+    <span style='color:#7f0055; font-weight:bold; '>if</span> (event.offsetX || event.offsetX == 0) { <span style='color:#3f7f59; '>// Opera and Chrome</span>
+      x = event.offsetX;
+      y = event.offsetY;
+    }
+
+    <span style='color:#3f7f59; '>//This event handler works like a drawing pencil which tracks the mouse </span>
+    <span style='color:#3f7f59; '>//movements. We start drawing a path made up of lines.</span>
+    <span style='color:#7f0055; font-weight:bold; '>if</span>(global_mouseButtonDown)
+    {
+        doDrawOnCanvas(x, y);    <span style='color:#3f7f59; '>//our canvas API magic</span>
+    }
+}
+
+<span style='color:#3f7f59; '>//Mouseup event handler for canvas - unset "now drawing" state</span>
+<span style='color:#7f0055; font-weight:bold; '>function</span> mouseupForCanvas(event)
+{
+    <span style='color:#3f7f59; '>//console.log('mouseup event on canvas');</span>
+    
+    global_mouseButtonDown = <span style='color:#7f0055; font-weight:bold; '>false</span>;
+    global_startedDrawing = <span style='color:#7f0055; font-weight:bold; '>false</span>;
+    event.preventDefault();
+}</code>
+
+<p><code>mousedownForCanvas()</code> simply sets our recycled global_mouseButtonDown to true.
+In <code>mousemoveForCanvas()</code> we receive the mouse event and, if the mouse button is
+down, call <code>doDrawOnCanvas()</code> with canvas space x and y coordinates.
+Specifically we pass it offsetX and offsetY of the mouse event. 
+In Chrome (and also Opera but definitely not Firefox), this is the xy coords
+of the mouse event but offset to be in element space. Element space meaning
+the very top-left of the element is x=0, y=0 and so on.</p>
+
+<p>Why call <code>doDrawOnCanvas()</code> and not just do the canvas drawing logic in the 
+mousemove handler? Well it's because, like we did for search results scrolling,
+we want to reuse the same logic for actual finger drawing and simulated finger drawing
+with the mouse. We'll get on to <code>doDrawOnCanvas()</code> in a moment.</p>
+
+<p>Finally in <code>mouseupForCanvas()</code> we set global_mouseButtonDown to false.
+We also set global_startedDrawing to false but we haven't defined that yet.
+Let's define it first then I'll explain. Stick:</p>
+
+<code class="multiline"><span style='color:#3f7f59; '>//Are we already drawing on the canvas?</span>
+<span style='color:#7f0055; font-weight:bold; '>var</span> global_startedDrawing = <span style='color:#7f0055; font-weight:bold; '>false</span>;</code>
+
+<p>at the top of <code class="file">canvas.js</code> with the other globals.</p>
+
+<p>We need to keep track of this because, as we will see shortly, with canvas API
+we have two very distinct steps of drawing lines; moving the brush to a certain point to
+start the path and then actually moving the brush from that point.
+So most of the magic happens in our <code>doDrawOnCanvas()</code> which we will define right now, also
+in <code class="file">canvas.js</code>:</p>
+
+<code class="multiline"><span style='color:#3f7f59; '>//Universal canvas line plotter. for onmousemove etc</span>
+<span style='color:#7f0055; font-weight:bold; '>function</span> doDrawOnCanvas(canvasX, canvasY)
+{
+    <span style='color:#3f7f59; '>//This works like a drawing pencil which tracks the mouse / touch </span>
+    <span style='color:#3f7f59; '>//movements. We draw a path made up of lines.</span>
+    <span style='color:#7f0055; font-weight:bold; '>if</span>(!global_startedDrawing) <span style='color:#3f7f59; '>//first time</span>
+    {
+        global_canvas.beginPath();
+        global_canvas.moveTo(canvasX, canvasY);
+        global_startedDrawing = <span style='color:#7f0055; font-weight:bold; '>true</span>;
+    }
+    
+    <span style='color:#7f0055; font-weight:bold; '>else</span>
+    {
+        global_canvas.lineTo(canvasX, canvasY);
+        global_canvas.stroke();
+    }
+}</code>
+
+<p>We expect to receive x and y coordinates in canvas space, which is conveniently provided
+by .offsetX and Y on the mousemove event. (The offsetX and Y properties will contain
+the screen coordinates of the mouse converted into element space such that
+if the mouse is in the very top-left of the element - our canvas - the offsetX and Y
+will be 0,0.)</p>
+
+<p>For the first time that drawing has started, we call a couple of canvas API methods
+to get ready for drawing. We call <code>beginPath()</code> which starts a new path. A path is
+basically a line or curve that we draw onto the canvas. We then call <code>moveTo()</code> which
+positions the "brush" but does not actually paint anything.
+We then, for subsequent mousemoves or finger drags set global_startedDrawing to true
+so that the next bit can happen&hellip;</p>
+
+<p>Which is simply to call two more canvas API methods. We call <code>lineTo()</code> with the updated
+mouse / finger position (again in canvas space) which will move the brush from its
+path starting point to the point specified. Note that even this will not paint anything 
+on the canvas. For that we need to call <code>stroke()</code> which will actually follow the path and
+put the "ink" down.</p>
+
+
+
+<p>Give it a whirl in desktop Chrome! You should be able to paint on the canvas using the mouse!</p>
+
+<div class="figure">
+    <img src="img/figure/fig_490.png">
+    <p>Figure 49. Canvas painting with mouse</p>
+</div>
+
+<p>Hmmm, but that thin black line doesn't feel so great.
+Let's fatten it out and make it our signature red.
+HTML5 canvas exposes a bunch of properties that we can
+tinker with to affect line drawing style.
+The right place to change these settings feels
+like our one-off canvas initialiser of <code>initialiseCanvas()</code>.
+Add two lines to the bottom so it looks like:</p>
+
+<code class="multiline"><span style='color:#7f0055; font-weight:bold; '>function</span> initialiseCanvas()
+{
+    <span style='color:#3f7f59; '>//set the globals</span>
+    global_canvasElement = document.getElementById(<span style='color:#2a00ff; '>'paper'</span>);
+    global_canvas = global_canvasElement.getContext(<span style='color:#2a00ff; '>'2d'</span>);
+    
+    <span style='color:#3f7f59; '>//simulated touch (ie. mouse) dragging for writing pad</span>
+    global_canvasElement.addEventListener(<span style='color:#2a00ff; '>'mousedown'</span>, mousedownForCanvas, <span style='color:#7f0055; font-weight:bold; '>false</span>);
+    global_canvasElement.addEventListener(<span style='color:#2a00ff; '>'mousemove'</span>, mousemoveForCanvas, <span style='color:#7f0055; font-weight:bold; '>false</span>);
+    global_canvasElement.addEventListener(<span style='color:#2a00ff; '>'mouseup'</span>, mouseupForCanvas, <span style='color:#7f0055; font-weight:bold; '>false</span>);
+    
+    <span style='color:#3f7f59; '>//line drawing style</span>
+    global_canvas.strokeStyle = <span style='color:#2a00ff; '>'#990000'</span>; <span style='color:#3f7f59; '>//our trademark red</span>
+    global_canvas.lineWidth = 10;
+}</code>
+
+
+<p>We can set the colour that <code>stroke()</code> will use with 
+.strokeStyle. We can set the line width with, yes,
+.lineWidth.</p>
+
+<p>Try it!:</p>
+
+<div class="figure">
+    <img src="img/figure/fig_500.png">
+    <p>Figure 50. Line angles and edges somewhat jaggedy</p>
+</div>
+
+<p>Much better! The red looks great and it feels nice and fat
+like a calligraphy brush. But, and this is much easier
+to notice when you're actually drawing with it and not looking
+at this screenshot, there's something not quite right.
+The drawn line seems to have some quite sharp edges
+and generally looks jaggedy.</p>
+
+<p>Digging deeper into the canvas API, we have some interesting properties to change the
+brush drawing style.
+The lineJoin property of the canvas (<a href="http://www.html5canvastutorials.com/tutorials/html5-canvas-line-joins">http://www.html5canvastutorials.com/tutorials/html5-canvas-line-joins</a> is a useful page) specifies how we want to draw the "join"
+between two lines which in our case basically means the point where
+we change the direction of drawing with our brush.
+The default is "miter" which is a very sharp join. You can see this on the above
+figure.
+The remaining options are "bevel" and "round". We'll go for round
+as this most resembles what a calligraphy brush would do.</p>
+
+<p>There is also the "lineCap" property (<a href="http://www.html5canvastutorials.com/tutorials/html5-canvas-line-caps">http://www.html5canvastutorials.com/tutorials/html5-canvas-line-caps</a> is a useful page) which is how to draw the end of the line.
+As you can see from the above figure, the default is "square".
+For that calligraphy feel, let's make this also "round".
+So add to the end of <code>initialiseCanvas()</code> so it looks like this:</p>
+
+<code class="multiline"><span style='color:#7f0055; font-weight:bold; '>function</span> initialiseCanvas()
+{
+    <span style='color:#3f7f59; '>//set the globals</span>
+    global_canvasElement = document.getElementById(<span style='color:#2a00ff; '>'paper'</span>);
+    global_canvas = global_canvasElement.getContext(<span style='color:#2a00ff; '>'2d'</span>);
+    
+    <span style='color:#3f7f59; '>//simulated touch (ie. mouse) dragging for writing pad</span>
+    global_canvasElement.addEventListener(<span style='color:#2a00ff; '>'mousedown'</span>, mousedownForCanvas, <span style='color:#7f0055; font-weight:bold; '>false</span>);
+    global_canvasElement.addEventListener(<span style='color:#2a00ff; '>'mousemove'</span>, mousemoveForCanvas, <span style='color:#7f0055; font-weight:bold; '>false</span>);
+    global_canvasElement.addEventListener(<span style='color:#2a00ff; '>'mouseup'</span>, mouseupForCanvas, <span style='color:#7f0055; font-weight:bold; '>false</span>);
+    
+    <span style='color:#3f7f59; '>//line drawing style</span>
+    global_canvas.strokeStyle = <span style='color:#2a00ff; '>'#990000'</span>; <span style='color:#3f7f59; '>//our trademark red</span>
+    global_canvas.lineWidth = 10;
+    global_canvas.lineCap = <span style='color:#2a00ff; '>'round'</span>;   <span style='color:#3f7f59; '>//dat calligraphy feel</span>
+    global_canvas.lineJoin = <span style='color:#2a00ff; '>'round'</span>;   <span style='color:#3f7f59; '>//dat calligraphy feel</span>
+}</code>
+
+<p>Try running the app now and it draws like this:</p>
+
+<div class="figure">
+    <img src="img/figure/fig_510.png">
+    <p>Figure 51. Line angles and ends have a rounder feel</p>
+</div>
+
+<p>Awesome! I feel warm and fuzzy inside.</p>
+
+<p>Right, let's quickly get our bottom buttons in the bag and then we'll
+get our calligraphy brush working with our sticky fingers on our actual device.
+Okey dokey, we're going to need some event handlers to do the appropriate things
+for our New character and Clear buttons. Stroll over to <code class="file">index.js</code> and whack a call to
+<code>configureCanvasButtons();</code> at the end of <code>receivedEvent()</code>. <code>receivedEvent()</code> will
+look like this now:</p>
+
+<code class="multiline"><span style='color:#3f7f59; '>// Update DOM on a Received Event</span>
+    receivedEvent: <span style='color:#7f0055; font-weight:bold; '>function</span>(id) {
+        console.<span style='color:#7f0055; font-weight:bold; '>log</span>(<span style='color:#2a00ff; '>'Received Event: '</span> + id);
+        
+        configureTabs();
+        
+        <span style='color:#3f7f59; '>//load and show whatever we've set the initial tab to be</span>
+        initialiseDefaultTab();
+        
+        configureSearchButton();
+        
+        configureSearchInput();
+        
+        configureSearchTouchScrolling();
+        
+        configureSearchMouseScrolling();
+        
+        configureCanvasRotationAdjustment();
+        
+        configureCanvasButtons();
+    },</code>
+
+<p>We'll define <code>configureCanvasButtons()</code> in <code class="file">canvas.js</code> thus:</p>
+
+<code class="multiline"><span style='color:#3f7f59; '>//"New character" and "Clear" buttons</span>
+<span style='color:#7f0055; font-weight:bold; '>function</span> configureCanvasButtons()
+{
+    document.getElementById(<span style='color:#2a00ff; '>'canvas-clear'</span>).addEventListener(<span style='color:#2a00ff; '>'click'</span>, clearCanvas, <span style='color:#7f0055; font-weight:bold; '>false</span>);
+    document.getElementById(<span style='color:#2a00ff; '>'canvas-new'</span>).addEventListener(<span style='color:#2a00ff; '>'click'</span>, doNewChar, <span style='color:#7f0055; font-weight:bold; '>false</span>);
+}</code>
+
+<p>And that's it! The Clear button simply calls our existing <code>clearCanvas()</code> function,
+and the New character button simply calls our existing <code>doNewChar()</code> function.
+Try it! The write tab is much more fun now!</p>
+
+<p>Right, the remaining matter is the important one of getting drawing to work
+with finger moves on the device itself. We are happy with how it works in desktop Chrome
+now so let's move forward and think about the device.
+We isolated the <code>doDrawOnCanvas()</code> function and it is ready to accept canvas coordinates
+from <em>any</em> event, not just mouse events.</p>
+
+<p>Just like with search results scrolling, the events in question are touchstart, touchmove
+and touchend. These will somewhat correlate with the mousedown, mousemove and mouseup
+handlers (respectively) that we've just implemented.</p>
+
+<p>In <code>initialiseCanvas()</code> in <code class="file">canvas.js</code>, go ahead and insert these three lines to add
+our touch event handlers. Insert them after the mouse event handlers:</p>
+
+<code class="multiline"><span style='color:#3f7f59; '>//touch dragging for writing pad</span>
+global_canvasElement.addEventListener(<span style='color:#2a00ff; '>'touchstart'</span>, touchstartForCanvas, <span style='color:#7f0055; font-weight:bold; '>false</span>);
+global_canvasElement.addEventListener(<span style='color:#2a00ff; '>'touchmove'</span>, touchmoveForCanvas, <span style='color:#7f0055; font-weight:bold; '>false</span>);
+global_canvasElement.addEventListener(<span style='color:#2a00ff; '>'touchend'</span>, touchendForCanvas, <span style='color:#7f0055; font-weight:bold; '>false</span>);</code>
+
+<p>Great, now let's define these handlers; again in <code class="file">canvas.js</code>:</p>
+
+<code class="multiline"><span style='color:#3f7f59; '>//Touchstart event handler for canvas</span>
+<span style='color:#7f0055; font-weight:bold; '>function</span> touchstartForCanvas(event)
+{
+    <span style='color:#3f7f59; '>//console.log('touchstart event on canvas');</span>
+    
+    event.preventDefault();
+}
+
+<span style='color:#3f7f59; '>//Touchmove event handler for canvas - draw on canvas</span>
+<span style='color:#7f0055; font-weight:bold; '>function</span> touchmoveForCanvas(event)
+{
+    <span style='color:#7f0055; font-weight:bold; '>var</span> touchobj = event.changedTouches[0]; <span style='color:#3f7f59; '>//reference first touch point for this event</span>
+    
+    <span style='color:#3f7f59; '>//where, in canvas space, has been touched?</span>
+    <span style='color:#7f0055; font-weight:bold; '>var</span> x, y;
+    
+    x = touchobj.offsetX;
+    y = touchobj.offsetY;
+  
+    doDrawOnCanvas(x, y);
+}
+
+<span style='color:#3f7f59; '>//Touchend event handler for canvas - unset "now drawing" state</span>
+<span style='color:#7f0055; font-weight:bold; '>function</span> touchendForCanvas(event)
+{
+    <span style='color:#3f7f59; '>//console.log('touchend event on canvas');</span>
+    
+    global_startedDrawing = <span style='color:#7f0055; font-weight:bold; '>false</span>;
+    
+    event.preventDefault();
+}</code>
+
+
+
+
+<p>We don't actually do anything in the touchstart handler, but we'll keep it
+in case we do need to do anything in future.</p>
+
+<p>In the touchmove handler we get the first touch point and, like we did for mousemove,
+pass its offsetX and Y to <code>doDrawOnCanvas()</code>.</p>
+
+<p>Finally the touchend handler simply sets the global "started drawing" state to false;
+ready for the next scribble.</p>
+
+<p>OK, so run this on your device and, hmmmm, finger drawing does not work! What gives?
+The problem is that the touch object we get from the touchmove event does not
+have offsetX or Y properties! Nor does the touchmove event itself! This is officially
+A Very Annoying Thing. I think the JavaScript implementors are missing a bit of a trick
+here honestly.
+Without offsetting the touch object coordinates, they will be screen coordinates
+and will not correlate to canvas space. They will basically be too big to point to anywhere
+meaningful in the canvas.</p>
+
+<p>The good news is that every DOM element under &lt;body> exposes some offset properties.
+Specifically we have .offsetParent which points to an element's parent element, and we
+have .offsetLeft and .offsetTop which tell us, in pixels, how far away from the top-left
+of the parent the top-left of the element is.</p>
+
+<p>The bad news is that most elements, in particular our canvas, have multiple parents.
+We are going to have to programatically loop up through an element's parents and
+tot up the offsets to work out a true screen offset of an element. It's actually a trivial function
+and let's put it in <code class="file">canvas.js</code>:</p>
+
+<code class="multiline"><span style='color:#3f7f59; '>//Get DOM element position on page</span>
+<span style='color:#7f0055; font-weight:bold; '>function</span> getPosition(obj)
+{
+    <span style='color:#7f0055; font-weight:bold; '>var</span> x = 0, y = 0;
+    
+    <span style='color:#7f0055; font-weight:bold; '>if</span> (obj.offsetParent)
+    {
+        <span style='color:#7f0055; font-weight:bold; '>do</span>
+        {
+            x += obj.offsetLeft;
+            y += obj.offsetTop;
+            obj = obj.offsetParent;
+        }
+        <span style='color:#7f0055; font-weight:bold; '>while</span>(obj);
+    }
+    
+    <span style='color:#7f0055; font-weight:bold; '>return</span> {<span style='color:#2a00ff; '>'x'</span>:x, <span style='color:#2a00ff; '>'y'</span>:y};
+};</code>
+
+<p>We accept a DOM element in obj. We start the x and y values - our offset - at zero.
+Then, if we have an .offsetparent on obj (if not then it is &lt;body> and will have no parent)
+we loop (at least once) cumulatively adding .offsetLeft to x and .offsetTop to y.
+We loop as long as there is a parent up the chain.
+We return the coordinates in a little object.</p>
+
+<p>Right, with this we can go back and fix <code>touchmoveForCanvas()</code>. Edit <code>touchmoveForCanvas()</code>
+to look like this:</p>
+
+<code class="multiline"><span style='color:#7f0055; font-weight:bold; '>function</span> touchmoveForCanvas(event)
+{
+    <span style='color:#7f0055; font-weight:bold; '>var</span> touchobj = event.changedTouches[0]; <span style='color:#3f7f59; '>//reference first touch point for this event</span>
+    
+    <span style='color:#3f7f59; '>//where, in canvas space, has been touched?</span>
+    <span style='color:#7f0055; font-weight:bold; '>var</span> x, y;
+    
+    <span style='color:#7f0055; font-weight:bold; '>var</span> canvasOffset = getPosition(global_canvasElement);   <span style='color:#3f7f59; '>//why no offset x and y for if it's a touch event? :-(</span>
+    x = touchobj.screenX - canvasOffset.x;
+    y = touchobj.screenY - canvasOffset.y;
+  
+    doDrawOnCanvas(x, y);
+}</code>
+
+<p>Run this on your device. It works!</p>
+
+<p>OMG, we've nailed it, we've finished all the tabs! Crack the beers open at this point ;-)</p>
+
+<p>Just two more easy things. Let's have a splashscreen that displays while we are
+waiting for the app to start. Also, we're going to need something other than PhoneGap's
+default launcher icon!</p>
+
+
+
+<h3 id="the_write_tab_v">Extra credit challenges</h3>
+
+<p>Solutions not provided.</p>
+
+<h4>Easy</h4>
+
+<p>Prevent the current character from being displayed again when clicking the New character button</p>
+
+<h4>Medium</h4>
+
+<p>The way we have centred the big fading character on the &lt;canvas> is slightly ridiculous. Use the &lt;canvas> API to <em>properly</em> centre the character on the &lt;canvas> [NOTETOSELF find the good link for this]</p>
+
+<h4>Difficult</h4>
+
+<p>Technically what we are doing here for finger doodling is following the mouse or finger and, underneath it,
+creating a multi-sectional line. We aren't actually simply placing a pixel under the
+mouse or finger. Now, the effect is the same so it mostly doesn't matter, but there
+is a side effect of doing it this way which is that, on the device, if you draw a very quick
+semi-circle, for example, it will end up looking like this:</p>
+
+<div class="figure">
+    <img src="img/figure/fig_520.png">
+    <p>Figure 52. Imperfect lines can be created</p>
+</div>
+
+<p>Re-engineer finger doodling to use HTML5 canvas's pixel manipulation API and see if that solves this problem.
+<a href="http://beej.us/blog/data/html5s-canvas-2-pixel">http://beej.us/blog/data/html5s-canvas-2-pixel</a> is a useful reference here (though a few years old now)</p>
+
