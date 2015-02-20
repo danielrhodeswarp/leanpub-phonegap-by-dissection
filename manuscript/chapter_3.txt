@@ -38,14 +38,17 @@ OK, now we can install PhoneGap itself. For some strange reason that I can't fig
 requires NodeJS so go to [http://nodejs.org](http://nodejs.org) and install it. Then, as we see at [http://phonegap.com/install](http://phonegap.com/install)
 we simply do (on the command line):
 
+{lang="bash"}
     you@yours$ somewhere]$ sudo npm install -g phonegap
 
 This installs the PhoneGap binaries and commands globally on our system. After that, let's actually create the PhoneGap project where we'll put all of our lovely code for the app.
 There are two slightly different syntaxes for this:
-   
+
+{lang="bash"}   
     you@yours$ somewhere]$ phonegap create --name "Japxlate" --id "com.drappenheimer.japxlate" japxlate
 or
 
+{lang="bash"}
     you@yours$ somewhere]$ phonegap create japxlate com.drappenheimer.japxlate "Japxlate"
 
 This will create a PhoneGap project folder structure for building the same code to many different device targets (Android or iOS etc).
@@ -75,6 +78,7 @@ If the `run android` command still doesn't work after all this configuration, do
 Note that this `run` command is a shortcut for the `build` followed by `install` commands.
 If you don't want to actually run your PhoneGap app from the command line, you need to at least build it which is like this:
 
+{lang="bash"}
     you@yours$ japxlate]$ phonegap build android
 
 This will create a `PROJECTROOT/platforms/android` folder with skeleton source files for our app in it.
@@ -117,7 +121,10 @@ A>
 A> Installing PhoneGap via NodeJS has the nice advantage that you can keep your PhoneGap version up-to-date
 A> by running this command:
 A>
-A> `you@yours$ somewhere]$ sudo npm update -g phonegap`
+A> {lang="pascal"}
+A> ~~~~~~~~
+A> you@yours$ somewhere]$ sudo npm update -g phonegap
+A> ~~~~~~~~
 
 ## The fiddly older way {#chapter_3_ii}
 
