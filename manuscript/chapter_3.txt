@@ -21,7 +21,7 @@ A>
 A> Myself, I didn't like the way that Eclipse was opening - and highlighting - the various frontend source files
 A> for the app (though I don't doubt that this is configurable in the options somewhere!). There's also the fact that it doesn't *speak* PhoneGap.
 A> I found myself cutting the code in [NetBeans IDE](https://netbeans.org/) and checking in with Eclipse every now and again
-A> to deploy to the actual device (Ctrl-F11) or to check `>console.log()` messages in LogCat.
+A> to deploy to the actual device (Ctrl-F11) or to check `console.log()` messages in LogCat.
 A> 
 A> Netbeans IDE v7.4 dropped just before I finished this tutorial and interestingly that seems
 A> to have PhoneGap (well, Cordova) support built in! Definitely worth a look.
