@@ -3,3 +3,6 @@
 It was a **bold** and *italic* night!
 
 Suddenly, a shot rang out!
+
+## subheading in chapter 2
+yadda yadda
