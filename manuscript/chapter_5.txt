@@ -1,0 +1,395 @@
+# First things first: The layout {#chapter-5}
+
+Japxlate is going to have a single screen or "intent". It won't jump out to, for example, your phone's
+camera intent or "share to" list. The single screen is going to have three tab options - Search, Discover and Write.
+We want the tab navigation and current tab content to all fit on the device display without scrolling.
+OK, the PhoneGap Hello World app we just looked at is a good start, but let's see what tweaks we can do.
+
+The Japxlate app is a spinoff of the [@japxlate](https://twitter.com/japxlate) Twitter channel, so let's look at that to get some design
+ideas:
+
+![Figure 4. The @japxlate Twitter channel](images/fig_40.png)
+
+OK, so we've got a greyish background. The logo is a red 'J' on a white background. The red is our signature red
+and is actually #990000. The red 'J' on a white background is going to be a good launcher icon for our app which we'll talk about in a later chapter.
+
+Right, so we need three tabs and we have some colour ideas. Here's a quick wireframe:
+
+![Figure 5. Quick wireframe of the Japxlate app layout](images/fig_50.png)
+
+Let's put our tabs at the top so they're out of the way of our device's core Android buttons (back, home, menu / special).
+Let's have a little footer and see if we need that.
+The footer and header have grey backgrounds. The tab content area is bog-standard black text on a white background.
+When a tab is tapped, the header and footer will stay the same (though possibly with some kind of current tab
+highlight) but the content area will load the appropriate content for that tab.
+
+HTML5 gives us `<header>` and `<footer>` elements, so let's try those. Change the `<body>` in `index.html` to look like:
+
+{lang="html"}
+~~~~~~~~
+<body>
+    <header>
+        header
+    </header>
+    <div class="japxlate_app">    <!--note we've changed the class name-->
+        content area
+    </div>
+    <footer>
+        footer
+    </footer>
+    <!--<script type="text/javascript" src="phonegap.js"></script>-->
+    <script type="text/javascript" src="js/index.js"></script>
+    <script type="text/javascript">
+        app.initialize();
+    </script>
+</body>
+~~~~~~~~
+
+Fire this up on your device (or desktop Chrome) and it looks like this:
+
+![Figure 6. Unstyled `<header>` and `<footer>`](images/fig_60.png)
+
+Not quite what we had in mind! The `<header>` and `<footer>` are both 100% wide which is great, but we need to give them positions and heights (with tab content
+taking up the remaining space inbetween). Also let's get rid of the PhoneGap background gradient and put our own background
+colours in. Also let's take out the forced uppercase. Change the `body` clause in `index.css` to look like this:
+
+{lang="css"}
+~~~~~~~~
+body {
+    -webkit-touch-callout: none;                /* prevent callout to copy image, etc when tap to hold */
+    -webkit-text-size-adjust: none;             /* prevent webkit from resizing text to fit */
+    -webkit-user-select: none;                  /* prevent copy paste, to allow, change 'none' to 'text' */
+    font-family:'HelveticaNeue-Light', 'HelveticaNeue', Helvetica, Arial, sans-serif;
+    font-size:12px;
+    height:100%;
+    margin:0px;
+    padding:0px;
+    width:100%;
+}
+~~~~~~~~
+
+Then add a clause for `header` like this:
+
+{lang="css"}
+~~~~~~~~
+header {
+    background-color:#555;  /*medium grey*/
+    color:#ccc;             /*slightly greyish white*/
+    height:40px;
+    line-height:40px;       /*height of a *text* line*/
+}
+~~~~~~~~
+
+Then add a clause for <code>footer</code> like this:
+
+{lang="css"}
+~~~~~~~~
+footer {
+    background-color:#555;  /*medium grey*/
+    color:#ccc;             /*slightly greyish white*/
+    height:20px;
+    line-height:20px;
+}
+~~~~~~~~
+
+Running this looks like:
+
+![Figure 7. `<footer>` is too high](images/fig_70.png)
+
+Hmm, the footer isn't at the bottom! Let's position it absolutely and make it flush with the bottom of its parent
+(the document body). Add to the `footer` rule so that it looks like:
+
+{lang="css"}
+~~~~~~~~
+footer {
+    background-color:#555;  /*medium grey*/
+    color:#ccc;             /*slightly greyish white*/
+    height:20px;             
+    line-height:20px;
+    position:absolute;
+    bottom:0;
+    width:100%;             /*no default width for position:absolute*/
+}
+~~~~~~~~
+
+Running this looks like:
+
+![Figure 8. `<footer>` flush with bottom of document body](images/fig_80.png)
+
+Great! Now let's put our three tabs into the header. We'll do it as an unordered list of links. Make
+`<header>` of `index.html` look like this:
+
+{lang="html"}
+~~~~~~~~
+<header>
+    <ul id="tab-bar">
+        <li >
+            <a href="#search">Search</a>
+        </li>
+        <li >
+            <a href="#discover">Discover</a>
+        </li>
+        <li>
+            <a href="#write">Write</a>
+        </li>
+    </ul>
+</header>
+~~~~~~~~
+
+Running this looks like:
+
+![Figure 9. First attempt at tabs](images/fig_90.png)
+
+Clearly a disaster! We need some styling to line up the list items horizontally in the header.
+Add the following three clauses to the CSS file:
+
+{lang="css"}
+~~~~~~~~
+/*entire tab row*/
+#tab-bar {
+    /*clear any inside and outside gap space*/
+    margin:0;
+    padding:0;
+}
+
+/*each tab*/
+#tab-bar li {
+    display: inline;    /*prevent each item from newlining*/
+    float:left;         /*stack left*/
+    width: 33.3333%;    /*have a third of total tab-bar space*/
+}
+
+/*tappable link in each tab*/
+#tab-bar li a { 
+    color: #ccc;
+    display: block;         /*make "width-having"*/
+    font-weight: bold;
+    overflow: hidden;       /*so long link text words get cropped*/
+    text-align: center;
+    text-decoration: none;  /*remove default link underline*/
+}
+~~~~~~~~
+
+Running this looks like:
+
+![Figure 10. Tabs line up horizontally](images/fig_100.png)
+
+Looking good! But the tabs need a few more things to look more useful. Namely, horizontal dividers,
+icons and some kind of current tab highlight.
+For the horizontal dividers, let's try giving the second and third tabs a left border. CSS version 2
+(the latest version being 3) has a nifty selector where we can say "element type Y only where it follows an
+element type X". With this we can target any tab after the first one and apply a left border. Add the
+following clause to the CSS:
+
+{lang="css"}
+~~~~~~~~
+/*a border-left for the middle and rightmost tab*/
+#tab-bar li + li
+{
+    border-left:1px solid #aaa;    /*light grey*/
+}
+~~~~~~~~
+
+Running this looks like:
+
+![Figure 11. `<header>` too wide for document body](images/fig_110.png)
+
+Ouch, that's not a good look. What's happened here is that the border has *added* 1px to the total width of the 
+second and third tabs. These tabs are now wider than a 3rd of the `<header>` row and so the last tab gets
+bumped onto the next line. This is A Very Annoying Thing. One cheesy little workaround for this is to
+use a simple background image to simulate the border.
+Make a 1 pixel wide by 16 pixel tall image in [GIMP](http://www.gimp.org/) (or what-have-you) and floodfill with #aaaaaa which
+is a very light grey. Export to a PNG image in `assests/www/img` called `aaaaaa_16_v.png`.
+Then change the previously added CSS clause to look like this:
+
+{lang="css"}
+~~~~~~~~
+/*simulate a border-left for the middle and rightmost tab*/
+#tab-bar li + li
+{
+    background-image:url(../img/aaaaaa_16_v.png);
+    background-repeat:repeat-y;
+    background-position:left;
+}
+~~~~~~~~
+
+Running this looks like:
+
+![Figure 12. `<header>` fits nicely](images/fig_120.png)
+
+Pretty good! OK, we'll do the icons next. We want each tab to have a little icon on it. There are millions of icon sets floating around these days. They tend to be one of three types:
+
+* Always free
+* Free only for personal use (else you should pay)
+* Always paid-for
+
+There's also new school *flat* icons versus traditional deep icons. Design memes come and go but we'll go with
+something a little flat. We'll use these rather nice ones which are royalty-free, free for personal and commercial use:
+
+[http://www.graphicsfuel.com/2013/04/20-flat-icons-psd](http://www.graphicsfuel.com/2013/04/20-flat-icons-psd)
+
+Note that these icons are in PNG format which is a raster format. Raster icons are easy to use, but can only be
+shrunk or enlarged by extracting or guessing information (respectively). This means they only really look good
+at their *native* size which means that, depending on the pixel density of the device display, they might be too tiny
+and hard to make out or really massive and Legoish. But we'll use them for simplicity.
+
+One alternative would be to use a vector format - such as SVG - for the icons which stores the image such that
+it can be scaled up or down without losing information.
+Another new trend is to have the browser load something called an icon font. This is like a normal font but where
+each character is an icon (remember Wingdings?!). This has the advantage that the icons are sizeable just like
+any other text. Also they can be bolded or italicised. **But** they can only be of one colour.
+
+Go ahead and put all of the PNG icons in `assets/www/img` (though we won't use all of them).
+Let's reference some of these icons in our tab markup, change `<header>` in `index.html`
+to look like this:
+
+{lang="css"}
+~~~~~~~~
+<header>
+    <ul id="tab-bar">
+        <li>
+            <a href="#search"><img src="img/search.png"> Search</a>
+        </li>
+        <li>
+            <a href="#discover"><img src="img/chat-bubble.png"> Discover</a>
+        </li>
+        <li>
+            <a href="#write"><img src="img/file.png"> Write</a>
+        </li>
+    </ul>
+</header>
+~~~~~~~~
+
+Note the space after the image and before the link text. Running this gives:
+
+![Figure 13. Icons we sourced are way too big](images/fig_130.png)
+
+Woah, those icons are pretty big eh? The icons are a mix of square, tall or wide, but they all have a biggest
+side of about 128 pixels. That's clearly way too big for us here. Let's use GIMP to resize `search.png`,
+`chat-bubble.png` and `file.png` to have a biggest side of 16px - the same as our app font size (in `index.css`) [NOTETOSELF double check this].
+So go ahead and make those changes and overwrite the original icon files. While you're at it, do the same
+for `paste.png` because we'll be using that later on. (Feel free to trash the other icon files from
+`assets/www/img` as we won't be needing them in this little app.) Those scalable icon formats are looking real
+attractive now huh?
+
+After changing the icon sizes, it looks like this:
+
+![Figure 14. Icons at correct size](images/fig_140.png)
+
+Not bad at all. But hmmmm, don't you think the icons look a little out of whack? Like they're slightly
+higher than the line of text? We can remedy this by adding to the CSS:
+
+{lang="css"}
+~~~~~~~~
+a img {
+    vertical-align:middle;    /*make more sensible relative to text baseline*/
+}
+~~~~~~~~
+
+(Yes, we could do these icons as CSS background images but what the heck.) That's better.
+We restrict this only to images in `<a>`'s so we don't screw up any other images we might
+have in the markup.
+
+All we need now is a highlight for the currently selected tab, and while we're at it we should
+choose our default tab that we want to be displayed first on app load. Let's plump for the
+Search tab. Add a class name of "current" to the Search tab thus:
+
+{lang="html"}
+~~~~~~~~
+<ul id="tab-bar">
+    <li class="current">
+        <a href="#search"><img src="img/search.png"> Search</a>
+    </li>
+    ⋮
+</ul>
+~~~~~~~~
+
+Then, in the CSS, modify `#tab-bar li{}` and add `#tab-bar li.current{}` thus:
+
+{lang="css"}
+~~~~~~~~
+/*each tab*/
+#tab-bar li {
+    display: inline;
+    float:left;
+    width: 33.3333%;
+    border-bottom:3px solid #555;   /*same bg as header*/
+}
+
+/*current tab*/
+#tab-bar li.current {
+    border-bottom:3px solid #990000;    /*signature red*/
+}
+~~~~~~~~
+
+We simply add a bottom border, in our signature red, to any tab bar list item that has a class of "current". 
+We also add a border of the same size but using the header's background colour to *non* current tabs.
+This keeps everything looking flush horizontally. Later on (soon actually!) we will use JavaScript
+to detect tap events on the tabs and change the current tab. Running what you have so far looks like:
+
+![Figure 15. Current tab highlight](images/fig_150.png)
+
+Pretty good! Only two little things are bugging us now. The content area text starts a little too
+close to the tab bar, and, thinking about it this app doesn't really need a footer at all!
+Change the HTML footer to simply look like this:
+
+{lang="html"}
+~~~~~~~~
+<footer></footer>
+~~~~~~~~
+
+Then add `.japxlate_app{}` to CSS and also change the height of `footer{}` thus:
+
+{lang="css"}
+~~~~~~~~
+.japxlate_app {
+    padding-top:1em;        /*move content away from tab bar*/
+}
+
+footer {
+    background-color:#555;
+    color:#ccc;
+    height:2px;             /*down to 2px from 20px*/          
+    line-height:20px;       /*no longer meaningful...*/
+    position:absolute;
+    bottom:0;
+    width:100%;
+}
+~~~~~~~~
+
+Running this looks like:
+
+![Figure 16. Final app layout](images/fig_160.png)
+
+Which we'll stick with for the rest of the tutorial - and app! We have a 2px footer which is
+a bit gimmicky, but will help us a bit with scroll debugging a bit later on. The tab content text is now
+one newline(ish) down from the tab bar.
+
+A> ## To fullscreen or not?
+A>
+A> You might have noticed by now that the default PhoneGap app, and our own app's layout that we've just finished,
+A> fill the *entire* screen of the device. Even the Android status bar (which shows the time, battery charge and
+A> signal strength etc) is obliterated.
+A> 
+A> Game apps tend to fill the entire screen, but almost every utility app out there leaves the status bar.
+A> The good news is that we can get the status bar back quite easily by opening `PROJECTROOT/platforms/android/res/xml/config.xml`
+A> and changing:
+A>
+A> {lang="xml"}
+A> ~~~~~~~~
+A> <preference name="fullscreen" value="true" />
+A> ~~~~~~~~
+A>
+A> to
+A> 
+A> {lang="xml"}
+A> ~~~~~~~~
+A> <preference name="fullscreen" value="false" />
+A> ~~~~~~~~
+A>
+A> and then re-running the app.
+A> 
+A> You can choose which style you like and the rest of this tutorial is valid either way.
+A> Note that figures showing device screenshots *won't* have the status bar.
+
+
