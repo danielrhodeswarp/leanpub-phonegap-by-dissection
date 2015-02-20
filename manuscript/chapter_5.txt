@@ -80,7 +80,7 @@ header {
 }
 ~~~~~~~~
 
-Then add a clause for <code>footer</code> like this:
+Then add a clause for `footer` like this:
 
 {lang="css"}
 ~~~~~~~~
@@ -300,7 +300,9 @@ Search tab. Add a class name of "current" to the Search tab thus:
     <li class="current">
         <a href="#search"><img src="img/search.png"> Search</a>
     </li>
-    ⋮
+    .
+    .
+    .
 </ul>
 ~~~~~~~~
 
@@ -338,7 +340,7 @@ Change the HTML footer to simply look like this:
 <footer></footer>
 ~~~~~~~~
 
-Then add `.japxlate_app{}` to CSS and also change the height of `footer{}` thus:
+Then add `.japxlate_app{}` to the CSS and also change the height of `footer{}` thus:
 
 {lang="css"}
 ~~~~~~~~
