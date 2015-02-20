@@ -52,6 +52,7 @@ This will create a PhoneGap project folder structure for building the same code 
 `"Japxlate"` is the name of our app (in quotes). `com.drappenheimer.japxlate` is our app's reverse domain name identifier. All Android apps have a unique identifier like this. `japxlate` is our desired folder name for the project.
 We then want to do:
 
+{lang="bash"}
     you@yours$ somewhere]$ cd japxlate
     you@yours$ japxlate]$ phonegap run android
 
@@ -62,7 +63,8 @@ PhoneGap remote cloud build environment - which is just out of beta at time of w
 Specifically you'll need to add a couple of folders from the Android SDK install to your PATH.
 The gory details are at [http://docs.phonegap.com/en/edge/guide_platforms_android_index.md.html#Android%20Platform%20Guide](http://docs.phonegap.com/en/edge/guide_platforms_android_index.md.html#Android%20Platform%20Guide),
 but how I did it was to add the following lines to my `~/.bashrc` file:
- 
+
+{lang="bash"} 
     export ANDROID_SDK_HOME=/wherever/you/installed/it/adt-bundle-linux-x86_64-20130729/sdk
     export PATH=${PATH}:${ANDROID_SDK_HOME}/platform-tools:${ANDROID_SDK_HOME}/tools
  
