@@ -1,8 +1,24 @@
-# Chapter 2
+# Chapter 2 {#chapter-2}
 
-It was a **bold** and *italic* night!
+PhoneGap is a way to make apps for mobile devices using standard website frontend technologies.
+Namely HTML5, JavaScript
+and CSS. PhoneGap is free and open source. PhoneGap apps aren't true or *native* apps, but rather they are apps that open up a "WebView"
+on you mobile device - 
+essentially a web browser in fullscreen mode without title bars or bezels - running your
+frontend code. It's not a million miles away from a desktop browser running in fullscreen
+mode (usually accessed by pressing F11). Implemented well, this non-nativeness isn't necessarily a bad thing.
 
-Suddenly, a shot rang out!
+A> ## PhoneGap versus Cordova
+A>
+A> You've probably come across the term "Cordova" in your research for PhoneGap.
+A> PhoneGap and Cordova are very closely related, and so it's worth explaining the difference.
+A> There's a lot of back-story here which I'll skip, but in a nutshell:
+A>
+A> **PhoneGap** is a software product by Adobe Systems Inc. It is a branded and
+A> maintained distribution of:
+A>
+A> [**Cordova**](http://cordova.apache.org/), which is a free and open source project maintained by the Apache Software Foundation (ASF).
+A>
+A> At the time of writing, PhoneGap adds a *cloud build* service to basic Cordova. This changes the command line for PhoneGap (versus Cordova) somewhat, though you A> should be able to - in theory - follow this tutorial using plain vanilla Cordova instead of PhoneGap.
+A> I also noticed, annoyingly, that a lot of PhoneGap documentation simply points to Cordova documentation which can mean that the command line syntax is wrong.
 
-## subheading in chapter 2
-yadda yadda
