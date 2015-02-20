@@ -206,7 +206,7 @@ Eclipse's "LogCat" thus:
 
 ![Figure 2. `console.log()` messages as appearing in Eclipse's LogCat](images/fig_20.png)
 
-<p>Or, if debugging in Chrome desktop, you can see it by pressing F12 on the page in question then clicking the console tab:</p>
+Or, if debugging in Chrome desktop, you can see it by pressing F12 on the page in question then clicking the console tab:
 
 ![Figure 3. `console.log()` messages as appearing in Chrome desktop's debugger](images/fig_30.png)
 
