@@ -1,0 +1,215 @@
+# Quick run-through of the default app {#chapter-4}
+   
+Our app starts life as the PhoneGap "Hello world" app (unless you went [The fiddly older way](#chapter-3-2) in which case
+it's empty). This is a good starting point and has some things we can build on and learn from.
+Of course we'll need to ditch a lot of it as well!
+
+Go ahead, hit CTRL-F11 in Eclipse to run the app on your virtual or actual device. We get a little robot icon
+and a pulsing (via CSS3) "device is ready" message. Rotate your device, it redraws itself accordingly and changes the layout slightly if needed.
+It also doesn't present or allow any kind of scrolling or pinching which is A Good Thing for most apps -
+including Japxlate.
+
+![Figure 1. The default PhoneGap app (landscape)](images/fig_10.png)
+        
+The files that we'll be wanting to edit (CSS, HTML5, JavaScript) to make our own app can be found in the `assets/www`
+folder of our Eclipse project.
+
+Let's take a look at the generated `assets/www/index.html` (Apache licence text removed for brevity):
+
+{lang="html"}
+~~~~~~~~
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+        <link rel="stylesheet" type="text/css" href="css/index.css" />
+        <title>Hello World</title>
+    </head>
+    <body>
+        <div class="app">
+            <h1>PhoneGap</h1>
+            <div id="deviceready" class="blink">
+                <p class="event listening">Connecting to Device</p>
+                <p class="event received">Device is Ready</p>
+            </div>
+        </div>
+        <script type="text/javascript" src="phonegap.js"></script>
+        <script type="text/javascript" src="js/index.js"></script>
+        <script type="text/javascript">
+            app.initialize();
+        </script>
+    </body>
+</html>
+~~~~~~~~
+
+I> PhoneGap v3.3.0 adds a comment talking about a workaround for iOS 7.
+
+We've got the simplified "html" DOCTYPE for HTML5.
+We explicity set a charset of utf-8 Unicode which is clearly going to be very important for this app!
+We've got a lot of "viewport" settings which are mostly self-explanatory, but essentially say
+   "this app fills the device display, defaults to 100% zoom and can not be zoomed in or out". This
+is really going to help our PhoneGap app look and feel more like a native app and not a web browser
+view.
+
+We then link to some CSS which we'll look at shortly.
+The `<title>` needs updating, but this won't normally be visible to the app user anyway. Especially as
+	PhoneGap build puts a theme setting of `Theme.Black.NoTitleBar` in `AndroidManifest.xml`.
+
+Then the `<body>` starts and we have whatever markup the app needs.
+Just before the `<body>` closes, we have links to some JavaScript (this is debated but considered to be something of a [performance improvement](http://elegantcode.com/2010/03/30/your-javascript-goes-where/)).
+`phonegap.js` (in `assets/www`) is the PhoneGap library and is how we can access phone hardware (ie. camera)
+from JavaScript in our PhoneGap app.
+Commenting out this file will enable you to *somewhat* preview the app just by opening the `index.html` file
+in Chrome desktop browser. We'll talk about this later.
+
+`js/index.js` is JavaScript specifically for this app. We then call `app.initialize()`. The `app` object is in
+`index.js` which we'll look at after taking a quick peek at the key things in the CSS file we mentioned
+a moment ago (Apache licence text removed for brevity):
+
+{lang="css"}
+~~~~~~~~
+* {
+    -webkit-tap-highlight-color: rgba(0,0,0,0); /* make transparent link selection, adjust last value opacity 0 to 1.0 */
+}
+
+body {
+    -webkit-touch-callout: none;                /* prevent callout to copy image, etc when tap to hold */
+    -webkit-text-size-adjust: none;             /* prevent webkit from resizing text to fit */
+    -webkit-user-select: none;                  /* prevent copy paste, to allow, change 'none' to 'text' */
+    background-color:#E4E4E4;
+    background-image:linear-gradient(top, #A7A7A7 0%, #E4E4E4 51%);
+    background-image:-webkit-linear-gradient(top, #A7A7A7 0%, #E4E4E4 51%);
+    background-image:-ms-linear-gradient(top, #A7A7A7 0%, #E4E4E4 51%);
+    background-image:-webkit-gradient(
+        linear,
+        left top,
+        left bottom,
+        color-stop(0, #A7A7A7),
+        color-stop(0.51, #E4E4E4)
+    );
+    background-attachment:fixed;
+    font-family:'HelveticaNeue-Light', 'HelveticaNeue', Helvetica, Arial, sans-serif;
+    font-size:12px;
+    height:100%;
+    margin:0px;
+    padding:0px;
+    text-transform:uppercase;
+    width:100%;
+}
+
+/* Portrait layout (default) */
+.app {
+    background:url(../img/logo.png) no-repeat center top; /* 170px x 200px */
+    position:absolute;             /* position in the center of the screen */
+    left:50%;
+    top:50%;
+    height:50px;                   /* text area height */
+    width:225px;                   /* text area width */
+    text-align:center;
+    padding:180px 0px 0px 0px;     /* image height is 200px (bottom 20px are overlapped with text) */
+    margin:-115px 0px 0px -112px;  /* offset vertical: half of image height and text area height */
+                                   /* offset horizontal: half of text area width */
+}
+
+/* Landscape layout (with min-width) */
+@media screen and (min-aspect-ratio: 1/1) and (min-width:400px) {
+    .app {
+        background-position:left center;
+        padding:75px 0px 75px 170px;  /* padding-top + padding-bottom + text area = image height */
+        margin:-90px 0px 0px -198px;  /* offset vertical: half of image height */
+                                      /* offset horizontal: half of image width and text area width */
+    }
+}
+.
+.
+.
+~~~~~~~~
+
+
+The clause for `*` simply removes, from any element that we might make tappable, the default sickly orange
+highlight that Android WebView gives to links and buttons and things.
+
+The `body` clause starts by disabling some default Android WebView interations. This makes our PhoneGap
+app feel a bit more nativey.
+
+Then we set a grey gradient as the background.
+
+Then we set the font type and size (12px).
+Height and width are both set to 100% which makes our `<body>` fill the size of the WebView screen.
+We specify no margin (which is gap space *outside* the `<body>`) and no padding (which is gap space *inside* the `<body>`).
+
+In `.app` - our top level div in the markup - we set the layout of our app specific things.
+Portrait orientation is assumed - a safe assumption for most phone apps.
+I won't bore you with this too much (but if you are baffled then please see a CSS refresher) other than to say it pulls some strings with absolute positioning
+and negative margins to centre a background image and some text.
+
+Then we have another `.app` block wrapped in what's called a media query ([http://cssmediaqueries.com/what-are-css-media-queries.html](http://cssmediaqueries.com/what-are-css-media-queries.html) is a useful introduction)
+which triggers when the phone is rotated into landscape view. It moves the background image to the left of the text and
+also moves the text such that things are still centred.
+
+
+Right, let's get back to that `js/index.js` file that we've almost forgotten about! (Apache licence text removed for brevity):
+
+{lang="js"}
+~~~~~~~~
+var app = {
+    // Application Constructor
+    initialize: function() {
+        this.bindEvents();
+    },
+    // Bind Event Listeners
+    //
+    // Bind any events that are required on startup. Common events are:
+    // 'load', 'deviceready', 'offline', and 'online'.
+    bindEvents: function() {
+        document.addEventListener('deviceready', this.onDeviceReady, false);
+    },
+    // deviceready Event Handler
+    //
+    // The scope of 'this' is the event. In order to call the 'receivedEvent'
+    // function, we must explicity call 'app.receivedEvent(...);'
+    onDeviceReady: function() {
+        app.receivedEvent('deviceready');
+    },
+    // Update DOM on a Received Event
+    receivedEvent: function(id) {
+        var parentElement = document.getElementById(id);
+        var listeningElement = parentElement.querySelector('.listening');
+        var receivedElement = parentElement.querySelector('.received');
+
+        listeningElement.setAttribute('style', 'display:none;');
+        receivedElement.setAttribute('style', 'display:block;');
+
+        console.log('Received Event: ' + id);
+    }
+};
+~~~~~~~~
+
+All we have is one object called `app` which represents - wait for it! - our PhoneGap app.
+`initialize()` is the constructor. We call this directly from `index.html` if you remember.
+`initialize()` simply calls `app.bindEvents()` which in turn uses a DOM standard way of adding an event listener.
+The event we listen for here is 'deviceready' which is fired from the PhoneGap library when our Android device
+is, well, ready. We specify that this event is to be handled by `app.onDeviceReady()` which simply calls
+`app.receivedEvent('deviceready')`.
+
+`app.receivedEvent('deviceready')` simply hides the "connecting" message and displays the "ready" message
+(which are displayed and hidden, respectively, via the default `index.css`).
+
+`someElement.querySelector()` is very interesting here and we'll look at that later.
+
+`console.log(someMessage)` is worth talking about now because we are going to be hammering it during development!
+Basically this logs something to the browser's console without disturbing the user. 
+When running your app via Eclipse's F11, `console.log()` messages that fire on the device will show up in your
+Eclipse's "LogCat" thus:
+
+![Figure 2. `console.log()` messages as appearing in Eclipse's LogCat](images/fig_20.png)
+
+<p>Or, if debugging in Chrome desktop, you can see it by pressing F12 on the page in question then clicking the console tab:</p>
+
+![Figure 3. `console.log()` messages as appearing in Chrome desktop's debugger](images/fig_30.png)
+
+`console.log()` (and there are actually some other methods) is a general JavaScript development technique that
+isn't specific to mobile development. It works on all major browsers (though IE needs help!).
+

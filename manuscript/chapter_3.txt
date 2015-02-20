@@ -32,7 +32,7 @@ A> I notice this doesn't happen when Java sources are edited which indicates som
 A> I still haven't got to the bottom of this particular mystery.
 
 
-## The cool new way {#chapter_3_i}
+## The cool new way {#chapter-3-1}
 
 OK, now we can install PhoneGap itself. For some strange reason that I can't figure out (I'm guessing it's just for package management) it
 requires NodeJS so go to [http://nodejs.org](http://nodejs.org) and install it. Then, as we see at [http://phonegap.com/install](http://phonegap.com/install)
@@ -126,7 +126,7 @@ A> ~~~~~~~~
 A> you@yours$ somewhere]$ sudo npm update -g phonegap
 A> ~~~~~~~~
 
-## The fiddly older way {#chapter_3_ii}
+## The fiddly older way {#chapter-3-2}
 
 An older way of getting started (that PhoneGap up to v2.1.0 used) still works and can
 be useful if you are struggling with the configuration steps details in the above section.
