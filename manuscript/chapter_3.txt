@@ -121,7 +121,7 @@ A>
 A> Installing PhoneGap via NodeJS has the nice advantage that you can keep your PhoneGap version up-to-date
 A> by running this command:
 A>
-A> {lang="pascal"}
+A> {lang="bash"}
 A> ~~~~~~~~
 A> you@yours$ somewhere]$ sudo npm update -g phonegap
 A> ~~~~~~~~
