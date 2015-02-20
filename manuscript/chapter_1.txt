@@ -1,5 +1,9 @@
 # Chapter 1
 Hello, world!
 
+![This is the Image Caption](images/fig_10.png)
+
 ## Subheading in chapter 1
 blah de blah
+
+
