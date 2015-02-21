@@ -189,10 +189,12 @@ A>
 A> Conveniently, PhoneGap exposes a Notification API for "Visual, audible, and tactile device notifications."
 A> The documentation at [http://docs.phonegap.com/en/3.1.0/cordova_notification_notification.md.html](http://docs.phonegap.com/en/3.1.0/cordova_notification_notification.md.html) says we can use it like
 A> this:
+A>
 A> {lang="js"}
 A> ~~~~~~~~
 A> navigator.notification.alert(message, alertCallback, [title], [buttonName]);
 A> ~~~~~~~~
+A>
 A> So let's try that. Stick `navigator.notification.alert('Some alert message', null);` in the `receivedEvent()` function that we
 A> were just tinkering with. Running this (which obviously won't work in desktop Chrome) gives a spurious error in LogCat:
 A> 
