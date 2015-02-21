@@ -179,98 +179,119 @@ our event listener. If `phonegap.js` is not loaded, we simply call what the list
 Running this in both desktop Chrome and your device should produce the eventual `console.log()` message
 (you'll see this via Eclipse's *LogCat* if running on your device).
 
+A> ## All about alerts (and PhoneGap API plugins)
+A>
+A> Since we're talking about debugging and JavaScript `alert()`s and things, let's talk about how we can use
+A> PhoneGap to produce more native-like alerts. JavaScript alerts will definitely give your app that
+A> non-nativey, browser app feel. In fact, using `alert()` even on desktop sites is considered a bit naff
+A> these days!
+A> 
+A> Conveniently, PhoneGap exposes a Notification API for "Visual, audible, and tactile device notifications."
+A> The documentation at [http://docs.phonegap.com/en/3.1.0/cordova_notification_notification.md.html](http://docs.phonegap.com/en/3.1.0/cordova_notification_notification.md.html) says we can use it like
+A> this:
+A>
+A> {lang="js"}
+A> ~~~~~~~~
+A> navigator.notification.alert(message, alertCallback, [title], [buttonName]);
+A> ~~~~~~~~
+A>
+A> So let's try that. Stick `navigator.notification.alert('Some alert message', null);` in the `receivedEvent()` function that we
+A> were just tinkering with. Running this (which obviously won't work in desktop Chrome) gives a spurious error in LogCat:
+A> 
+A> ![Figure 20. Error when attempting `navigator.notification.alert()`](images/fig_200.png)
+A> 
+A> What's going on? Well, it turns out that "As of version 3.0, Cordova implements device-level APIs as plugins".
+A> We have to install whichever APIs we want in our project. This removes bloat as, previously, all
+A> APIs came pre-installed in every PhoneGap project.
+A> I actually found this to be a bit mysterious and poorly documented (I found myself mashing up a mix
+A> of info from Cordova docs and PhoneGap docs). But here's how to add a particular plugin to your PhoneGap
+A> project. Go to anywhere in your project folder structure on the command line and:
+A> 
+A> {lang="bash"}
+A> ~~~~~~~~
+A> you@yours$ japxlate]$ phonegap local plugin add https://git-wip-us.apache.org/repos/asf/cordova-plugin-dialogs.git
+A> ~~~~~~~~
+A>
+A> I> From PhoneGap v3.3.0 you can simply type `phonegap local plugin add org.apache.cordova.dialogs`
+A>
+A> Which should echo:
+A> 
+A> {lang="bash"}
+A> ~~~~~~~~ 
+A> [phonegap] adding the plugin: https://git-wip-us.apache.org/repos/asf/cordova-plugin-dialogs.git
+A> [phonegap] successfully added the plugin
+A> ~~~~~~~~
+A>
+A> (Note that you won't need to run this command, and you won't get the above error, if you've gone down [The
+A> fiddly older way](#chapter-3-2) as that bundles all plugins into your project).
+A> 
+A> You'll get the relevant URL from the docs for whichever plugin at the "API Reference" section at
+A> [http://docs.phonegap.com/en/3.1.0/](http://docs.phonegap.com/en/3.1.0/)
+A> (PhoneGap has a good list of core and 3rd party plugins at
+A> [https://build.phonegap.com/plugins](https://build.phonegap.com/plugins) but the installation
+A> instructions for each one are seemingly out-of-date and mention tinkering with XML config files
+A> which we don't need to do after running the above command.)
+A> The above command has downloaded the source for the plugin and put it in `/assets/www/plugins` (in this case in
+A> `org.apache.cordova.dialogs`)
+A>
+A> I> but diff on v3.3.0 etc.
+A>
+A> It has also added references to the
+A> plugin in `/assets/www/cordova_plugins.js`
+A>  - a file which has been there from the start but just as a placeholder stub.
+A> The `phonegap.js` that we include in our `index.html` actually also
+A> includes `cordova_plugins.js` so after running the
+A> above command, we have all we need to start using `navigator.notification.alert()`! Try it again! It works!:
+A> 
+A> ![Figure 21. Default `navigator.notification.alert()`](images/fig_210.png)
+A>
+A> Great. But hmmm, it looks just the same as a normal JavaScript `alert()`! Currently it does yes, but the advantage is that we can
+A> customise the title and button text. We can also specify a callback function to trigger when the button is tapped.
+A> Try:
+A>
+A> {lang="js"}
+A> ~~~~~~~~
+A> navigator.notification.alert('Some alert message', null, 'The title', 'Oki doki');
+A> ~~~~~~~~ 
+A>
+A> Running this looks like:
+A> 
+A> ![Figure 22. Customised `navigator.notification.alert()`](images/fig_220.png)
+A> 
+A> For the win! If you want to go forward with these customised alerts, keep in mind that they
+A> won't work on desktop Chrome so you may need to write a little wrapper function to still be able to debug on desktop Chrome.
+A> The Japxlate app won't be alerting *anything* to the user on purpose - perhaps just some important error
+A> messages. Therefore we'll go forward in this tutorial with plain vanilla JavaScript `alert()`s. But I wanted to show you the general
+A> plugin mechanism on what is no doubt one of the easier to use plugins. In fact, I'm not done yet!:
+A> 
+A> {lang="bash"}
+A> ~~~~~~~~ 
+A> you@yours$ japxlate]$ phonegap local plugin list
+A> [phonegap] org.apache.cordova.dialogs
+A> ~~~~~~~~
+A> 
+A> This command lists all plugins installed in the current project.
+A> 
+A> {lang="bash"}
+A> ~~~~~~~~
+A> you@yours$ japxlate]$ phonegap local plugin remove org.apache.cordova.dialogs
+A> [phonegap] removing the plugin: org.apache.cordova.dialogs
+A> [phonegap] successfully removed the plugin
+A> ~~~~~~~~
+A> 
+A> This command removes the specified plugin from the current project. You specify the plugin by its
+A> reverse-DNS identifier. You can find these out by issuing the above "list" command.
+A> 
+A> There are plugins to access the mobile device's camera,
+A> accelerometer, phone contacts and many more.
+A> Using these plugins is how we make a *full fat* mobile
+A> app and not just a simple website-in-a-box.
+A> 
+A> I> PhoneGap v3.3.0 also has "Plugman" which is another way of working with plugins.
+A> I> Plugman lets you add or remove plugins for *one specific platform*, whereas the above method will add or remove plugins globally
+A> I> to any and all platforms used in the project. Please see [http://docs.phonegap.com/en/3.3.0/plugin_ref_plugman.md.html](http://docs.phonegap.com/en/3.3.0/plugin_ref_plugman.md.html).
 
-<div class="sidenote">
-<strong>All about alerts (and PhoneGap API plugins)</strong>
-<p>Since we're talking about debugging and JavaScript <code>alert()</code>s and things, let's talk about how we can use
-PhoneGap to produce more native-like alerts. JavaScript alerts will definitely give your app that
-non-nativey, browser app feel. In fact, using <code>alert()</code> even on desktop sites is considered a bit naff
-these days!</p>
 
-<p>Conveniently, PhoneGap exposes a Notification API for "Visual, audible, and tactile device notifications."
-The documentation at <a href="http://docs.phonegap.com/en/3.1.0/cordova_notification_notification.md.html">http://docs.phonegap.com/en/3.1.0/cordova_notification_notification.md.html</a> says we can use it like
-this:</p>
-<code class="multiline">navigator.notification.alert(message, alertCallback, [title], [buttonName]);</code>
-<p>So let's try that. Stick <code>navigator.notification.alert('Some alert message', null);</code> in the <code>receivedEvent()</code> function that we were just tinkering with. Running this (which obviously won't work in desktop Chrome) gives a spurious error
-in LogCat:</p>
-
-<div class="figure">
-    <img src="img/figure/fig_200.png">
-    <p>Figure 20. Error when attempting <code>navigator.notification.alert()</code></p>
-</div>
-
-<p>What's going on? Well, it turns out that "As of version 3.0, Cordova implements device-level APIs as plugins".
-We have to install whichever APIs we want in our project. This removes bloat as, previously, all
-APIs came pre-installed in every PhoneGap project.
-I actually found this to be a bit mysterious and poorly documented (I found myself mashing up a mix
-of info from Cordova docs and PhoneGap docs). But here's how to add a particular plugin to your PhoneGap
-project. Go to anywhere in your project folder structure on the command line and:</p>
-
-<code class="terminal"><span>you@yours$ japxlate]$</span> phonegap local plugin add https://git-wip-us.apache.org/repos/asf/cordova-plugin-dialogs.git</code>
-<p class="new_3_3_0">(From PhoneGap v3.3.0 you can simply type <code>phonegap local plugin add org.apache.cordova.dialogs</code>)</p>
-<p>Which should echo:</p>
-
-<code class="terminal"><span style="color:cyan;">[phonegap]</span> adding the plugin: https://git-wip-us.apache.org/repos/asf/cordova-plugin-dialogs.git
-<span style="color:cyan;">[phonegap]</span> successfully added the plugin</code>
-
-<p>(Note that you won't need to run this command, and you won't get the above error, if you've gone down <a href="#getting_started_ii">The fiddly older way</a> as that bundles all plugins into your project).</>
-
-<p>You'll get the relevant URL from the docs for whichever plugin at the "API Reference" section at <a href="http://docs.phonegap.com/en/3.1.0/">http://docs.phonegap.com/en/3.1.0/</a>
-(PhoneGap has a good list of core and 3rd party plugins at <a href="https://build.phonegap.com/plugins">https://build.phonegap.com/plugins</a> but the installation
-instructions for each one are seemingly out-of-date and mention tinkering with XML config files
-which we don't need to do after running the above command.)
-The above command has downloaded the source for the plugin and put it in <code class="file">/assets/www/plugins</code> (in this case in 
-<code class="file">org.apache.cordova.dialogs</code>) <span class="new_3_3_0">(but diff on v3.3.0 etc)</span>. It has also added references to the plugin in <code class="file">/assets/www/cordova_plugins.js</code>
- - a file which has been there from the start but just as a placeholder stub.
-The <code class="file">phonegap.js</code> that we include in our <code class="file">index.html</code> actually also includes <code class="file">cordova_plugins.js</code> so after running the
-above command, we have all we need to start using <code>navigator.notification.alert()</code>! Try it again! It works!:</p>
-
-<div class="figure">
-    <img src="img/figure/fig_210.png">
-    <p>Figure 21. Default <code>navigator.notification.alert()</code></p>
-</div>
-
-<p>Great. But hmmm, it looks just the same as a normal JavaScript <code>alert()</code>! Currently it does yes, but the advantage is that we can
-customise the title and button text. We can also specify a callback function to trigger when the button is tapped.
-Try:</p>
-
-<code class="multiline">navigator.notification.alert('Some alert message', null, 'The title', 'Oki doki');</code>
-
-<p>Running this looks like:</p>
-
-<div class="figure">
-    <img src="img/figure/fig_220.png">
-    <p>Figure 22. Customised <code>navigator.notification.alert()</code></p>
-</div>
-
-<p>For the win! If you want to go forward with these customised alerts, keep in mind that they
-won't work on desktop Chrome so you may need to write a little wrapper function to still be able to debug on desktop Chrome.
-The Japxlate app won't be alerting <em>anything</em> to the user on purpose - perhaps just some important error
-messages. Therefore we'll go forward in this tutorial with plain vanilla JavaScript <code>alert()</code>s. But I wanted to show you the general plugin mechanism
-on what is no doubt one of the easier to use plugins. In fact, I'm not done yet!:</p>
-
-<code class="terminal"><span>you@yours$ japxlate]$</span> phonegap local plugin list
-<span style="color:cyan;">[phonegap]</span> org.apache.cordova.dialogs</code>
-
-<p>This command lists all plugins installed in the current project.</p>
-
-<code class="terminal"><span>you@yours$ japxlate]$</span> phonegap local plugin remove org.apache.cordova.dialogs
-<span style="color:cyan;">[phonegap]</span> removing the plugin: org.apache.cordova.dialogs
-<span style="color:cyan;">[phonegap]</span> successfully removed the plugin</code>
-
-<p>This command removes the specified plugin from the current project. You specify the plugin by its
-reverse-DNS identifier. You can find these out by issuing the above "list" command.</p>
-
-<p>There are plugins to access the mobile device's camera,
-accelerometer, phone contacts and many more.
-Using these plugins is how we make a <em>full fat</em> mobile
-app and not just a simple website-in-a-box.</p>
-
-I> PhoneGap v3.3.0 also has "Plugman" which is another way of working with plugins.
-I> Plugman lets you add or remove plugins for *one specific platform*, whereas the above method will add or remove plugins globally
-I> to any and all platforms used in the project. Please see [http://docs.phonegap.com/en/3.3.0/plugin_ref_plugman.md.html](http://docs.phonegap.com/en/3.3.0/plugin_ref_plugman.md.html).
-
-</div>
 
 
 <p>We've just been able to simulate our <code>deviceready</code> event on desktop Chrome for debugging and we are
