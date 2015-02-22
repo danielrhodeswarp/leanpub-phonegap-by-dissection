@@ -470,9 +470,7 @@ Next we use `querySelector()` to get the *single* current tab link. Because 'thi
 will be the clicked element, we can do a check to see if this is the same as the previous current tab.
 And if so, do a "no operation" (NOP). We then manipulate classnames to activate only the clicked tab.
 
-Similarly, we use `querySelector()` to get the currently active content <div>. We activate the content
-<div> for the clicked tab by retreiving data-div-id from the clicked <a> and using that to
-get the correct div.
+Similarly, we use `querySelector()` to get the currently active content <div>. We activate the content <div> for the clicked tab by retreiving data-div-id from the clicked <a> and using that to get the correct div.
 
 Anyway, this all works!
 
@@ -629,7 +627,7 @@ function initialiseDefaultTab()
 
 We use `querySelector()` to get whichever content <div> has been set as current in the HTML markup. We could in theory
 select the *tab* that has been marked as current but, as that will be in sync with the content div anyway, it
-is academic.</p>
+is academic.
 
 Congratulations, you have just built a working infrastructure for the Japxlate app!
 This is a good starting point for *any* simple PhoneGap app.
