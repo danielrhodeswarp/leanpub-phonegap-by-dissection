@@ -38,8 +38,8 @@ This tells us that we can embed the widget anywhere we want by using this code s
 ~~~~~~~~
 
 Which is a stylised \<a> element followed by some arcane looking JavaScript
-which actually creates, programatically, a <script> tag with the appropriate
-JavaScript from Twitter to turn the <a> element into the correct widget.
+which actually creates, programatically, a \<script> tag with the appropriate
+JavaScript from Twitter to turn the \<a> element into the correct widget.
 Clever!
 
 Let's go ahead and stick this in the HTML for our Discover tab and see what happens.
@@ -58,7 +58,7 @@ Make the Discover tab in `index.html` look like this:
 (Note here we have made Discover the default content div as mentioned before - make sure to also set the
 Discover tab too.)
 
-We've changed the <a> inner text a bit. This text shows *before* the widget has loaded.
+We've changed the \<a> inner text a bit. This text shows *before* the widget has loaded.
 
 Running this looks like:
 
@@ -75,19 +75,19 @@ that adding:
 data-chrome="noheader nofooter"
 ~~~~~~~~
 
-to the <a> tag will remove the header and footer. ("Chrome" here means the framing and embellishment
+to the \<a> tag will remove the header and footer. ("Chrome" here means the framing and embellishment
 of the widget - not Chrome browser!) 
 Note that the `noscrollbar` option mentioned in the above Twitter documentation will only *visually* remove the scrollbar, scrollability is still present
 and so we will instead remove scrollbars and scrollability with CSS techniques soon.
 
-Add `data-chrome="noheader nofooter"` to the <a> and running it looks like this:
+Add `data-chrome="noheader nofooter"` to the \<a> and running it looks like this:
 
 ![Figure 38. Embed of headerless and footerless Twitter User timeline widget](images/fig_380.png)
 
 The widget header and footer have indeed gone, but there is still the scrolling issue. Also, the widget
 is rather narrow and doesn't take up the full width of the screen.
 Debugging in desktop Chrome we can use the "inspect element" tool which is the magnifying glass
-at the bottom of the F12 console. This tells us that the <a> is replaced with an iframe.
+at the bottom of the F12 console. This tells us that the \<a> is replaced with an iframe.
 An iframe is, simplistically, like an embedded browser window in your web page. This
 will have ramifications for our app which we mention later on.
 
@@ -95,14 +95,14 @@ The above Twitter documentation for timelines says:
 
 > "Setting a width is not required, and by default the widget will shrink to the width of its parent element in the page." 
 
-Which implies that if we put the <a> in a parent div of `width:100%`, then the widget will fill the width
-of the screen. Let's try it. Put the <a> and <script> in a parent tag thus:
+Which implies that if we put the \<a> in a parent div of `width:100%`, then the widget will fill the width
+of the screen. Let's try it. Put the \<a> and \<script> in a parent tag thus:
 
 {lang="html"}
 ~~~~~~~~
 <div id="twitter-iframe-container">
-    <a>…</a>
-    <script>…</script>
+    <a>...</a>
+    <script>...</script>
 </div>
 ~~~~~~~~
 
@@ -133,8 +133,8 @@ OK, so scrolling is fixed. **But** only on desktop Chrome and not the device. Th
 ![Figure 40. Widget width is fixed and does not fill the available space](images/fig_400.png)
 
 Well, we've got the perfect size *container* for this widget now, so what about forcing the
-width and height of the generated <iframe> to the full size of this container? It's actually
-pretty easy to do this by adding some CSS rules for <iframe>s in our `index.css`:
+width and height of the generated \<iframe> to the full size of this container? It's actually
+pretty easy to do this by adding some CSS rules for \<iframe>s in our `index.css`:
 
 {lang="css"}
 ~~~~~~~~
@@ -144,15 +144,15 @@ iframe {
 }
 ~~~~~~~~
 
-We simply say that the <iframe> should fill its parent's width, and should never go taller than
+We simply say that the \<iframe> should fill its parent's width, and should never go taller than
 the parent's height.
 Run this on your device and it works! You can go landscape or portrait and the widget always
 fills the available width and never scrolls.
 
-We mentioned earlier some issues with <iframe>s. Well, the Discover widget timeline contains
+We mentioned earlier some issues with \<iframe>s. Well, the Discover widget timeline contains
 any links that the tweets themselves contain. Also, there are some buttons for Twitter
 "intents" like replying, favouriting and retweeting. Clicking on any link actually opens that
-link in the <iframe> - replacing the widget - which looks like this:
+link in the \<iframe> - replacing the widget - which looks like this:
 
 ![Figure 41. Links in the User timeline widget can be clicked - opening the page](images/fig_410.png)
 
@@ -168,7 +168,7 @@ click catching?
 
 ## Extra credit challenges {#chapter-8-2}
 
-X> Solutions not provided. Try to add:</p>
+X> Solutions not provided. Try to add:
 X>
 X> 1. Disabling of clickable intents on tweets in the timeline widget OR..
 X> 2. ..Correct functioning of the clickable intents when the Twitter app is selected (and not the browser)
