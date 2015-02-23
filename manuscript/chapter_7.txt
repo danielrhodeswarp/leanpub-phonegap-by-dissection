@@ -209,8 +209,8 @@ function tryPopulateDB()
 T> PRO TIP: The Cordova docs on Web SQL are going to be very useful to reference when following this chapter.
 T> They are at [http://docs.phonegap.com/en/3.1.0/cordova_storage_storage.md.html](http://docs.phonegap.com/en/3.1.0/cordova_storage_storage.md.html).
 
-I> (The <a href="http://docs.phonegap.com/en/3.3.0/cordova_storage_storage.md.html">same page</a> for PhoneGap v3.3.0 removes the Web SQL reference, which to be honest
-I> had at least one mistake in it, and instead points you to have a look at <a href="http://www.html5rocks.com/en/features/storage">http://www.html5rocks.com/en/features/storage</a>.)
+I> The [same page](http://docs.phonegap.com/en/3.3.0/cordova_storage_storage.md.html) for PhoneGap v3.3.0 removes the Web SQL reference, which to be honest
+I> had at least one mistake in it, and instead points you to have a look at [http://www.html5rocks.com/en/features/storage](http://www.html5rocks.com/en/features/storage).
 
 We open a Web SQL database called Japxlate, at version 1.0, with a display name of "Japxlate DB" and
 a size of 4 megabytes. I know from tinkering with the dictionary database for the [@japxlate](https://twitter.com/japxlate) Twitter
@@ -372,7 +372,7 @@ function errorWebSQL(transactionOrError, errorOrNull)
 
 Ouch! This looks a bit over-complicated. What's going on? Well, I didn't realise at first,
 and I only discovered it on a hunch, but we can reference error callbacks from both
-the database.transaction() and transaction.executeSQL() methods (as we are already doing) but **in each case they will receive different parameters!**.
+the database.transaction() and transaction.executeSQL() methods (as we are already doing) but **in each case they will receive different parameters!**
 The PhoneGap / Cordova docs for the Web SQL API - at the time of writing - don't seem to realise this
 and actually are therefore incorrect.
 
@@ -475,8 +475,8 @@ database.
 First we reset the current (ie. old) results by setting the container div's innerHTML property
 to empty.
 We then cover a scenario of no matches by printing a "no matches" message (with a plug for the 
-@japxlate(https://twitter.com/japxlate) Twitter bot!). Note that you can split up very long quoted strings in JavaScript
-by ending lines with a '\'. We then stop the "searching" spinner by calling the `buttonSpinnerVisible()`
+[@japxlate](https://twitter.com/japxlate) Twitter bot!). Note that you can split up very long quoted strings in JavaScript
+by ending lines with a '\\'. We then stop the "searching" spinner by calling the `buttonSpinnerVisible()`
 function with a parameter of false. We'll write this function shortly and it's basically a way
 to switch the "searching" spinner on and off. We then return.
 
@@ -740,7 +740,7 @@ For this we'll have to convert the search term into phonetic kana and query for 
 field. So this one needs a bit more work programmatically.
 
 Note that if we go down the Japanese route, and get no results at the end, we *don't* then proceed
-down the English route (and vice-versa).</p>
+down the English route (and vice-versa).
 
 Let's implement the Japanese route first as the queries are easier. We'll go back to working in
 `websql_search.js`.
@@ -1434,18 +1434,17 @@ Sweet!
 
 ## Results scrolling {#chapter-7-4}
 
-<p>The final epic thing on our Search tab is results scrolling. You've probably
+The final epic thing on our Search tab is results scrolling. You've probably
 already noticed that if your search produces lots of results, it is simply clipped
 at the bottom of the screen (actually just above our footer). If you haven't noticed
-this yet, then try searching for "it's" and you'll see the problem.</p>
+this yet, then try searching for "it's" and you'll see the problem.
 
-
-<p>With desktop Chrome, you can scroll as per normal with the scrollbar that appears - or your mouse wheel.
+With desktop Chrome, you can scroll as per normal with the scrollbar that appears - or your mouse wheel.
 In fact, the search box and search button also scroll
-because this is the <code>japxlate_app</code> div that is scrolling,
-due to CSS <code>overflow:auto;</code></p>
+because this is the `japxlate_app` div that is scrolling,
+due to CSS `overflow:auto;`
 
-<p>So why don't we have scrollbars or scrollability
+So why don't we have scrollbars or scrollability
 on the device?
 It's because the Android WebView browser (and the
 stock browser app) will only allow scrolling when
@@ -1454,14 +1453,14 @@ the viewport. Even then it doesn't show scrollbars.
 It would be very very fiddly on a small mobile screen
 if, say, the html document itself was scrollable and then
 a small div inside of that was scrollable too! This
-is why CSS scrolling does not work on WebView.</p>
+is why CSS scrolling does not work on WebView.
 
-<p>What we need to do is to use browser events to implement
+What we need to do is to use browser events to implement
 our own scrolling for search results. Also, let's limit
 scrollability to our #results-wrapper div so that
-we don't scroll the search box and button.</p>
+we don't scroll the search box and button.
 
-<p>So, we probably want to detect a finger drag on the results
+So, we probably want to detect a finger drag on the results
 and then scroll based on that. And we've just seen that
 the DOM event of "click" (on the search button) worked for
 both mouse clicks and finger taps.
@@ -1473,330 +1472,351 @@ in WebView when putting a finger down, moving and then
 releasing the finger. This is initially very annoying and
 confusing, but it makes sense really because of things
 like multi-finger gestures which obviously have no parallel on a mouse. Maybe in the future there will
-even be pressure sensitive mobile screens?</p>
+even be pressure sensitive mobile screens?
 
-<p>The events in question are touchstart, touchmove and touchend.
+The events in question are touchstart, touchmove and touchend.
 These somewhat correlate to the mousedown, mousemove, and
 mouseup events. Remembering that the parent #results-wrapper div is actually our
 static "window" on the search results, we need to attach scrolling behaviour to
-#search-results which is where the search result content gets written to.</p>
+#search-results which is where the search result content gets written to.
 
-<p>Mosey on back to <code>receivedEvent()</code> in <code class="file">index.js</code> and stick a call to:</p>
+Mosey on back to `receivedEvent()` in `index.js` and stick a call to:
 
-<code class="multiline">configureSearchTouchScrolling();</code>
+{lang="js"}
+~~~~~~~~
+configureSearchTouchScrolling();
+~~~~~~~~
 
-<p>at the bottom. And yes, you've guessed it, we are going to define this function in <code class="file">search_interface.js</code>
-. thus:</p>
+at the bottom. And yes, you've guessed it, we are going to define this function in `search_interface.js`
+. thus:
 
-<code class="multiline"><span style='color:#3f7f59; '>//configure touch dragging for search results</span>
-<span style='color:#7f0055; font-weight:bold; '>function</span> configureSearchTouchScrolling()
+{lang="js"}
+~~~~~~~~
+//configure touch dragging for search results
+function configureSearchTouchScrolling()
 {
-    document.getElementById(<span style='color:#2a00ff; '>'search-results'</span>)
-            .addEventListener(<span style='color:#2a00ff; '>'touchstart'</span>, touchstartForSearchResults, <span style='color:#7f0055; font-weight:bold; '>false</span>);
+    document.getElementById('search-results')
+            .addEventListener('touchstart', touchstartForSearchResults, false);
     
-    document.getElementById(<span style='color:#2a00ff; '>'search-results'</span>)
-            .addEventListener(<span style='color:#2a00ff; '>'touchmove'</span>, touchmoveForSearchResults, <span style='color:#7f0055; font-weight:bold; '>false</span>);
+    document.getElementById('search-results')
+            .addEventListener('touchmove', touchmoveForSearchResults, false);
     
-    document.getElementById(<span style='color:#2a00ff; '>'search-results'</span>)
-            .addEventListener(<span style='color:#2a00ff; '>'touchend'</span>, touchendForSearchResults, <span style='color:#7f0055; font-weight:bold; '>false</span>);
-}</code>
+    document.getElementById('search-results')
+            .addEventListener('touchend', touchendForSearchResults, false);
+}
+~~~~~~~~
 
-<p>We simply register one custom handler function for each of the touch events.
-To get the ball rolling, define placeholders for these handlers - still in <code class="file">search_interface.js</code> - thus:</p>
+We simply register one custom handler function for each of the touch events.
+To get the ball rolling, define placeholders for these handlers - still in `search_interface.js` - thus:
 
-<code class="multiline"><span style='color:#3f7f59; '>//Touchstart event handler for search results div - initiates touch scrolling</span>
-<span style='color:#7f0055; font-weight:bold; '>function</span> touchstartForSearchResults(event)
+{lang="js"}
+~~~~~~~~
+//Touchstart event handler for search results div - initiates touch scrolling
+function touchstartForSearchResults(event)
 {
-    console.<span style='color:#7f0055; font-weight:bold; '>log</span>(<span style='color:#2a00ff; '>'touchstart'</span>);
+    console.log('touchstart');
 }
 
-<span style='color:#3f7f59; '>//Touchmove event handler for search results div - performs touch scrolling</span>
-<span style='color:#7f0055; font-weight:bold; '>function</span> touchmoveForSearchResults(event)
+//Touchmove event handler for search results div - performs touch scrolling
+function touchmoveForSearchResults(event)
 {
-    console.<span style='color:#7f0055; font-weight:bold; '>log</span>(<span style='color:#2a00ff; '>'touchmove'</span>);
+    console.log('touchmove');
 }
 
-<span style='color:#3f7f59; '>//Touchend event handler for search results div</span>
-<span style='color:#7f0055; font-weight:bold; '>function</span> touchendForSearchResults(event)
+//Touchend event handler for search results div
+function touchendForSearchResults(event)
 {
-    console.<span style='color:#7f0055; font-weight:bold; '>log</span>(<span style='color:#2a00ff; '>'touchend'</span>);
-}</code>
+    console.log('touchend');
+}
+~~~~~~~~
 
-<p>This is now runnable but note that it won't do anything on your desktop Chrome as
+This is now runnable but note that it won't do anything on your desktop Chrome as
 nothing can trigger touch events! So run this on your device, search for "it's" (a good
-test as it matches a <strong>lot</strong> of entries) and then drag your finger up and down over the results.
-Your Eclipse LogCat will show something like this:</p>
+test as it matches a **lot** of entries) and then drag your finger up and down over the results.
+Your Eclipse LogCat will show something like this:
 
 ![Figure 33. Touch events captured in LogCat](images/fig_330.png)
 
-<p>Nice! Of interest is that if you <em>tap</em> the results, you'll trigger a touchstart immediately followed
-by a touchend. ie. there will be no "move".</p>
-<p>Cool, so we are already catching the events that we need for scrolling, we just need to scroll!
+Nice! Of interest is that if you *tap* the results, you'll trigger a touchstart immediately followed
+by a touchend. ie. there will be no "move".
+
+Cool, so we are already catching the events that we need for scrolling, we just need to scroll!
 What we'll do is we'll get the y (or vertical) coordinate of wherever the finger was moved to,
 and use that to change the CSS top property of #search-results accordingly. Remember that we
-set #search-results to <code>position:relative;</code> which means that we can set its "top" property to any value (in pixels)
+set #search-results to `position:relative;` which means that we can set its "top" property to any value (in pixels)
 that we like. A negative top will move the results up and a positive top will move the results down.
 Essentially, if a finger touches at y=60 and then moves up to y=30 (a lower y is higher up the screen)
-we know that we should move the results div up by 30; which is to say a top value of -30px.</p>
+we know that we should move the results div up by 30; which is to say a top value of -30px.
 
-<p>OK, we've already got three different touch events each with its own handler function.
+OK, we've already got three different touch events each with its own handler function.
 I'm thinking already that we are going to need some evil global variables to store
 things that will be shared between these handlers. For example, finger y positions and so on.
-Stick these at the top of <code class="file">search_interface.js</code>:</p>
+Stick these at the top of `search_interface.js`:
 
-<code class="multiline"><span style='color:#3f7f59; '>//start y axis position (in pixels) of the current scroll</span>
-<span style='color:#7f0055; font-weight:bold; '>var</span> global_scrollStartY;
+{lang="js"}
+~~~~~~~~
+//start y axis position (in pixels) of the current scroll
+var global_scrollStartY;
 
-<span style='color:#3f7f59; '>//current 'top' css value (in pixels) of our scrollable div</span>
-<span style='color:#7f0055; font-weight:bold; '>var</span> global_scrollDivTop;
+//current 'top' css value (in pixels) of our scrollable div
+var global_scrollDivTop;
 
-<span style='color:#3f7f59; '>//height (in pixels) of our viewport over the scrollable div (used to activate scrolling)</span>
-<span style='color:#7f0055; font-weight:bold; '>var</span> global_scrollWindowHeight;
+//height (in pixels) of our viewport over the scrollable div (used to activate scrolling)
+var global_scrollWindowHeight;
 
-<span style='color:#3f7f59; '>//current height (in pixels) of our scrollable div's content (used to activate scrolling and for scroll locking)</span>
-<span style='color:#7f0055; font-weight:bold; '>var</span> global_scrollDivHeight;</code>
+//current height (in pixels) of our scrollable div's content (used to activate scrolling and for scroll locking)
+var global_scrollDivHeight;
+~~~~~~~~
 
-<p>For every finger scroll we want to know the start y of the results div and the start y of the finger.
+For every finger scroll we want to know the start y of the results div and the start y of the finger.
 Then we can find out how far up (or down) the finger moves and simply subtract (or add) this to the
 top value of the results div. We also need to know (a) do we need scrolling at all? and (b) when to
 stop scrolling to prevent content being scrolled off the viewport! For both (a) and (b) we save the height
 of the scrollable content and the height of the scroll viewport.
 We saw earlier from fiddling with the device screen and looking at LogCat that finger scrolling
 is split into three steps; touchstart, touchmove then touchend. We'll map these three different
-events to three different steps for our scrolling. Thus:</p>
+events to three different steps for our scrolling. Thus:
 
-<ul>
-<li>touchstart => finger scrolling <em>may</em> start</li>
-<li>touchmove => finger scrolling happening now!</li>
-<li>touchend => finger scrolling (if it was happening at all) has stopped</li>
-</ul>
+* touchstart => finger scrolling *may* start
+* touchmove => finger scrolling happening now!
+* touchend => finger scrolling (if it was happening at all) has stopped
 
-<p>Sidenote now, but have you noticed that we are no longer able to debug results scrolling in
+Sidenote now, but have you noticed that we are no longer able to debug results scrolling in
 desktop Chrome? To get rid of this annoyance, we'll implement our touch scrolling in as generic
-a way as possible so that we can - a little bit later in the tutorial - add <em>simulated</em> touch
-scrolling by using mouse events instead of touch events.</p>
+a way as possible so that we can - a little bit later in the tutorial - add *simulated* touch
+scrolling by using mouse events instead of touch events.
 
-<p>OK, go back to <code>touchstartForSearchResults()</code> and <code>touchmoveForSearchResults()</code> and make them look
-a bit like this:</p>
+OK, go back to `touchstartForSearchResults()` and `touchmoveForSearchResults()` and make them look
+a bit like this:
 
-<code class="multiline"><span style='color:#3f7f59; '>//Touchstart event handler for search results div - initiates touch scrolling</span>
-<span style='color:#7f0055; font-weight:bold; '>function</span> touchstartForSearchResults(event)
+{lang="js"}
+~~~~~~~~
+//Touchstart event handler for search results div - initiates touch scrolling
+function touchstartForSearchResults(event)
 {
-    <span style='color:#3f7f59; '>//console.log('touchstart');</span>
+    //console.log('touchstart');
     
-    touchobj = event.changedTouches[0]; <span style='color:#3f7f59; '>//reference *first* touch point</span>
+    touchobj = event.changedTouches[0]; //reference *first* touch point
   
-    startVerticalDragScrolling(<span style='color:#7f0055; font-weight:bold; '>this</span>, touchobj.clientY);
+    startVerticalDragScrolling(this, touchobj.clientY);
     
-    event.preventDefault(); <span style='color:#3f7f59; '>//prevent default tap behavior</span>
+    event.preventDefault(); //prevent default tap behavior
 }
 
-<span style='color:#3f7f59; '>//Touchmove event handler for search results div - performs touch scrolling</span>
-<span style='color:#7f0055; font-weight:bold; '>function</span> touchmoveForSearchResults(event)
+//Touchmove event handler for search results div - performs touch scrolling
+function touchmoveForSearchResults(event)
 {
-    <span style='color:#3f7f59; '>//console.log('touchmove');</span>
+    //console.log('touchmove');
     
-    touchobj = event.changedTouches[0]; <span style='color:#3f7f59; '>//reference first touch point for this event</span>
+    touchobj = event.changedTouches[0]; //reference first touch point for this event
     
-    doVerticalDragScrolling(<span style='color:#7f0055; font-weight:bold; '>this</span>, touchobj.clientY);
+    doVerticalDragScrolling(this, touchobj.clientY);
     
     event.preventDefault();
-}</code>
+}
+~~~~~~~~
 
-<p>Well we don't do much in these handler functions themselves, other than call soon-to-be-written
+Well we don't do much in these handler functions themselves, other than call soon-to-be-written
 helper functions and then preventing the default action for the touch event in question.
 We bundle away scroller functionality into helper functions to keep things nice and generic
 which will help us later when we go back and get scrolling working with the mouse.
 As the default behaviour for dragging a finger over some text would be to select that text,
-we prevent this default.</p>
+we prevent this default.
 
-<p>The key point here is how to use the touch event that we receive.
-Touch events contain a <code>changedTouches</code> property which is an array of touch objects.
+The key point here is how to use the touch event that we receive.
+Touch events contain a `changedTouches` property which is an array of touch objects.
 Each touch object in the array represents a single touch directly involved in
 this event. Which for touchstart means all the fingers that hit the screen, and for
-touchmove means all the fingers that moved.</p>
+touchmove means all the fingers that moved.
 
-<p>As we don't need or want to do anything fancy with
+As we don't need or want to do anything fancy with
 multi touch gestures on Japxlate, we can simply
-access <code>.changedTouches[0]</code> and ignore the rest.
+access `.changedTouches[0]` and ignore the rest.
 There will always be at least one touch object
-in <code>changedTouches[0]</code>, and there may or may not be more.</p>
+in `changedTouches[0]`, and there may or may not be more.
 
-<p>We pass the clientY property of our touch object to 
+We pass the clientY property of our touch object to 
 our helper functions. As the first argument, we also pass 'this',
 which if you remember for event handler functions
 means the element that the event triggered on - in this
-case the search results div.</p>
+case the search results div.
 
-<p>See <a href="http://www.javascriptkit.com/javatutors/touchevents.shtml">http://www.javascriptkit.com/javatutors/touchevents.shtml</a> for more
-about touch events in JavaScript.</p>
+See [http://www.javascriptkit.com/javatutors/touchevents.shtml](http://www.javascriptkit.com/javatutors/touchevents.shtml) for more
+about touch events in JavaScript.
 
+A> NOTETOSELF
+A> SIDENOTE about the different JavaScript event coordinate systems
+A> [dont 4get that for mobile there is one extra which is the current poz of the small device window on the bigger client window
 
+OK, so the meat-and-bones of scrolling are bundled away in helper functions.
+Let's have a look at our scroll initiator - `startVerticalDragScrolling()` - first
+of all:
 
-<div class="sidenote">
-NOTETOSELF
-SIDNOTE about the different JavaScript event coordinate systems
-
-[dont 4get that for mobile there is one extra which is the current poz of the small device window on the bigger client window
-</div>
-
-<p>OK, so the meat-and-bones of scrolling are bundled away in helper functions.
-Let's have a look at our scroll initiator - <code>startVerticalDragScrolling()</code> - first
-of all:</p>
-
-<code class="multiline"><span style='color:#3f7f59; '>//initialise vertical scrolling for ontouchmove</span>
-<span style='color:#7f0055; font-weight:bold; '>function</span> startVerticalDragScrolling(elementToScroll, eventClientY)
+{lang="js"}
+~~~~~~~~
+//initialise vertical scrolling for ontouchmove
+function startVerticalDragScrolling(elementToScroll, eventClientY)
 {
-    <span style='color:#3f7f59; '>//console.log('initialise scrolling');</span>
+    //console.log('initialise scrolling');
     
-    <span style='color:#7f0055; font-weight:bold; '>var</span> theStyle = window.getComputedStyle(elementToScroll);
+    var theStyle = window.getComputedStyle(elementToScroll);
     
-    global_scrollDivTop = <span style='color:#7f0055; font-weight:bold; '>parseInt</span>(theStyle.top);  <span style='color:#3f7f59; '>//get 'top' value of box</span>
-    global_scrollStartY = <span style='color:#7f0055; font-weight:bold; '>parseInt</span>(eventClientY); <span style='color:#3f7f59; '>// get x coord of touch point</span>
+    global_scrollDivTop = parseInt(theStyle.top);  //get 'top' value of box
+    global_scrollStartY = parseInt(eventClientY); // get x coord of touch point
     
-    global_scrollDivHeight = <span style='color:#7f0055; font-weight:bold; '>parseInt</span>(theStyle.height); <span style='color:#3f7f59; '>//get 'height' value of box</span>
+    global_scrollDivHeight = parseInt(theStyle.height); //get 'height' value of box
     
-    <span style='color:#3f7f59; '>//work out height of #search-results versus height of results</span>
-    <span style='color:#3f7f59; '>//pane (which is .japxlate_app.height - #search-form.height)</span>
+    //work out height of #search-results versus height of results
+    //pane (which is .japxlate_app.height - #search-form.height)
     global_scrollWindowHeight =
-        <span style='color:#7f0055; font-weight:bold; '>parseInt</span>(
+        parseInt(
             window.getComputedStyle(
-                document.querySelector(<span style='color:#2a00ff; '>'.japxlate_app'</span>)
+                document.querySelector('.japxlate_app')
             ).height, 10) -
             
-            <span style='color:#7f0055; font-weight:bold; '>parseInt</span>(
+            parseInt(
                 window.getComputedStyle(
-                    document.querySelector(<span style='color:#2a00ff; '>'#search-form'</span>)
+                    document.querySelector('#search-form')
             ).height);
-}</code>
+}
+~~~~~~~~
 
-<p>So we expect to receive an elementToScroll which could be any old element (but with the right CSS
-settings) but in our case will be the search-results div. We also expect an eventClientY value.</p>
+So we expect to receive an elementToScroll which could be any old element (but with the right CSS
+settings) but in our case will be the search-results div. We also expect an eventClientY value.
 
-<p>All we do in this function is save elementToScroll's CSS top value, and eventClientY to the
-global variables we defined earlier on. The novelty here is the use of <code>window.getComputedStyle()</code>
-which will return the CSS style properties of the specified element, but <strong>not</strong> the developer defined
-style as per a CSS stylesheet rule or an inline <code>style="something"</code> attribute. Rather this
+All we do in this function is save elementToScroll's CSS top value, and eventClientY to the
+global variables we defined earlier on. The novelty here is the use of `window.getComputedStyle()`
+which will return the CSS style properties of the specified element, but **not** the developer defined
+style as per a CSS stylesheet rule or an inline `style="something"` attribute. Rather this
 will return the CSS properties that the browser's rendering engine has given to the element to
-display it where it is. This method is useful to get <em>natural</em> CSS values for elements
-that we haven't styled ourselves very aggressively - or at all.</p>
+display it where it is. This method is useful to get *natural* CSS values for elements
+that we haven't styled ourselves very aggressively - or at all.
 
-
-<p>We also save the height of the results div (global_scrollDivHeight) and the height
+We also save the height of the results div (global_scrollDivHeight) and the height
 of the results pane. (The results pane being all the space in .japxlate_app div
-<em>under</em> the search form). We do this so we can work out if we actually
+*under* the search form). We do this so we can work out if we actually
 need to scroll at all! Note that to get the height of the results pane,
 we subtract the height of the search form from the total height of .japxlate_app.
 We get the height of the search form by getting the height of the #search-form
-wrapper div which we need to implement in <code class="file">index.html</code> thus:</p>
+wrapper div which we need to implement in `index.html` thus:
 
-<code class="multiline"><span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>div</span> id=<span style='color:#2a00ff; '>"search"</span> class=<span style='color:#2a00ff; '>"current"</span><span style='color:#7f0055; '>></span>
-    <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>div</span> id=<span style='color:#2a00ff; '>"search-form"</span><span style='color:#7f0055; '>></span>
-        <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>button</span> type=<span style='color:#2a00ff; '>"button"</span> id=<span style='color:#2a00ff; '>"search-button"</span> style=<span style='color:#2a00ff; '>"</span><span style='color:#7f0055; font-weight:bold; '>float</span>:right; <span style='color:#7f0055; font-weight:bold; '>width</span>:45%; <span style='color:#7f0055; font-weight:bold; '>margin-right</span>:1%;<span style='color:#2a00ff; '>"</span><span style='color:#7f0055; '>></span>
-            <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>img</span> src=<span style='color:#2a00ff; '>"img/search.png"</span><span style='color:#7f0055; '>></span>
+{lang="html"}
+~~~~~~~~
+<div id="search" class="current">
+    <div id="search-form">
+        <button type="button" id="search-button" style="float:right; width:45%; margin-right:1%;">
+            <img src="img/search.png">
             Search
-            <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>img</span> id=<span style='color:#2a00ff; '>"button-spinner"</span> src=<span style='color:#2a00ff; '>"img/spinner.gif"</span> style=<span style='color:#2a00ff; '>"</span><span style='color:#7f0055; font-weight:bold; '>visibility</span>:hidden;<span style='color:#2a00ff; '>"</span><span style='color:#7f0055; '>></span>
-        <span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>button</span><span style='color:#7f0055; '>></span>
-        <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>input</span> type=<span style='color:#2a00ff; '>"text"</span> id=<span style='color:#2a00ff; '>"search-query"</span> placeholder=<span style='color:#2a00ff; '>"Japanese or English"</span> size=<span style='color:#2a00ff; '>"40"</span>
-               style=<span style='color:#2a00ff; '>"</span><span style='color:#7f0055; font-weight:bold; '>width</span>:45%; <span style='color:#7f0055; font-weight:bold; '>margin-left</span>:1%;<span style='color:#2a00ff; '>"</span><span style='color:#7f0055; '>></span>
-        <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>br</span><span style='color:#7f0055; '>></span>
-        <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>span</span> id=<span style='color:#2a00ff; '>"loading-text"</span><span style='color:#7f0055; '>></span>
+            <img id="button-spinner" src="img/spinner.gif" style="visibility:hidden;">
+        </button>
+        <input type="text" id="search-query" placeholder="Japanese or English" size="40"
+               style="width:45%; margin-left:1%;">
+        <br>
+        <span id="loading-text">
             [Loading core dictionary. This takes a while the first time.
-            <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>img</span> src=<span style='color:#2a00ff; '>"img/spinner.gif"</span><span style='color:#7f0055; '>></span>]
-        <span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>span</span><span style='color:#7f0055; '>></span>
-    <span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>div</span><span style='color:#7f0055; '>></span>
-    <span style='color:#7f0055; '>&lt;</span><span style='color:#7f0055; font-weight:bold; '>div</span> id=<span style='color:#2a00ff; '>"results-wrapper"</span><span style='color:#7f0055; '>></span>
-    &vellip;
-    <span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>div</span><span style='color:#7f0055; '>></span>
-    &vellip;
-<span style='color:#7f0055; '>&lt;/</span><span style='color:#7f0055; font-weight:bold; '>div</span><span style='color:#7f0055; '>></span></code>
+            <img src="img/spinner.gif">]
+        </span>
+    </div>
+    <div id="results-wrapper">
+    .
+    .
+    </div>
+    .
+    .
+</div>
+~~~~~~~~
 
-
-<p>That's the initiator, now on the the actual scroller which is, of course, going to be
+That's the initiator, now on the the actual scroller which is, of course, going to be
 a bit more complex. We need to use the global values we just saved to work out how
 far we've scrolled and then move the results div accordingly. We also should
-check if we need to do any scrolling at all - there might be no overflow of content!</p>
+check if we need to do any scrolling at all - there might be no overflow of content!
 
-<p>A first bash looks like this:</p>
+A first bash looks like this:
 
-<code class="multiline"><span style='color:#3f7f59; '>//do vertical scrolling for ontouchmove</span>
-<span style='color:#7f0055; font-weight:bold; '>function</span> doVerticalDragScrolling(elementToScroll, eventClientY)
+{lang="js"}
+~~~~~~~~
+//do vertical scrolling for ontouchmove
+function doVerticalDragScrolling(elementToScroll, eventClientY)
 {
-    <span style='color:#3f7f59; '>//console.log('do scrolling');</span>
+    //console.log('do scrolling');
     
-    <span style='color:#3f7f59; '>//if height of results content is less than height of results pane,</span>
-    <span style='color:#3f7f59; '>//we have no content overflow and so don't need to scroll    </span>
-    <span style='color:#7f0055; font-weight:bold; '>if</span>(global_scrollDivHeight &lt; global_scrollWindowHeight)
+    //if height of results content is less than height of results pane,
+    //we have no content overflow and so don't need to scroll    
+    if(global_scrollDivHeight < global_scrollWindowHeight)
     {
-        console.<span style='color:#7f0055; font-weight:bold; '>log</span>(<span style='color:#2a00ff; '>'no overflow'</span>);
-        <span style='color:#7f0055; font-weight:bold; '>return</span>;
+        console.log('no overflow');
+        return;
     }
     
-    <span style='color:#3f7f59; '>//calculate distance travelled by touch point</span>
-    <span style='color:#7f0055; font-weight:bold; '>var</span> distance = <span style='color:#7f0055; font-weight:bold; '>parseInt</span>(eventClientY) - global_scrollStartY;
+    //calculate distance travelled by touch point
+    var distance = parseInt(eventClientY) - global_scrollStartY;
     
-    <span style='color:#3f7f59; '>//new CSS top for elementToScroll</span>
-    <span style='color:#7f0055; font-weight:bold; '>var</span> newTop = global_scrollDivTop + distance;
+    //new CSS top for elementToScroll
+    var newTop = global_scrollDivTop + distance;
     
-    <span style='color:#3f7f59; '>//set the new top value for the div we are moving</span>
-    elementToScroll.style.top = newTop + <span style='color:#2a00ff; '>'px'</span>;
-}</code>
+    //set the new top value for the div we are moving
+    elementToScroll.style.top = newTop + 'px';
+}
+~~~~~~~~
 
-<p>First and foremost, we return immediately if we see that we don't need to do any scrolling
+First and foremost, we return immediately if we see that we don't need to do any scrolling
 because the results content div is shorter than the results pane. This prevents the user from
 being able to scroll a single result up and down the pane!
 Next, we have to work out how far away we are from the touch start point. This distance
 becomes the amount we have to add to - or subtract from - the top value of the results
 div.
-We access the CSS top value directly with <code>elementToScroll.style.top</code>.</p>
+We access the CSS top value directly with `elementToScroll.style.top`.
 
-<p>This works! Run it on you device! Nice! Just one problem, which we can see with
-these screenshots:</p>
+This works! Run it on you device! Nice! Just one problem, which we can see with
+these screenshots:
 
 ![Figure 34. We can scroll content past the top (left) and bottom (right) of the scroll viewport](images/fig_340.png)
 
-<p>Currently, we can scroll the content too far in either direction.
-We can fix this by editing <code>doVerticalDragScrolling()</code> to look like this:</p>
+Currently, we can scroll the content too far in either direction.
+We can fix this by editing `doVerticalDragScrolling()` to look like this:
 
-<code class="multiline"><span style='color:#3f7f59; '>//do vertical scrolling for ontouchmove</span>
-<span style='color:#7f0055; font-weight:bold; '>function</span> doVerticalDragScrolling(elementToScroll, eventClientY)
+{lang="js"}
+~~~~~~~~
+//do vertical scrolling for ontouchmove
+function doVerticalDragScrolling(elementToScroll, eventClientY)
 {
-    <span style='color:#3f7f59; '>//console.log('do scrolling');</span>
+    //console.log('do scrolling');
     
-    <span style='color:#3f7f59; '>//if height of results content is less than height of results pane,</span>
-    <span style='color:#3f7f59; '>//we have no content overflow and so don't need to scroll    </span>
-    <span style='color:#7f0055; font-weight:bold; '>if</span>(global_scrollDivHeight &lt; global_scrollWindowHeight)
+    //if height of results content is less than height of results pane,
+    //we have no content overflow and so don't need to scroll    
+    if(global_scrollDivHeight < global_scrollWindowHeight)
     {
-        console.<span style='color:#7f0055; font-weight:bold; '>log</span>(<span style='color:#2a00ff; '>'no overflow'</span>);
-        <span style='color:#7f0055; font-weight:bold; '>return</span>;
+        console.log('no overflow');
+        return;
     }
     
-    <span style='color:#3f7f59; '>//calculate distance travelled by touch point</span>
-    <span style='color:#7f0055; font-weight:bold; '>var</span> distance = <span style='color:#7f0055; font-weight:bold; '>parseInt</span>(eventClientY) - global_scrollStartY;
+    //calculate distance travelled by touch point
+    var distance = parseInt(eventClientY) - global_scrollStartY;
     
-    <span style='color:#3f7f59; '>//new CSS top for elementToScroll</span>
-    <span style='color:#7f0055; font-weight:bold; '>var</span> newTop = global_scrollDivTop + distance;
+    //new CSS top for elementToScroll
+    var newTop = global_scrollDivTop + distance;
     
-    <span style='color:#3f7f59; '>//disallow scrolling bottom of content higher than bottom of results pane</span>
-    <span style='color:#3f7f59; '>//(using height of results pane)</span>
-    <span style='color:#7f0055; font-weight:bold; '>if</span>(newTop &lt; ((0 - global_scrollDivHeight) + global_scrollWindowHeight))
+    //disallow scrolling bottom of content higher than bottom of results pane
+    //(using height of results pane)
+    if(newTop < ((0 - global_scrollDivHeight) + global_scrollWindowHeight))
     {
-        console.<span style='color:#7f0055; font-weight:bold; '>log</span>(<span style='color:#2a00ff; '>'top cushion'</span>);
-        <span style='color:#7f0055; font-weight:bold; '>return</span>; <span style='color:#3f7f59; '>//return false??</span>
+        console.log('top cushion');
+        return; //return false??
     }
     
-    <span style='color:#3f7f59; '>//disallow scrolling top of content lower than top of results pane</span>
-    <span style='color:#7f0055; font-weight:bold; '>if</span>(newTop > 0)
+    //disallow scrolling top of content lower than top of results pane
+    if(newTop > 0)
     {
-        console.<span style='color:#7f0055; font-weight:bold; '>log</span>(<span style='color:#2a00ff; '>'bottom cushion'</span>);
-        <span style='color:#7f0055; font-weight:bold; '>return</span>; <span style='color:#3f7f59; '>//return false?</span>
+        console.log('bottom cushion');
+        return; //return false?
     }
     
-    <span style='color:#3f7f59; '>//set the new top value for the div we are moving</span>
-    elementToScroll.style.top = newTop + <span style='color:#2a00ff; '>'px'</span>;
-}</code>
+    //set the new top value for the div we are moving
+    elementToScroll.style.top = newTop + 'px';
+}
+~~~~~~~~
 
-<p>(The changes are the two <code>if</code> clauses before the final <code>elementToScroll.style.top</code>.)
+(The changes are the two `if` clauses before the final `elementToScroll.style.top`.)
 To stop the top of the results going lower than the top of the results pane, we simply
 prevent the results div's top property from going higher than zero.
 To prevent the bottom of the results from going higher than the bottom of the results pane,
@@ -1806,12 +1826,11 @@ this will put the bottom of the results right at the top of the results pane. Fr
 state, adding, to top, the height of the results div will put the bottom of the results at the
 bottom of the results pane. This is the minimum height we enforce here.
 [NOTETOSELF the height of the results div.(?)]
-</p>
 
-<p>Run this on your device and you'll see that scrolling is "locked" and behaves
-more like native Android.</p>
+Run this on your device and you'll see that scrolling is "locked" and behaves
+more like native Android.
 
-<p>Great, just one more problem which you might already be thinking about.
+Great, just one more problem which you might already be thinking about.
 Run the app and search for "it's" which produces lots of results. Scroll right to the
 bottom of the results. No problems there. But then do a search that only gives a few results
 like "gas". Eh? Where are the results? Well, when you scrolled to the bottom of the results
@@ -1820,106 +1839,122 @@ This means that the top of the div is very high up on the page, probably higher
 that the top of the screen! When you search again, the div is still up there and a short
 amount of content will be obscured and not "reach down" to the visible results pane.
 Clearly we need to reset the search result div's top on every display of search results.
-We can do this quite easily by a simple addition to <code>putResultsOnPage()</code> in
-our <code class="file">search_interface.js</code> file. Edit the start of this function to look like:</p>
+We can do this quite easily by a simple addition to `putResultsOnPage()` in
+our `search_interface.js` file. Edit the start of this function to look like:
 
-<code class="multiline"><span style='color:#7f0055; font-weight:bold; '>function</span> putResultsOnPage(results)
+{lang="js"}
+~~~~~~~~
+function putResultsOnPage(results)
 {
-    <span style='color:#3f7f59; '>//get search results div</span>
-    <span style='color:#7f0055; font-weight:bold; '>var</span> theDiv = document.getElementById(<span style='color:#2a00ff; '>'search-results'</span>);
+    //get search results div
+    var theDiv = document.getElementById('search-results');
     
-    <span style='color:#3f7f59; '>//clear current content</span>
-    theDiv.innerHTML = <span style='color:#2a00ff; '>''</span>;
+    //clear current content
+    theDiv.innerHTML = '';
     
-    <span style='color:#3f7f59; '>//reset Y position because it might have changed after some touch scrolling frenzy!</span>
-    theDiv.style.top = <span style='color:#2a00ff; '>'0'</span>;
-    &vellip;
-}</code>
+    //reset Y position because it might have changed after some touch scrolling frenzy!
+    theDiv.style.top = '0';
+    .
+    .
+}
+~~~~~~~~
 
-<p>The only change here is the new line setting <code>style.top</code> to zero. This is all we need to
-fix the scroll problem we've just experienced. Try it!</p>
+The only change here is the new line setting `style.top` to zero. This is all we need to
+fix the scroll problem we've just experienced. Try it!
 
-<p>Money in the bank! Searching and scrolling is operational now and we are ready
+Money in the bank! Searching and scrolling is operational now and we are ready
 to move on to the next tab. But do you remember we talked about, for debugging purposes,
 simulating the touch scrolling with mouse events for desktop Chrome? Here's a whistle-stop tour
-on getting that working:</p>
+on getting that working:
 
-<p>At the top of <code class="file">search_interface.js</code> put:</p>
-<code class="multiline">var global_mouseButtonDown = false;</code>
+At the top of `search_interface.js` put:
 
-<p>At the bottom of <code>receivedEvent()</code> in <code class="file">index.js</code> put:</p>
+{lang="js"}
+~~~~~~~~
+var global_mouseButtonDown = false;
+~~~~~~~~
 
-<code class="multiline">configureSearchMouseScrolling();</code>
+At the bottom of `receivedEvent()` in `index.js` put:
 
-<p>In <code class="file">search_results.js</code> add:</p>
+{lang="js"}
+~~~~~~~~
+configureSearchMouseScrolling();
+~~~~~~~~
 
-<code class="multiline"><span style='color:#3f7f59; '>//configure mouse dragging for search results</span>
-<span style='color:#7f0055; font-weight:bold; '>function</span> configureSearchMouseScrolling()
+In `search_results.js` add:
+
+{lang="js"}
+~~~~~~~~
+//configure mouse dragging for search results
+function configureSearchMouseScrolling()
 {
-    <span style='color:#3f7f59; '>//simulated touch (ie. mouse) dragging for results</span>
-    document.getElementById(<span style='color:#2a00ff; '>'search-results'</span>)
-            .addEventListener(<span style='color:#2a00ff; '>'mousedown'</span>, mousedownForSearchResults, <span style='color:#7f0055; font-weight:bold; '>false</span>);
+    //simulated touch (ie. mouse) dragging for results
+    document.getElementById('search-results')
+            .addEventListener('mousedown', mousedownForSearchResults, false);
     
-    document.getElementById(<span style='color:#2a00ff; '>'search-results'</span>)
-            .addEventListener(<span style='color:#2a00ff; '>'mousemove'</span>, mousemoveForSearchResults, <span style='color:#7f0055; font-weight:bold; '>false</span>);
+    document.getElementById('search-results')
+            .addEventListener('mousemove', mousemoveForSearchResults, false);
     
-    document.getElementById(<span style='color:#2a00ff; '>'search-results'</span>)
-            .addEventListener(<span style='color:#2a00ff; '>'mouseup'</span>, mouseupForSearchResults, <span style='color:#7f0055; font-weight:bold; '>false</span>);
-}</code> 
+    document.getElementById('search-results')
+            .addEventListener('mouseup', mouseupForSearchResults, false);
+}
+~~~~~~~~
 
-<p>In <code class="file">search_interface.js</code> add:</p>
+In `search_interface.js` add:
 
-<code class="multiline"><span style='color:#3f7f59; '>//Mousedown event handler for search results div - initiates simulated touch scrolling</span>
-<span style='color:#7f0055; font-weight:bold; '>function</span> mousedownForSearchResults(event)
+{lang="js"}
+~~~~~~~~
+//Mousedown event handler for search results div - initiates simulated touch scrolling
+function mousedownForSearchResults(event)
 {
-    <span style='color:#3f7f59; '>//console.log('mousedown event on scrollable');</span>
+    //console.log('mousedown event on scrollable');
     
-    global_mouseButtonDown = <span style='color:#7f0055; font-weight:bold; '>true</span>;  <span style='color:#3f7f59; '>//set global</span>
+    global_mouseButtonDown = true;  //set global
     
-    startVerticalDragScrolling(<span style='color:#7f0055; font-weight:bold; '>this</span>, event.clientY);
+    startVerticalDragScrolling(this, event.clientY);
     
-    event.preventDefault(); <span style='color:#3f7f59; '>//prevent default click behaviour (ie. select text or whatever)</span>
+    event.preventDefault(); //prevent default click behaviour (ie. select text or whatever)
 }
 
-<span style='color:#3f7f59; '>//Mousemove event handler for search results div - performs simulated touch scrolling</span>
-<span style='color:#7f0055; font-weight:bold; '>function</span> mousemoveForSearchResults(event)
+//Mousemove event handler for search results div - performs simulated touch scrolling
+function mousemoveForSearchResults(event)
 {
-    <span style='color:#3f7f59; '>//console.log('mousemove event on scrollable');</span>
+    //console.log('mousemove event on scrollable');
     
-    <span style='color:#7f0055; font-weight:bold; '>if</span>(!global_mouseButtonDown)
+    if(!global_mouseButtonDown)
     {
-        <span style='color:#7f0055; font-weight:bold; '>return</span> <span style='color:#7f0055; font-weight:bold; '>false</span>;   <span style='color:#3f7f59; '>//do nothing if the mouse button isn't pressed down</span>
-        <span style='color:#3f7f59; '>//false is ok to return?</span>
+        return false;   //do nothing if the mouse button isn't pressed down
+        //false is ok to return?
     }
     
-    doVerticalDragScrolling(<span style='color:#7f0055; font-weight:bold; '>this</span>, event.clientY);
+    doVerticalDragScrolling(this, event.clientY);
     
     event.preventDefault();
 }
 
-<span style='color:#3f7f59; '>//Mouseup event handler for search results div</span>
-<span style='color:#7f0055; font-weight:bold; '>function</span> mouseupForSearchResults(event)
+//Mouseup event handler for search results div
+function mouseupForSearchResults(event)
 {
-    <span style='color:#3f7f59; '>//console.log('mouseup event on scrollable');</span>
+    //console.log('mouseup event on scrollable');
     
-    global_mouseButtonDown = <span style='color:#7f0055; font-weight:bold; '>false</span>;
-    event.preventDefault(); <span style='color:#3f7f59; '>//need?</span>
-}</code> 
+    global_mouseButtonDown = false;
+    event.preventDefault(); //need?
+}
+~~~~~~~~
 
-<p>We simply recycle our existing scrolling helpers. The biggest difference is
+We simply recycle our existing scrolling helpers. The biggest difference is
 we need to track if the mouse button is down or not as we don't
-want to scroll on a mousemove when the mouse button isn't down.</p>
+want to scroll on a mousemove when the mouse button isn't down.
 
 [NOTETOSELF mention using libraries for mobile touch scrolling etc]
+
 [NOTETOSELF and the android webkit hack that you found]
 
-<h3 id="the_search_tab_v">Extra credit challenges</h3>
+## Extra credit challenges {#chapter-7-5}
 
-<p>Solutions not provided. Try to add:</p>
-
-<ol>
-<li>"Content has become scrollable" indicator</li>
-<li>"Can't scroll anymore" indicator (the "flare" that native Android scrolling usually has)</li>
-<li>Our scrolling lacks the slippy, momentous feel that native Android scrolling usually has. Try to add this (this will be very challenging!).</li>
-</ol>
+X> Solutions not provided. Try to add:
+X>
+X> 1. "Content has become scrollable" indicator
+X> 2. "Can't scroll anymore" indicator (the "flare" that native Android scrolling usually has)
+X> 3. Our scrolling lacks the slippy, momentous feel that native Android scrolling usually has. Try to add this (this will be very challenging!).
 
