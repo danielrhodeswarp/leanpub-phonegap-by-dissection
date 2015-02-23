@@ -1,0 +1,244 @@
+# Splash screen {#chapter-10}
+
+To kill the dragon, turn to page 84. To hide in the tunnel, keep reading.
+LOL that was an interactive fiction reference, because this entire chapter is optional. Why?
+Well it's about implementing a *splash screen* which is a contentious issue in the
+world of Android apps. (It also involves fiddling with our app's Java sources which is a bit advanced for this book.)
+
+A splash screen is displayed after tapping
+an app's launcher icon. They tend to fill the screen and disappear after a delay and / or
+when the app is ready. Plenty of apps don't have one. Most big name games have one
+as those apps can take a while to load. Small utility apps (which is what Japxlate is)
+seem to mostly not have one.
+
+Why is this contentious? Well, the thinking is that they form a barrier to using the app.
+But they are something to look at when larger apps are loading which could be useful.
+
+So make up your own mind ([http://cyrilmottier.com/2012/05/03/splash-screens-are-evil-dont-use-them](http://cyrilmottier.com/2012/05/03/splash-screens-are-evil-dont-use-them) is useful) and skip this chapter if you feel Japxlate doesn't need a splash screen.
+If you think it does need one - or just want to see how it generally works - then please read on.
+
+Hopefully only the first time while the Web SQL database is created, but our app may take a while to start, and we also want to have some branding.
+So, we will have a splash screen.
+PhoneGap exposes splash screen control in the "Splashscreen" API.
+This needs to be installed as a plugin which can be done like this:
+
+{lang="bash"}
+~~~~~~~~
+you@yours$ japxlate]$ phonegap local plugin add https://git-wip-us.apache.org/repos/asf/cordova-plugin-splashscreen.git
+~~~~~~~~
+
+I> From PhoneGap v3.3.0 you can simply type `phonegap local plugin add org.apache.cordova.splashscreen`
+
+Under the hood, this command will do a few things for you:
+
+* Add `<feature name="SplashScreen">` to `res/xml/config.xml`
+* Put `SplashScreen.java` in newly created `/src/org/apache/cordova/splashscreen` folder
+    (so this is an example of a plugin that will add to the native Java sources)
+* Put plugin in `/assets/www/plugins/`
+* Add references to the plugin in `/assets/www/cordova_plugins.js`
+
+I> Because of the new Plugman, PhoneGap v3.3.0 instead puts the plugin in `PROJECTROOT/plugins`
+
+So now we've got the JavaScript API exposing splash screen actions (show or hide). 
+But this plugin has also added some native Java (the "SplashScreen" class).
+Hold on to your hats folks because we're going to have to fiddle with the app's
+Java source code! Don't worry though, it's pretty straightforward.
+Open up `Japxlate.java` (which is in `/src/com/drappenheimer/japxlate`), it will
+look like this:
+
+{lang="java"}
+~~~~~~~~
+.
+.
+public class Japxlate extends CordovaActivity 
+{
+    @Override
+    public void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        super.init();
+        // Set by &lt;content src="index.html" /> in config.xml
+        super.loadUrl(Config.getStartUrl());
+        //super.loadUrl("file:///android_asset/www/index.html")
+    }
+}
+~~~~~~~~
+
+This is the constructor code that gets the app up and running when the launcher icon is tapped.
+All we do here is load (indirectly from `config.xml`) `index.html` into the current activity - which
+is a WebView browser.
+Change it to this:
+
+{lang="java"}
+~~~~~~~~
+public class Japxlate extends CordovaActivity 
+{
+    @Override
+    public void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        super.init();
+        // Set by &lt;content src="index.html" /> in config.xml
+        super.setIntegerProperty("splashscreen", R.drawable.splash);
+        super.loadUrl(Config.getStartUrl(), 5000);    //5 seconds timeout for splash
+        //super.loadUrl("file:///android_asset/www/index.html")
+    }
+}
+~~~~~~~~
+
+Before `super.loadUrl()`, we use `super.setIntegerProperty()` to set the "splashscreen"
+property to `R.drawable.splash`. "R" is a piece of Java and XML magic which basically
+picks up all the files and resources in the "res" folder and exposes them as useable
+properties of the "R" object. `R.drawable.splash` refers to the appropriate
+`splash.png` placed in the `/res/drawable` folder. `splash.png` will be our image file
+for the splash screen. We are about to make that, but first let's take a peek at the 
+`/res` folder structure:
+
+![Figure 53. Contents of `/res` folder (Eclipse IDE)](images/fig_530.png)
+
+Opening up these folders we see:
+
+![Figure 54. Exploded contents of `/res` folder (NetBeans IDE)](images/fig_540.png)
+
+The `icon.png` files are the PhoneGap default launcher icons (we'll be changing these a bit later).
+As the name suggests, the `drawable` folder is where we place any kind of image resource
+that our app needs.
+What's going on here is that, as well as the generic drawable folder, we have four other drawable
+folders tailored to different screen pixel densities. A high-end Android device
+will have well over 300 pixels-per-inch. In fact a full-HD phone with a compactish (5" or less) display
+will probably have over 400!
+Imagine our launcher icon is fixed at 32 pixels square. This is going to be tiny on a display
+with 400 pixels-per-inch!
+The more dense the display pixels are, the larger our launcher icon needs to be to stay the
+same physical size and to show the same amount of detail. This is true for splash screen images,
+launcher icons, and any drawable.
+Back to these folders, we have:
+
+* drawable-ldpi - "low dots-per-inch" (default launcher icon = 36x36)
+* drawble-mdpi - "medium dots-per-inch" (default launcher icon = 48x48)
+* drawable-hdpi - "high dots-per-inch" (default launcher icon = 72x72)
+* drawable-xhdpi - "eXtra high dots-per-inch" (default launcher icon = 96x96)
+
+(Gory details at [http://developer.android.com/guide/practices/screens_support.html](http://developer.android.com/guide/practices/screens_support.html))
+
+So for our splash screen we need to put a `splash.png` of correct size
+in each of these folders. But just to make sure our code works first we can simply
+put one `splash.png` in the "drawable" folder. Our device will suss that there is no *specific*
+splash image for its native DPI and simply display the default one in the "drawable" folder. Which obviously
+might look hideous if the image is too small for the display (or vice versa).
+Let's do that first just to get the code working and then we can put in the proper images.
+
+OK, so make (or get from the Japxlate sources) a muckabout png in portrait shape of size
+320x470. It's going to be the Japxlate "J" in our signature red.
+
+Put the png file in the drawable folder and run the app on your device.
+You should get the image splashed onto the display for 5 seconds
+before the app starts. It might look very stretched out and jaggedy. Note that the splash screen will not appear when running the app in desktop Chrome
+(which is a good thing).
+
+A> If you've added the status bar to the app as discussed at the end of the [First things first: The layout](#chapter-5) chapter,
+A> you'll still have the status bar when the splash screen is being displayed. 
+
+Hmmm, but what if 5 seconds is too long? The app might load much quicker than that and we
+want the splash screen to disappear as soon as the app loads.
+Well I remember seeing something in `config.xml`:
+
+{lang="xml"}
+~~~~~~~~
+<preference name="auto-hide-splash-screen" value="true" />
+~~~~~~~~
+
+So maybe the splash screen is auto hiding as soon as the app is ready, and, by coincidence, our app is taking 5 seconds to load?
+Well, let's test that by changing the timeout in `Japxlate.java` to 20 seconds:
+
+{lang="java"}
+~~~~~~~~
+.
+.
+public class Japxlate extends CordovaActivity 
+{
+    @Override
+    public void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        super.init();
+        // Set by &lt;content src="index.html" /> in config.xml
+        super.setIntegerProperty("splashscreen", R.drawable.splash);
+        super.loadUrl(Config.getStartUrl(), 20000);
+        //super.loadUrl("file:///android_asset/www/index.html")
+    }
+}
+~~~~~~~~
+
+Run this and we see that the splash screen does indeed hang around for 20 seconds. The app
+is not quite that slow and so we need a way to hide the splash screen
+when the app is ready.
+We learn from [http://docs.phonegap.com/en/3.1.0/cordova_splashscreen_splashscreen.md.html#Splashscreen](http://docs.phonegap.com/en/3.1.0/cordova_splashscreen_splashscreen.md.html#Splashscreen) that
+
+> "To dismiss the splash screen once the app receives the deviceready event, call the navigator.splashscreen.hide() method."
+
+Let's try that. Edit the `receivedEvent()` method in `index.js` to look like this:
+
+{lang="js"}
+~~~~~~~~
+// Update DOM on a Received Event
+receivedEvent: function(id) {
+    console.log('Received Event: ' + id);
+
+    if (window.cordova) {   //actual app
+        navigator.splashscreen.hide();
+    }
+.
+.
+~~~~~~~~
+
+As the whole of `receivedEvent()` is called from both our actual device and debugging
+in desktop Chrome*, we need to check for `window.cordova` - ie. we're on the device - before
+calling `navigator.splashscreen.hide();`.
+
+*Which does not need to be the case but is just how our simple app has evolved.
+
+Run this on your device and you will see that the splash screen disappears when the app is ready,
+much sooner than 20 seconds! great!
+
+OK, we now need to create the actual splash screen images in the correct sizes.
+The correct sizes for each image should be:
+
+* xlarge (xhdpi): at least 960 × 720
+* large (hdpi): at least 640 × 480
+* medium (mdpi): at least 470 × 320
+* small (ldpi): at least 426 × 320
+
+So go ahead and create (or get from the Japxlate repo) your final "J" images in these sizes and put them in the
+correct drawables folders.
+
+A> If the image with the correct density for the device is missing, the app seems to find and use the *closest* matching one.
+
+Just one problem remains. Rotate your device into landscape and launch the app. Yuck!
+Did you see the splash image? It was really stretched out and fat.
+
+![Figure 55. Splash screen when in landscape orientation](images/fig_550.png)
+
+Well here's the correct way to solve this. *Really* for splash images - and other drawables - you should use
+a "9 patch" graphic. This is a tricky little format where PNG images have a one-pixel border
+that isn't displayed, but contains control pixels telling Android which bits of the image
+to stretch, shrink or leave unaltered when the device is rotated or if the target device's
+aspect ratio is not the same as the drawable file in the app.
+
+As you can see already, normal PNGs placed in the drawable folder essentially work, so this tutorial
+won't cover 9 patch images any more other than to say that the gory details are here:
+
+[https://developer.android.com/guide/topics/graphics/2d-graphics.html#nine-patch](https://developer.android.com/guide/topics/graphics/2d-graphics.html#nine-patch)
+
+> "A NinePatchDrawable graphic is a stretchable bitmap image, which Android will automatically resize to accommodate the contents of the
+> View in which you have placed it as the background. An example use of a NinePatch is the backgrounds used by standard Android buttons — buttons
+> must stretch to accommodate strings of various lengths. A NinePatch drawable is a standard PNG image that includes an extra 1-pixel-wide border.
+> It must be saved with the extension .9.png, and saved into the res/drawable/ directory of your project."
+
+and that the Android SDK has a little tool called draw9patch (in `ANDROID_SDK_HOME/sdk/tools`) to make
+these images which looks like this:
+
+![Figure 56. Android SDK's draw9patch utility](images/fig_560.png)
+
+I> The PhoneGap / Cordova documentation for v3.3.0 now has a useful summary section on [Icons and Splash Screens](http://docs.phonegap.com/en/3.3.0/config_ref_images.md.html#Icons%20and%20Splash%20Screens).
+
