@@ -125,7 +125,6 @@ on condition of being on a mobile device. We can do this in `index.html` thus:
 ~~~~~~~~
 .
 .
-.
 <footer></footer>
 <!--load phonegap.js only if on mobile device-->
 <script type="text/javascript">
@@ -134,7 +133,6 @@ on condition of being on a mobile device. We can do this in `index.html` thus:
         document.writeln(line);
     }
 </script>
-.
 .
 .
 ~~~~~~~~
@@ -364,9 +362,9 @@ one of the first to do this).
 Here we run `querySelectorAll()` on the document object so we are going to get all matches contained in <body>.
 Usefully, it can also be run on an Element object - for example a certain table or form - or a DocumentFragment
 element to only return matching elements in that particular container element.
-`#tab-bar li a` is a CSS style query for "an <a> in a <li> in any element with id 'tab-bar'".
+`#tab-bar li a` is a CSS style query for "an \<a> in a <li> in any element with id 'tab-bar'".
 
-We loop over all matching <a> elements and set a click handler using the DOM standard `addEventListener()`
+We loop over all matching \<a> elements and set a click handler using the DOM standard `addEventListener()`
 (as formally described at [http://www.w3.org/TR/DOM-Level-2-Events/events.html#Events-registration](http://www.w3.org/TR/DOM-Level-2-Events/events.html#Events-registration)).
 Our event handler in this case is a simple anonymous function giving a debug alert.
 In event handler functions, an Event object is passed as a parameter and contains information about
@@ -375,8 +373,8 @@ pressed for keyboard events and so on. In event handler functions, `this` refers
 the event happened.
 
 Let's replace the dummy click handler with something that we'll actually want to use. 
-But first, remember that in the click handler function we only have the event object and the <a> object (as `this`)?
-We'll also need to know which content <div> relates to which <a>, then we can switch the content
+But first, remember that in the click handler function we only have the event object and the \<a> object (as `this`)?
+We'll also need to know which content <div> relates to which \<a>, then we can switch the content
 accordingly.
 Modify the header of `index.html` to look like this:
 
@@ -399,7 +397,7 @@ Modify the header of `index.html` to look like this:
 
 HTML5 allows us to use custom or "data" attributes where we can add any attribute and value we like
 to any particular element. The attribute names start with "data-".
-Here we simply link each <a> to its matching content <div> id. We'll use this attribute (soon)
+Here we simply link each \<a> to its matching content <div> id. We'll use this attribute (soon)
 in the click handler for tabs.
 
 OK, next strip out the dummy handler from `addEventListener()` and make it look like this:
@@ -470,7 +468,7 @@ Next we use `querySelector()` to get the *single* current tab link. Because 'thi
 will be the clicked element, we can do a check to see if this is the same as the previous current tab.
 And if so, do a "no operation" (NOP). We then manipulate classnames to activate only the clicked tab.
 
-Similarly, we use `querySelector()` to get the currently active content <div>. We activate the content <div> for the clicked tab by retreiving data-div-id from the clicked <a> and using that to get the correct div.
+Similarly, we use `querySelector()` to get the currently active content <div>. We activate the content <div> for the clicked tab by retreiving data-div-id from the clicked \<a> and using that to get the correct div.
 
 Anyway, this all works!
 
