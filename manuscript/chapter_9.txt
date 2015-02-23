@@ -41,7 +41,7 @@ to look like this:
 We have an explanatory paragraph for our random character, and placeholders for both the character
 to write (in a larger font) and its explanation.
 
-Then comes the magic and the main focus of this chapter, the whizz-bang HTML5 <canvas>
+Then comes the magic and the main focus of this chapter, the whizz-bang HTML5 \<canvas>
 element which you may or may not have seen before. It's an element that allows for
 programmatic and interactive display and manipulation of simple 2D graphics.
 It's kind of like Microsoft Paint but in the browser and you have to program it with JavaScript.
@@ -56,7 +56,7 @@ Well if you run all of this, it looks like:
 
 ![Figure 44. Initial Write tab appearance](images/fig_440.png)
 
-Clearly the <canvas> needs a bit of styling. Add a style for the <canvas> element to
+Clearly the \<canvas> needs a bit of styling. Add a style for the \<canvas> element to
 `index.css` thus:
 
 {lang="css"}
@@ -72,7 +72,7 @@ canvas {
 
 Running looks like this now:
 
-![Figure 45. Write tab appearance with styled <canvas>](images/fig_450.png)
+![Figure 45. Write tab appearance with styled \<canvas>](images/fig_450.png)
 
 Better!
 
@@ -85,11 +85,11 @@ that would fit on the screen at that time - for portrait or lanscape.
 We'll take an approach like this:
 
 1. Put the two buttons at the bottom of the screen
-2. Make a containing <div> for the <canvas> that fills 100% of its available width and height
+2. Make a containing <div> for the \<canvas> that fills 100% of its available width and height
     (the height under "Write this character" and above the buttons, then the full width of the screen)
 3. Set the size of the canvas to be the biggest *square* that will fit in this container. Centred
     in the container
-4. When the device is rotated, we will have to resize the <canvas> to be the biggest square
+4. When the device is rotated, we will have to resize the \<canvas> to be the biggest square
     in the newly created container size
 
 OK, tackling [1] and [2] first, we need a new layout. We are going to do the same thing we did for
@@ -116,7 +116,7 @@ Edit the write div in `index.html` to look like this:
 </div>
 ~~~~~~~~
 
-We've given the intro paragraph an id. We've commmented the <canvas> out for the time being
+We've given the intro paragraph an id. We've commmented the \<canvas> out for the time being
 but we've put it in a container div of #write-canvas-container.
 The buttons have also been placed in a containing div of #write-buttons.
 Now we need to position and size these elements such that the intro paragraph will be right at the
@@ -230,7 +230,7 @@ function adjustCanvas()
 ~~~~~~~~
 
 Wow, this is our longest piece of JavaScript so far.
-With the first two lines we get the container element for the <canvas>, and its style.
+With the first two lines we get the container element for the \<canvas>, and its style.
 We then save the width and height of the container.
 We get the smallest dimension of the container (which will be the squared size of
 our canvas) by assuming the container is portrait shaped. If container height is less than
@@ -239,7 +239,7 @@ portrait assumption which will be fine as *any* of its side measurements is fine
 We then put an imaginary frame around the canvas of 15 pixels so that the bottom of the canvas
 is not flush with our buttons.
 
-Thinking ahead to step [4], it would be nice if this function to set up the <canvas> initially could
+Thinking ahead to step [4], it would be nice if this function to set up the \<canvas> initially could
 also be used to adjust the canvas for a device rotate.
 We tackle this with the concept of "first time". Basically, if the function is happening for the first time
  - ie. the canvas does not exist - then it must *create* the canvas. If not the first time
@@ -255,7 +255,7 @@ Which relies on `document.getElementById('someId')` returning boolean false if a
 of someId does not exist on the page.
 So we get or create the canvas element and set its size to the smallest dimension of the container.
 Minus our frame gap of course.
-The first time around we have to insert the created <canvas> element into the DOM
+The first time around we have to insert the created \<canvas> element into the DOM
 (`document.createElement('elementname');` creates the element in memory only)
 which we do with `container.appendChild(canvas);`.
 
@@ -286,9 +286,9 @@ function firstLoadForTab_Write()
 Remember `firstLoadForTab_Write()` is our one-off initialiser for the Write tab
 and so running the app now looks like:
 
-![Figure 46. <canvas> now fills available space](images/fig_460.png)
+![Figure 46. \<canvas> now fills available space](images/fig_460.png)
 
-Pretty good! You can test that the <canvas> fills the available space by closing the page,
+Pretty good! You can test that the \<canvas> fills the available space by closing the page,
 resizing the browser and loading the page again (desktop Chrome) or closing the app, rotating your phone,
 reopening the app (device).
 
@@ -335,21 +335,21 @@ function configureCanvasRotationAdjustment()
 }
 ~~~~~~~~
 
-Run this and you can see that the <canvas> resizes when
+Run this and you can see that the \<canvas> resizes when
 you rotate the device OR when you resize the desktop
 Chrome.
 
 But there's a problem, if you click on a different tab (not Write), rotate the device / resize
 the browser and then click back on the Write tab, you get a tiny canvas like this:
 
-![Figure 47. <canvas> can become too small](images/fig_470.png)
+![Figure 47. \<canvas> can become too small](images/fig_470.png)
 
 What's happening is this: Our onresize handler (`adjustCanvas()`) triggers when the **browser**
 resizes, regardless of whichever tab we are on.
-The <canvas> container will not be visible when not on the Write tab because of
+The \<canvas> container will not be visible when not on the Write tab because of
 our whole tabbing mechanism. But `adjustCanvas()` will still get called and create or adjust
-the canvas. It seems like `.getComputedStyle()` picks up the <canvas> container smallest dimension as
-100px when it is not visible. This resizes the <canvas> to a tiny size - it just isn't visible
+the canvas. It seems like `.getComputedStyle()` picks up the \<canvas> container smallest dimension as
+100px when it is not visible. This resizes the \<canvas> to a tiny size - it just isn't visible
 until you click the Write tab.
 
 Remember we put `adjustCanvas()` in `firstLoadForTab_Write()`?
@@ -486,7 +486,7 @@ Wait, I've just had a good idea. How about, before we let them start writing, if
 the character on the canvas, filling the canvas and then fading out for them to start copying
 it! That's gonna be awesome!
 
-Note that this next bit (an initial, fading character on the <canvas>) is going to be somewhat difficult and involves recursive
+Note that this next bit (an initial, fading character on the \<canvas>) is going to be somewhat difficult and involves recursive
 JavaScript.
 
 We'll want to do this character fading for every new character that we present. So a good place
@@ -549,7 +549,7 @@ function fadeCharOnCanvas(char, startR, startG, startB, startAlpha, thisAlpha, m
 }
 ~~~~~~~~
 
-The <canvas> API lets us write text in any colour and at any opacity. We set the opacity using what's called an *alpha*
+The \<canvas> API lets us write text in any colour and at any opacity. We set the opacity using what's called an *alpha*
 value; one meaning fully opaque and zero meaning fully transparent. In a nutshell, we simply
 draw the character on the canvas a bunch of times and increase the transparency at each step.
 OK, let's have a fuller explanation...
@@ -560,8 +560,8 @@ We accept, in order of appearance, these parameters:
 2. startR - red element of colour to use for drawing (integer 0 - 255)
 3. startG - green element of colour to use for drawing (integer 0 - 255)
 4. startB - blue element of colour to use for drawing (integer 0 - 255)
-5. startAlpha - opacity used to draw the <em>first</em> frame (float 0.0 - 1.0)
-6. thisAlpha - opacity used to draw the <em>current</em> frame (float 0.0 - 1.0)
+5. startAlpha - opacity used to draw the *first* frame (float 0.0 - 1.0)
+6. thisAlpha - opacity used to draw the *current* frame (float 0.0 - 1.0)
 7. msDelay - the delay, in milliseconds, between each frame
 8. frameCount - how many frames to take to get down to zero opacity
 
@@ -583,11 +583,11 @@ Next we calculate `fontSize` to make the character best fill the canvas.
 During development I saw that for a 300px by 300px canvas, a font size of 250px was best.
 This is the equivalent of the font size being 83.3% of the canvas size. Trial-and-error
 with some different canvas sizes told me that this percentage *just works*.
-`global_canvasElement` is the <canvas> DOM element
+`global_canvasElement` is the \<canvas> DOM element
 which we need to have available when this function is called.
 
 Next we use the `font` property of `global_canvas` to set the font size
-we just calculated. `global_canvas` is the *drawing context* of our <canvas> element
+we just calculated. `global_canvas` is the *drawing context* of our \<canvas> element
 which we need to have available when this function is called. We cover this shortly so don't worry.
 
 Next we use an rgba ("red, green, blue, alpha") value to set the `global_canvas.fillStyle` property. This sets
@@ -1115,7 +1115,9 @@ X> Prevent the current character from being displayed again when clicking the Ne
 
 ### Medium
 
-X> The way we have centred the big fading character on the <canvas> is slightly ridiculous. Use the <canvas> API to *properly* centre the character on the <canvas> [NOTETOSELF find the good link for this]
+The way we have centred the big fading character on the \<canvas> is slightly ridiculous.
+
+X> Use the \<canvas> API to *properly* centre the character on the \<canvas> [NOTETOSELF find the good link for this]
 
 ### Difficult
 
