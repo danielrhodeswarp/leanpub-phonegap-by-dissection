@@ -1,0 +1,18 @@
+# Submitting to Google Play {#chapter-12}
+
+[NOTETOSELF expand on this section]
+
+This topic deserves - and has - whole books and tutorials dedicated to it. [NOTETOSELF some links would be nice]
+We'll cover it in a whistle-stop fashion. To publish your app on the Play Store, follow these steps:
+
+1. Open `PROJECTROOT/AndroidManifest.xml` and change `android:debuggable="true"` to `android:debuggable="false"`
+2. In Eclipse IDE, right-click on the Project and select Android Tools --> Export Signed Application Package
+3. Follow the steps (choosing "create new keystore") and be sure to save the keystore file and password, and the alias password, in your favourite secure place for future reference
+4. The final step creates an .apk file in the location you specify. This is what we will upload to google.
+5. You will need to attach an Android Developer account to an already existing vanilla Google account.
+      Do this by logging into Google with your vanilla account first, then signing up as an Android developer at
+      [https://play.google.com/apps/publish/signup](https://play.google.com/apps/publish/signup).
+6. **You'll need a credit or debit card handy as there is a one-off registration fee of $25.**
+7. Upload the .apk file to your shiny new Developer account, set the title, description and screenshots
+      (you also need a 512px x 512px hi-res icon) and Bob's your uncle!
+

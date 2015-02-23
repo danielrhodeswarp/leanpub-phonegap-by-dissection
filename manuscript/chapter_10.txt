@@ -34,7 +34,7 @@ Under the hood, this command will do a few things for you:
 * Add `<feature name="SplashScreen">` to `res/xml/config.xml`
 * Put `SplashScreen.java` in newly created `/src/org/apache/cordova/splashscreen` folder
     (so this is an example of a plugin that will add to the native Java sources)
-* Put plugin in `/assets/www/plugins/`
+* Put the plugin in `/assets/www/plugins/`
 * Add references to the plugin in `/assets/www/cordova_plugins.js`
 
 I> Because of the new Plugman, PhoneGap v3.3.0 instead puts the plugin in `PROJECTROOT/plugins`
@@ -173,7 +173,7 @@ public class Japxlate extends CordovaActivity
 Run this and we see that the splash screen does indeed hang around for 20 seconds. The app
 is not quite that slow and so we need a way to hide the splash screen
 when the app is ready.
-We learn from [http://docs.phonegap.com/en/3.1.0/cordova_splashscreen_splashscreen.md.html#Splashscreen](http://docs.phonegap.com/en/3.1.0/cordova_splashscreen_splashscreen.md.html#Splashscreen) that
+We learn from [http://docs.phonegap.com/en/3.1.0/cordova_splashscreen_splashscreen.md.html#Splashscreen](http://docs.phonegap.com/en/3.1.0/cordova_splashscreen_splashscreen.md.html#Splashscreen) that:
 
 > "To dismiss the splash screen once the app receives the deviceready event, call the navigator.splashscreen.hide() method."
 
@@ -199,7 +199,7 @@ calling `navigator.splashscreen.hide();`.
 *Which does not need to be the case but is just how our simple app has evolved.
 
 Run this on your device and you will see that the splash screen disappears when the app is ready,
-much sooner than 20 seconds! great!
+much sooner than 20 seconds! Great!
 
 OK, we now need to create the actual splash screen images in the correct sizes.
 The correct sizes for each image should be:
