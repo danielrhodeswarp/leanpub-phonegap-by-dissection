@@ -37,7 +37,7 @@ This tells us that we can embed the widget anywhere we want by using this code s
 <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
 ~~~~~~~~
 
-Which is a stylised <a> element followed by some arcane looking JavaScript
+Which is a stylised \<a> element followed by some arcane looking JavaScript
 which actually creates, programatically, a <script> tag with the appropriate
 JavaScript from Twitter to turn the <a> element into the correct widget.
 Clever!
