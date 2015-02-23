@@ -1,2 +1,6 @@
-chapter_7.txt
-chapter_8.txt
+chapter_1.txt
+chapter_2.txt
+chapter_3.txt
+chapter_4.txt
+chapter_5.txt
+chapter_6.txt
