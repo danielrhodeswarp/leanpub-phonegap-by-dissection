@@ -339,10 +339,10 @@ it a little bit more, here's an excerpt from `/js/websql_edict_inserts.js`:
 ~~~~~~~~
 function websqlEdictInserts(tx)
 {
-    tx.executeSql('INSERT INTO edict(id, kanji, kana, definition) VALUES(5,"咖哩","カレー","/curry/rice and curry/")');
-    tx.executeSql('INSERT INTO edict(id, kanji, kana, definition) VALUES(21,"擤む","かむ","/to blow (one\'s nose)/")');
-    tx.executeSql('INSERT INTO edict(id, kanji, kana, definition) VALUES(119,"１０００円","せんえん","/1000 yen/")');
-    tx.executeSql('INSERT INTO edict(id, kanji, kana, definition) VALUES(138,"１割","いちわり","/ten percent/")');
+    tx.executeSql('INSERT INTO edict(id, kanji, kana, definition) VALUES(5,"{japanesefont}咖哩{latinfont}","{japanesefont}カレー{latinfont}","/curry/rice and curry/")');
+    tx.executeSql('INSERT INTO edict(id, kanji, kana, definition) VALUES(21,"{japanesefont}擤む{latinfont}","{japanesefont}かむ{latinfont}","/to blow (one\'s nose)/")');
+    tx.executeSql('INSERT INTO edict(id, kanji, kana, definition) VALUES(119,"{japanesefont}１０００円{latinfont}","{japanesefont}せんえん{latinfont}","/1000 yen/")');
+    tx.executeSql('INSERT INTO edict(id, kanji, kana, definition) VALUES(138,"{japanesefont}１割{latinfont}","{japanesefont}いちわり{latinfont}","/ten percent/")');
     .
     .
 }
