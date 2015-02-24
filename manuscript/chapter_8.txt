@@ -1,176 +1,1964 @@
-# The *Discover* tab {#chapter-8}
+# The *Search* tab {#chapter-8}
 
 ## Layout and interface {#chapter-8-1}
 
-Now we move on to our second tab, Discover. This is going to be much simpler than the
-previous tab so don't worry! This chapter is a bit of a breather before we move on to
-the more complex Write tab.
+The Search tab - the first tab that the user will see when launching our app - is going to
+be a search form for the user to search our Japanese dictionary. It will also display any and all
+matching results in a scrollable area.
 
-The discover tab is simply going to be a passive list of the latest Japanese words
-as tweeted by the [@japxlate](https://twitter.com/japxlate) bot. There will be no interactivity.
+We'll have a rule that the user's search query can be in Japanese as well as English. Not only
+will this increase the usefulness of our app, it will also enable a future "reversing" of the
+app to be localised for Japanese speakers wanting to learn English vocabulary.
+Let's have another rule that they can type the Japanese or English query into the form
+in the same input box and without having to fiddle with radio buttons or other such inputs
+(which are a bit old hat for search forms anyway but especially cumbersome on mobile devices).
+With these rules and functionalities in mind, a wireframe of the Search tab might look like:
 
-Note that, to speed up development and debugging, we can temporarily set the Discover tab to
-be the app's default tab. This saves you having to tap on the tab every time you run the app when following
-this chapter. Simply move the `class="current"`s off the Search tab and content div and onto the Discover tab and content div.
+![Figure 26. Quick wireframe of the Search tab layout](images/fig_260.png)
 
-Conveniently, anyone with a Twitter account can go into Settings => Widgets
-and create embeddable timeline widgets - of their own feed or anyone else's - 
-based on User timeline, Favourites, List or Search.
+OK, let's markup - and then style - the search form and the results space for dictionary queries.
+Mosey on down to [http://www.ajaxload.info](http://www.ajaxload.info) and make a "loading" spinner image (gif) for the Search tab.
+I made mine use the Japxlate signature red (#990000) and a transparent background.
+Download it and put it in `/assets/www/img` as `spinner.gif`.
 
-I've set up a User timeline widget under the actual [@japxlate](https://twitter.com/japxlate) account using these
-settings:
-
-![Figure 35. Creating a User timeline widget on Twitter](images/fig_350.png)
-
-Note that in order to show only our tweets out (ie. word definitions) we exclude replies
-and we do not auto-expand photos.
-Note also that the widget **must** have a height in pixels - either the Twitter default or
-your specification. After creating the widget, we get the similar-looking Configuration page:
-
-![Figure 36. Configuring a User timeline widget on Twitter](images/fig_360.png)
-
-This tells us that we can embed the widget anywhere we want by using this code snippet:
+Let's markup the form and results space - in index.html - like this:
 
 {lang="html"}
 ~~~~~~~~
-<a class="twitter-timeline" href="https://twitter.com/japxlate" data-widget-id="378630691635728384">Tweets by @japxlate</a>
-<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
-~~~~~~~~
-
-Which is a stylised \<a> element followed by some arcane looking JavaScript
-which actually creates, programatically, a \<script> tag with the appropriate
-JavaScript from Twitter to turn the \<a> element into the correct widget.
-Clever!
-
-Let's go ahead and stick this in the HTML for our Discover tab and see what happens.
-Make the Discover tab in `index.html` look like this:
-
-{lang="html"}
-~~~~~~~~
-<div id="discover" class="current">
-    <a class="twitter-timeline" href="https://twitter.com/japxlate" data-widget-id="378630691635728384">
-        Tweets by @japxlate (network connection required) <img src="img/spinner.gif">
-    </a>
-    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+<div id="search" class="current">
+    <button type="button" id="search-button" style="float:right; width:45%; margin-right:1%;">
+        <img src="img/search.png">
+        Search
+        <img id="button-spinner" src="img/spinner.gif" style="visibility:hidden;">
+    </button>
+    <input type="text" id="search-query" placeholder="Japanese or English" size="40"
+           style="width:45%; margin-left:1%;">
+    <br>
+    <span id="loading-text">
+        [Loading core dictionary. This takes a while the first time.
+        <img src="img/spinner.gif">]
+    </span>
+    <div id="results-wrapper">
+        <div id="search-results">
+            You can search by kanji, hiragana, katakana, English or romaji!
+        </div>
+    </div>
 </div>
 ~~~~~~~~
 
-(Note here we have made Discover the default content div as mentioned before - make sure to also set the
-Discover tab too.)
+We float our search button right (which means that in the markup it has to come *before* things
+on the same line that would be visually to the left of it) but make it 1% (of total width) away from the edge
+for nice appearance. We reuse `search.png` as a button icon. We also include the `spinner.gif`
+that we just created but default it to `visibility:hidden`. Why not just `display:none`? Because
+with `visibility:hidden`, it is hidden but still takes up space in the layout flow. This means
+the layout won't "jump" when we make it appear. We'll switch this image's visibility on and off
+programmatically.
 
-We've changed the \<a> inner text a bit. This text shows *before* the widget has loaded.
+Then we've got our text input which uses the new HTML5 `placeholder` attribute to present a hint
+or instruction to the user about what kind of entry it expects. The text input is also 45% wide
+with an edge spacing of 1%.
 
-Running this looks like:
+Why not just make both 50%? Because then they will touch in the middle which will end in tears
+with big fingers on a small display!
 
-![Figure 37. Embed of default Twitter User timeline widget](images/fig_370.png)
+We then have a "this will take a while" message and spinner that we will remove after one-off
+setup is complete.
 
-Which is pretty much a disaster! We've got a header and footer to the widget that doesn't
-make sense in this *read-only* context - we want just the tweets remember?
-We've also got a scrollbar due to overflowing content - again we don't want this.
-Digging deeper into the Twitter documentation, we see from [https://dev.twitter.com/docs/embedded-timelines#customization](https://dev.twitter.com/docs/embedded-timelines#customization)
-that adding:
+Finally we have a container for our search results - <div id="search-results"> - which
+displays a default search hint. We also have a wrapper for the search results container -
+<div id="results-wrapper"> - which is going to be the scroll viewport for search results.
+These two divs need the following styles in `index.css`:
+
+{lang="css"}
+~~~~~~~~
+#results-wrapper {
+    position:static;
+    width:100%;
+    margin-top:1em;     /*space one <br>(ish) from bottom of search form*/
+    overflow:hidden;
+}
+
+#search-results {
+    position:relative;  /*we position this relative to its *normal* position*/
+    top:0;              /*but set the normal top position anyway. We will*/
+    width:100%;         /*change this top value to affect a scroll*/
+}
+~~~~~~~~
+
+The keypoint here is `position:relative;` on the search-results div which means
+that we will be able to position it (ie. scroll it) relative to an unmoving
+parent - the results-wrapper div. Running this looks like:
+
+![Figure 27. Initial appearance of the Search tab](images/fig_270.png)
+
+Not bad. Just two grumbles here.
+
+1. The height of the text area is lacking and also it's shorter
+than the button. Let's even these two out. (Actually on my device the text
+input and the button don't seem to be on the same baseline!)
+2. Icon for search is screwy again - let's fix that like we
+fixed the tab icons.
+
+In `index.css`, change the existing:
+
+{lang="css"}
+~~~~~~~~
+a img
+{
+    vertical-align:middle;      /*make more sensible relative to text baseline*/
+}
+~~~~~~~~
+
+to:
+
+{lang="css"}
+~~~~~~~~
+a img, button img
+{
+    vertical-align:middle;      /*make more sensible relative to text baseline*/
+}
+~~~~~~~~
+
+Which covers (2). To fix (1), add this to `index.css`:
+
+{lang="css"}
+~~~~~~~~
+input[type="text"], button {
+    height:30px;
+    margin:0;
+}
+~~~~~~~~
+
+Running looks like this:
+
+![Figure 28. Improved appearance of the Search tab](images/fig_280.png)
+
+Better!
+
+## Creating the database {#chapter-8-2}
+
+Now, let's also have a rule to the effect of dictionary searches working even when the mobile device is
+**offline**. That is to say the app must use some kind of local storage on the device itself or the WebView browser.
+Well, it turns out that the Android WebView supports something called Web SQL which is a small,
+local implementation of an SQL database (specifically SQLite) in the browser. We can load
+our Japanese dictionary into a client-side database and, based on the user's search term, query
+it in whichever way we need to pull out matches.
+
+A> ## Important note about Web SQL
+A>
+A> Web SQL is an **abandoned specification**
+A> (see [http://www.w3.org/TR/webdatabase/](http://www.w3.org/TR/webdatabase/)) that W3C no longer maintain, and I
+A> **do not recommend** that
+A> you use it going forward in your owns apps! W3C's beef was that it was only being implemented using SQLite - obviously
+A> they aren't in the business of standardising a piece of vendor lock in!
+A> For similar reasons Mozilla (ie. Firefox browser) have chosen not to implement it right from the start.
+A> I do kind of agree that bringing a *heavy* server-side thing to the client is a bit of an
+A> odd move. In fact, traditional SQL on the back-end is somewhat in crisis itself these days in the world of NoSQL
+A> datastores. Though it is very useful for mobile apps that might not be online and need to work with some data.
+A>
+A> ### Why are we using it for this tutorial?
+A>
+A> Somewhat for historical reasons but also because I know it will be perfect for *fuzzy* text searching.
+A> I know from experience that it will "just work". When using PhoneGap we are lucky too because
+A> "Cordova provides access to both interfaces (Web SQL and something else called Web Storage) for the minority of devices
+A> that don't already support them. Otherwise the built-in implementations apply."
+A>
+A> ### What would be some alternatives?
+A>
+A> Ignoring PhoneGap and the world of mobile apps, Indexed DB
+A> (a W3C standard at  
+A> [http://www.w3.org/TR/IndexedDB/](http://www.w3.org/TR/IndexedDB/)) looks
+A> to be picking up steam. Though [caniuse.com](http://caniuse.com) tells me that support is currently *less* than that of
+A> Web SQL. Also it hasn't made its way into PhoneGap at the time of writing.
+A> Indexed DB mirrors the more modern style of NoSQL databases closely.
+A>
+A> I hope that future versions of the app (and this tutorial) can use Indexed DB.
+A>
+A> I> PhoneGap v3.3.0 now supports Indexed DB, **but only if the underlying WebView supports it**.
+A> I> At the time of writing this means only Windows Phone 8 and BlackBerry 10.
+
+PhoneGap's (well actually Cordova's) Web SQL docs are at  
+[http://docs.phonegap.com/en/3.1.0/cordova_storage_storage.md.html](http://docs.phonegap.com/en/3.1.0/cordova_storage_storage.md.html)
+As you can see, it's a fairly small implementation of an SQL database. But writing for it in JavaScript
+with callbacks was a novelty for this grizzled MySQL hacker!
+
+OK, let's crack on now with Web SQL initialisation for the first load of the Search tab.
+Stick this cheeky call - to a function we're about to create - at the bottom of `firstLoadForTab_Search()`
+in `japxlate.js`:
+
+{lang="js"}
+~~~~~~~~
+tryPopulateDB();
+~~~~~~~~
+
+Let's create this function, and other functions to do with general Web SQL setup, in a new file in `/assets/www/js`
+called `websql_core.js`. Create this file, and the first function we'll put in it is the `tryPopulateDB()`
+we've just referenced. It will look like this:
+
+{lang="js"}
+~~~~~~~~
+//Open / create the "Japxlate" Web SQL database and - if it's not already
+//present - create and populate the "edict" table
+function tryPopulateDB()
+{
+    //version 1.0, 4 megabytes
+    var db = window.openDatabase("Japxlate", "1.0", "Japxlate DB", 4 * 1024 * 1024);
+    
+    db.transaction(checkDB);  //only populate edict table if it not already exist
+}
+~~~~~~~~
+
+T> PRO TIP: The Cordova docs on Web SQL are going to be very useful to reference when following this chapter.
+T> They are at [http://docs.phonegap.com/en/3.1.0/cordova_storage_storage.md.html](http://docs.phonegap.com/en/3.1.0/cordova_storage_storage.md.html).
+
+I> The [same page](http://docs.phonegap.com/en/3.3.0/cordova_storage_storage.md.html) for PhoneGap v3.3.0 removes the Web SQL reference, which to be honest
+I> had at least one mistake in it, and instead points you to have a look at [http://www.html5rocks.com/en/features/storage](http://www.html5rocks.com/en/features/storage).
+
+We open a Web SQL database called Japxlate, at version 1.0, with a display name of "Japxlate DB" and
+a size of 4 megabytes. I know from tinkering with the dictionary database for the [@japxlate](https://twitter.com/japxlate) Twitter
+channel that the core dictionary definitions will fit in 4 megabytes with a bit to spare.
+
+Then we call `transaction()` on the returned database to run the query or queries in the
+`checkDB()` function that we're about to implement.
+
+Now's a good time to talk about the schema we'll use for the dictionary table. We'll call
+the table "edict" as that's the name of the Japanese dictionary that powers it  
+(at [http://www.csse.monash.edu.au/~jwb/wwwjdicinf.html#dicfil_tag](http://www.csse.monash.edu.au/~jwb/wwwjdicinf.html#dicfil_tag))
+and the fields will be:
+
+`edict(id unique, kanji, kana, definition)`
+
+"id" will be an integer and a unique key to each record. "kanji" will hold the Chinese characters
+that the word is written in. "kana" will hold the Japanese phonetic script that the word is written in.
+Finally "definition" will hold one or more English language definitions for the word, separated by '/'.
+
+Our `checkDB()` function needs to know if the edict table exists and is full. If not, create it and fill it.
+
+The `checkDB()` function will receive a SQLTransaction object as a parameter from `db.transaction()`.
+Again in `websql_core.js`, make `checkDB()` look like this:
+
+{lang="js"}
+~~~~~~~~
+//Check if "edict" table exists and has records
+function checkDB(tx)
+{
+    //console.log('checkDB()');
+    tx.executeSql('SELECT COUNT(id) AS count FROM edict', [], successCheckDB, errorCheckDB);
+}
+~~~~~~~~
+
+We call `executeSql()` on the received SQLTransaction object which needs at least an SQL query 
+as its first argument (and parameter values as the 2nd parameter if the query in the first argument uses parameter binding),
+but can optionally take both a success and failure callback as 3rd and 4th parameter respectively.
+Here we run a very simple query to get the count of rows - by id - in the edict table.
+This query will throw an error if the edict table does not exist (but not if it exists and
+is empty which is a condition we will knowingly ignore for this simple app).
+We don't use parameter binding in this query so we provide an empty array as the 2nd parameter
+simply because we need to "get" to the 3rd and 4th parameters.
+We specify an error and a success callback.
+Should the query fail we can assume that the table does not exist and therefore needs
+to be created and populated. Let's look at the success callback first as it's simpler
+and only has to clear the "database loading" message:
+
+{lang="js"}
+~~~~~~~~
+//Callback for if checkDB() succeeds - ie. "edict" table present and full
+//SO clear the "database loading" message
+function successCheckDB(tx, results)
+{
+    //console.log('edict already loaded');
+    document.getElementById('loading-text').innerHTML = '';
+}
+~~~~~~~~
+
+Pretty easy and not worth explaining other than to point out that the callback function
+receives an SQLTransaction and an SQLResultSet object respectively.
+
+Let's get started on the error callback:
+
+{lang="js"}
+~~~~~~~~
+//Callback for if checkDB() fails - ie. no "edict" table
+//SO create it and fill it
+function errorCheckDB(transaction, error)
+{    
+    console.log('edict table not exist - will create and fill');
+    
+    //here we need to do something to fill the table
+}
+~~~~~~~~
+
+This code so far will run without errors (but don't forget include `websql_core.js` from `index.html` (above the `japxlate.js` include)) but won't do anything useful. It will get to the "edict table not exist - will create and fill"
+log message and then stop. In the error callback, we need to run another transaction on the Japxlate
+database which will load all the dictionary data we need. Change `errorCheckDB()` to look like this:
+
+{lang="js"}
+~~~~~~~~
+//Callback for if checkDB() fails - ie. no "edict" table
+//SO create it and fill it
+function errorCheckDB(transaction, error)
+{   
+    console.log('edict table not exist - will create and fill');
+    
+    //version 1.0, 4 megabytes
+    var db = window.openDatabase("Japxlate", "1.0", "Japxlate DB", 4 * 1024 * 1024);
+    
+    db.transaction(populateDB, errorWebSQL, successPopulate);
+}
+~~~~~~~~
+
+We open the same Japxlate database and try to run the `populateDB()` queries on it. We have new
+success and error callbacks. `populateDB()` looks like this:
+
+{lang="js"}
+~~~~~~~~
+//Create and fill the "edict" table
+function populateDB(tx)
+{
+    console.log('creating and filling edict table');
+    
+    //DROP if present (ie. because it's present but empty)
+    tx.executeSql('DROP TABLE IF EXISTS edict');
+    
+    //create
+    tx.executeSql('CREATE TABLE IF NOT EXISTS edict(id unique, kanji, kana, definition)');
+    
+    websqlEdictInserts(tx); //see websql_edict_inserts.js
+}
+~~~~~~~~
+
+We create the table according to our schema - DROPing it first just in case and so the CREATE doesn't fail.
+Finally we call `websqlEdictInserts()` which is a function we'll put in another JavaScript file. The `websqlEdictInserts()` function
+accepts an SQLTransaction object and essentially runs a huge list of INSERT queries on it to populate our
+table. This function isn't very *do-at-home*able because it's basically a dump of the most common words
+from the [@japxlate](https://twitter.com/japxlate) Twitter feed's database. If you are following this tutorial step by step, please
+get the file `/js/websql_edict_inserts.js` from the app's GitHub repository and stick it in your `/assets/www/js` folder. To explain
+it a little bit more, here's an excerpt from `/js/websql_edict_inserts.js`:
+
+{lang="js"}
+~~~~~~~~
+function websqlEdictInserts(tx)
+{
+    tx.executeSql('INSERT INTO edict(id, kanji, kana, definition) VALUES(5,"咖哩","カレー","/curry/rice and curry/")');
+    tx.executeSql('INSERT INTO edict(id, kanji, kana, definition) VALUES(21,"擤む","かむ","/to blow (one\'s nose)/")');
+    tx.executeSql('INSERT INTO edict(id, kanji, kana, definition) VALUES(119,"１０００円","せんえん","/1000 yen/")');
+    tx.executeSql('INSERT INTO edict(id, kanji, kana, definition) VALUES(138,"１割","いちわり","/ten percent/")');
+    .
+    .
+}
+~~~~~~~~
+
+Note that the ID numbers aren't in sequence because these words are the most common 20,000 or so words
+from [@japxlate](https://twitter.com/japxlate)'s Edict dictionary which has nearly 200,000 entries!
+
+OK, that's `populateDB()` in the bag. But don't forget `errorCheckDB()`'s custom error and success callbacks.
+Let's do the error callback first:
+
+{lang="js"}
+~~~~~~~~
+//Generic SQLError handler (for both db.transaction() and tx.executeSQL())
+function errorWebSQL(transactionOrError, errorOrNull)
+{   
+    var error = null;
+    
+    if(typeof transactionOrError == 'SQLTransaction') {    //from tx.executeSQL()
+        error = errorOrNull;
+    } else {    //from db.transaction()
+        error = transactionOrError;
+    }
+    
+    console.log(error); //error is now an SQLError object
+    
+    alert("Error processing SQL: " + error.code);
+}
+~~~~~~~~
+
+Ouch! This looks a bit over-complicated. What's going on? Well, I didn't realise at first,
+and I only discovered it on a hunch, but we can reference error callbacks from both
+the database.transaction() and transaction.executeSQL() methods (as we are already doing) but **in each case they will receive different parameters!**
+The PhoneGap / Cordova docs for the Web SQL API - at the time of writing - don't seem to realise this
+and actually are therefore incorrect.
+
+I> The PhoneGap v3.3.0 docs remove the entire Web SQL reference section.
+
+This is something of a generic error callback and so we pull some strings to handle both cases.
+Error callbacks as called from database.transaction() will receive (SQLError), and error callbacks
+called from transaction.executeSQL() will receive (SQLTransaction, SQLError).
+
+We simply alert out the code property of the received SQLError object.
+This is going to be our recyclable Web SQL error handler going forward with the app.
+
+The success callback for `errorCheckDB()` is going to do the same as the success callback for `checkDB()`
+(which is `successCheckDB()`):
+
+{lang="js"}
+~~~~~~~~
+//Callback for if errorCheckDB() succeeds - ie. "edict" table populated OK
+function successPopulate()
+{
+    console.log('finished loading edict');
+    document.getElementById('loading-text').innerHTML = '';
+}
+~~~~~~~~
+
+Include `websql_edict_inserts.js` from `index.html` (above the include for `websql_core.js`) and we are ready to go for a spin!
+
+On first run, the "database loading" message and spinner take a few seconds to disappear,
+and the log messages indicate database loading success. It looks like this:
+
+![Figure 29. First run of app with Web SQL database loading](images/fig_290.png)
+
+Go ahead and run the app again after exiting it, the 2nd time around feels kind of faster right? Let's check the logs:
+
+![Figure 30. Second, faster run of app with Web SQL database loading](images/fig_300.png)
+
+**Woah!** That's right, Web SQL databases that you've created *persist* over multiple sessions
+of the app (or browser). Pretty hot and tasty! This is a great reason why Web SQL, as abandoned
+and awkward as it is, is really useful for mobile WebView apps as it can be used for saving things
+offline.
+
+## Querying the database {#chapter-8-3}
+
+Right, so that's the database created, the table created, and the table filled. Phew!
+
+We're coming to the meat and bones of it now which is getting results from the
+database based on the user's search query. This will involve a bit of work on
+the frontend interface and a *lot* of work on the backend. As we are kind of frazzled
+with Web SQL things right now, let's get to work on the frontend interface first.
+
+Let's make a new JavaScript file in `/assets/www/js` called `search_interface.js` to hold anything
+to do with the frontend look and feel of searching. Right, one of the main things we'll want to do
+is to put search results from the database into the container div in our markup. Let's add a 
+function to do this:
+
+{lang="js"}
+~~~~~~~~
+//Put the matching search results (which could be zero matches) on the page
+function putResultsOnPage(results)
+{
+    //get search results div
+    var theDiv = document.getElementById('search-results');
+    
+    //clear current content
+    theDiv.innerHTML = '';
+    
+    //might be no matches
+    if(results.rows.length === 0)
+    {
+        theDiv.innerHTML = 'No matches found in the common words dictionary.\
+            Tweet @japxlate yourAdvancedWord for advanced word definitions.';
+        buttonSpinnerVisible(false);    //stop the loading spinner
+        return;
+    }
+    
+    //some results so loop through and print
+    for(var loop = 0; loop < results.rows.length; loop++)
+    {
+        var item = results.rows.item(loop);
+        
+        var var theRomaji = item.kana;    //TODO
+        
+        var formattedDefinition = format_slashes(item.definition);
+        
+        var defText = item.kanji + ' / ' + item.kana + ' (' + theRomaji + ') / ' + formattedDefinition;
+        defText = defText.replace(new RegExp(global_searchTerm, 'ig'), '<span style="color:#990000;">$&</span>');
+        
+        var defLine = '<img src="img/j.png" style="vertical-align:middle;"> ' + defText + '<hr>';
+        //var defLine = '<p class="def-line"> ' + defText + '</p>'; //had CSS styling issues (mostly text overflow)
+        
+        theDiv.innerHTML += defLine;
+    }
+    
+    buttonSpinnerVisible(false);    //stop the loading spinner
+}
+~~~~~~~~
+
+We'll expect to be passed an SQLResultSet object which will come from a successful query on our Web SQL
+database.
+First we reset the current (ie. old) results by setting the container div's innerHTML property
+to empty.
+We then cover a scenario of no matches by printing a "no matches" message (with a plug for the 
+[@japxlate](https://twitter.com/japxlate) Twitter bot!). Note that you can split up very long quoted strings in JavaScript
+by ending lines with a '\\'. We then stop the "searching" spinner by calling the `buttonSpinnerVisible()`
+function with a parameter of false. We'll write this function shortly and it's basically a way
+to switch the "searching" spinner on and off. We then return.
+
+A> ## `document.getElementById('some-id')` versus `document.querySelector('#some-id')`
+A>
+A> You may be wondering why, for single elements, I am using `document.getElementById('some-id')`
+A> and not the new fangled `document.querySelector('#some-id')`. Well it's true that these
+A> will both return the same element, and it's true that `getElementById()` is a much older
+A> piece of XML DOM, but the issue - at the time of writing - is one of performance (and
+A> perhaps `getElementById()` is a teeny tiny bit more readable). After some benchmarking experiments
+A> in desktop Chrome (using the mega useful `console.time()` and `console.timeEnd()` as at [https://developers.google.com/chrome-developer-tools/docs/console-api#consoletimelabel](https://developers.google.com/chrome-developer-tools/docs/console-api#consoletimelabel)) I saw that, for single elements, `getElementById()`
+A> was much faster than `querySelector()`. Out of curiosity I also tested jQuery's `$('#some-id)` (which
+A> returns a jQuery-specific list of nodes) and found this to be much slower than the browser's native
+A> `querySelector()`. Of note is that the new jQuery v2.0 was much faster than v1.x for the same selector
+A> (though still slower than `querySelector()`).
+
+Now, if we're still in the function we'll have *some* results. We loop over and retrieve the
+results using the SQLResultSet object's `rows.length` property and `rows.item(itemIndex)` method.
+What we do in the loop looks fiddly, but all we are doing is replicating the style of definition lines
+that [@japxlate](https://twitter.com/japxlate) uses. If you remember the snippet of `websql_edict_inserts.js` that we looked at earlier,
+the format of the "definition" field in the database is "/definition one/definition two/definition three/".
+We want to space these multiple definitions out a bit more and remove the lead and tail slashes;
+for that we'll use a helper function called `format_slashes()` which also goes in this file:
+
+{lang="js"}
+~~~~~~~~
+//Clean up the EDICT definition line that we get from our Web SQL DB
+//For example, "/one/two/three/" --> "one; two; three"
+function format_slashes(slashesString)
+{
+    //remove leading and trailing '/' characters
+    var string = slashesString.replace(/^\//, ''); //leading
+    var string = string.replace(/\/$/, ''); //trailing
+    
+    //change remaining '/' characters to a semicolon with space
+    return string.replace(/\//g, '; ');
+}
+~~~~~~~~
+
+We use JavaScript's core `replace()` method to change the slashes based on regex matching.
+We replace single lead and tail slashes with an empty string.
+We replace globally (the 'g' modifier after the regex) all remaining slashes with a semicolon
+followed by space. We return the modified string.
+
+OK, let's come back to explaining `putResultsOnPage()`. 
+We create in `defText` a nicely formatted definition line.
+We use `String.replace()` on this definition line to highlight the user's search term in our
+trademark red. For this we use `global_searchTerm` which we'll define a bit later on.
+
+`buttonSpinnerVisible()` is a simple CSS style toggler that also goes in `search_interface.js` and looks like this:
+
+
+{lang="js"}
+~~~~~~~~
+//Toggle for search button's loading spinner
+function buttonSpinnerVisible(visible)
+{
+    var spinner = document.getElementById('button-spinner');
+    
+    if(visible)
+    {
+        spinner.style.visibility = 'visible';
+    }
+    
+    else
+    {
+        spinner.style.visibility = 'hidden';
+    }
+}
+~~~~~~~~
+
+Remember in `websql_core.js` we did this a couple of times:
+
+{lang="js"}
+~~~~~~~~
+document.getElementById('loading-text').innerHTML = '';
+~~~~~~~~
+
+As this is manipulating the search interface, let's refactor this as a function in `search_interface.js`.
+Let's call it `clearLoadingMessage()`:
+
+{lang="js"}
+~~~~~~~~
+function clearLoadingMessage()
+{
+    document.getElementById('loading-text').innerHTML = '';
+}
+~~~~~~~~
+
+Then replace the two `document.getElementById('loading-text').innerHTML = '';` lines in `websql_core.js`
+with calls to `clearLoadingMessage();`.
+
+OK, in `search_interface.js` we now have all of the functions that *other functions* might call
+to update the interface for database searching, but we are missing something here. The user! We need to catch
+tap events on the Search button and then use their entered query to search the database and return results.
+Let's start where the user starts - the Search button. Let's add a click handler. Add a call to:
+
+{lang="js"}
+~~~~~~~~
+configureSearchButton();
+~~~~~~~~
+
+at the bottom of `receivedEvent()` in good old `index.js`.
+
+We define `configureSearchButton()` in `search_interface.js`:
+
+{lang="js"}
+~~~~~~~~
+//search button clickability
+function configureSearchButton()
+{
+    document.getElementById('search-button').addEventListener('click', onclickForSearchButton, false);
+}
+~~~~~~~~
+
+We define `onclickForSearchButton()` as the click handler for the search button.  
+`onclickForSearchButton()`, also in `search_interface.js`, is
+like this:
+
+{lang="js"}
+~~~~~~~~
+//Perform a dictionary search for entered query
+function onclickForSearchButton(event)
+{
+    var q = document.getElementById('search-query').value;
+    
+    //some kanji searches are going to be legitimately only one char
+    if(q.length < 1)
+    {
+        return;
+    }
+    
+    buttonSpinnerVisible(true);
+    
+    var matches = doEdictQueryOn(q);
+}
+~~~~~~~~
+
+We get the user's entered search query and - on the condition that it's at least one character long - we pass
+it to `doEdictQueryOn()` after displaying the "searching" spinner.
+`doEdictQueryOn()` is a function that we haven't written yet that will need a whole 'nother JavaScript
+file. We've already got quite a few JavaScript files, but this is keeping it nice and modular.
+Create `websql_query.js` in `/assets/www/js` and add `doEdictQueryOn()` thus:
+
+{lang="js"}
+~~~~~~~~
+//function to query the database based on whatever query string
+function doEdictQueryOn(newQ)
+{
+    //TODO
+}
+~~~~~~~~
+
+What? It's empty! Yes, we're going to take a breather now and plan what we're going to do next.
+A keyboard break if you like.
+Remember back in the [Layout and interface](#chapter-8-1) section of this chapter when we laid down some rules about our app?
+It's time to recap those now as it will affect how we implement dictionary searching.
+We said we'll stick to a rule "that the user's search query can be in Japanese as well as English".
+Obviously we'll then go down different search query routes depending on the entered language.
+So we need a way to detect if the query is Japanese or English.
+
+A> ## Why two search querying routes?
+A>
+A> We could get away with not detecting the input query's language by having this kind of logic:
+A>
+A> > "Assume the query is English, do a search, if no results then assume it's Japanese and search again"
+A>
+A> Which has two problems. We have to make an assumption about how our app is being *mostly* used.
+A> (Admittedly we could change the assumption if we find out it's wrong.)
+A> Another problem is performance - we may be searching unnecessarily.
+
+A very simple, and linguistically incorrect!, way to do this is to see if we have
+multibyte characters in our query string or not.
+We've set our HTML page to be UTF-8. UTF-8 is interesting because it's a flavour of Unicode
+that's backwards compatible with good ol' ASCII. ASCII can be utf-8, but so can Japanese!
+But ASCII won't set the right bits in each byte to be considered a multibyte stream.
+Something we can use to our advantage is that for ASCII, the length of a string in bytes
+will also be the length of that string in *characters*. For multibyte utf-8 strings,
+this will not be the case and the byte length will be **greater than** the character length.
+
+Let's implement an `is_mb()` ("mb" meaning "multibyte") check using this knowledge.
+Keeping things modular, and realising that we are going to need functions soon for
+Japanese language handling, make a new file in `/assets/www/js` called `linguistics.js`. Add
+`is_mb()` thus:
+
+{lang="js"}
+~~~~~~~~
+//Does the given utf8 string have multibyte characters or not?
+function is_mb(utf8String)
+{
+    return utf8String.length != mb_bytelen(utf8String);
+}
+~~~~~~~~
+
+Here we compare a string's length in characters (using the `length` property
+- JavaScript operates internally with utf-16 unicode) with its length in bytes.
+`mb_bytelen()` is the key function here that we need to write. It will give us the
+*byte* length for a utf8 string. Put it also in `linguistics.js`:
+
+{lang="js"}
+~~~~~~~~
+//Get length in BYTES of a utf8 string
+function mb_bytelen(utf8String)
+{
+    //Matches only the 10.. bytes that are non-initial characters
+    //in a multi-byte sequence.
+    var m = encodeURIComponent(utf8String).match(/%[89ABab]/g);
+    return utf8String.length + (m ? m.length : 0);
+}
+~~~~~~~~
+
+In utf-8, everything is a sequence of bytes. For an ASCII character, one byte is the full sequence -
+that byte *is* the character. But it allows for multibyte characters by the initial byte
+in that character's sequence of bytes setting a special bit. This special bit tells
+the browser (or programming language or text editor etc) that "there's more to come!"
+and the browser adds the remaining bytes in the sequence to get the full value for that character.
+The remaning bytes also set a special bit so the browser knows when that particular
+character has all of its bytes read. For the gory details please see [http://en.wikipedia.org/wiki/UTF-8](http://en.wikipedia.org/wiki/UTF-8).
+
+So what we are doing in `mb_bytelen()` is adding the length of the string in characters
+to the count of non-initial character sequence bytes. This will give us the total byte length
+for any utf8 string - containing multibyte characters or not!
+
+OK, `is_mb()` is one important tool for our database querying logic in the bag.
+Using it, let's think more about our query logic with some pseudocode:
+
+~~~~~~~~
+if(is_mb(searchTerm)) {
+    //searchTerm is Japanese (or at least multibyte)
+    //
+    //[1] exact kanji match
+    //[2] exact kana match
+} else {
+    //searchTerm is English or, as last resort, romaji
+    //
+    //[1] exact definition match
+    //[2] partial definition match
+    //[3] exact romaji match (on kana field)
+}
+~~~~~~~~
+
+So, if we detect multibyte characters in the search term, we *assume* it is Japanese and try to match it exactly
+against, first, the kanji field of the words in our database. Then, if that produces no results,
+we try to match it exactly against the kana field. This priority order is realistic because
+kanji (Chinese idiogrammic characters) are the "correct" way to write a Japanese word. The kana
+is just the way to pronounce those Chinese characters. Though note that some words are kana only and
+don't hava a kanji.
+
+We assume that the search term is in English if it contains no multibyte characters. Then we focus
+on the definition field of our database. Remember that definition entries look like this:
+
+`"/uncertain/vague/ambiguous/"`
+
+Multiple definitions are separated by slashes. So our most relevant results (query [1] of the English route) would
+be to find the search term **exactly** as one of these definitions. A search for "vague" would
+match the above definition, for example. If that produces no results,
+we query for *partial* matches of the search term in these definitions. For example a search for
+"director" will match a definition of `"/company director/board member/"`.
+Finally, if we still have no results, we can take a gamble and assume that the user has entered
+a term in romaji (which is Japanese written in abc like "sayonara" or "moshimoshi").
+For this we'll have to convert the search term into phonetic kana and query for a matching kana
+field. So this one needs a bit more work programmatically.
+
+Note that if we go down the Japanese route, and get no results at the end, we *don't* then proceed
+down the English route (and vice-versa).
+
+Let's implement the Japanese route first as the queries are easier. We'll go back to working in
+`websql_search.js`.
+Remember from writing `websql_core.js` how Web SQL works with callback chains?
+Well, with this in mind (and don't get me wrong, there are better and cleverer ways to do this)
+we're going to stick a couple of global variables at the top of `websql_search.js`
+so that all callback functions can access them:
+
+{lang="js"}
+~~~~~~~~
+//User's search term as a global variable (so we can access it from all the different callbacks). Hmmm...
+var global_searchTerm = null;
+
+//Maximum number of search results to return for any query
+var global_maxResultsCount = 40;
+~~~~~~~~
+
+Now make `doEdictQueryOn()` look like this:
+
+{lang="js"}
+~~~~~~~~
+function doEdictQueryOn(newQ)
+{
+    //set global_searchTerm
+    global_searchTerm = newQ;
+    
+    //version 1.0, 4 megabytes
+    var db = window.openDatabase("Japxlate", "1.0", "Japxlate DB", 4 * 1024 * 1024);
+    
+    if(is_mb(global_searchTerm))    //Japanese (or at least multibyte)
+    {
+        //console.log('doing as japanese - kanji');
+        db.transaction(queryDB_ja, errorWebSQL);
+    }
+    
+    else       //ie. English (or - as last resort - romaji)
+    {
+        console.log('doing as english - exact');
+    }
+}
+~~~~~~~~
+
+We simply save the search term into `global_searchTerm`, open the database and attempt the
+`queryDB_ja()` query function (using our generic Web SQL error handler). We'll come back to the
+`else` section for English later, but in the meantime let's make `queryDB_ja()` which is like this:
+
+{lang="js"}
+~~~~~~~~
+//Search edict for an exact kanji match
+function queryDB_ja(tx)
+{
+    var safeQ = global_searchTerm;
+    
+    //use placeholders (so we don't need to escape the query)
+    tx.executeSql("SELECT * FROM edict WHERE kanji = ? LIMIT " + global_maxResultsCount, [safeQ], successQueryDB_ja, errorWebSQL);
+}
+~~~~~~~~
+
+We accept an SQLTransaction object - as per the Web SQL specification - and call it tx for short.
+We use `tx.executeSql()` to run a very simple SQL query on the edict table; Matching
+the kanji field exactly to the search term. Note how we get the search term from the
+global variable we defined earlier.
+
+In the SQL query, we have `"kanji = ?"`, the question mark is a placeholder for parameter (or value)
+binding. We then specify the value to be bound to this placeholder in the 2nd argument to `tx.executeSql()`,
+in this case safeQ.
+Why do this? Why not just query for `"kanji = '" + safeQ + "'"`, ie. literally.
+Well because, this way, if the entered search term contains single quotes or slashes
+or anything that Web SQL considers "special", the SQL query will break and result in errors.
+When we use parameter binding, Web SQL is going to *escape* the parameter value for us
+so that we are safe from dodgy characters accidentally breaking our SQL (or malicious
+"SQL injection" attacks). 
+You can try this a little later if you like to see how wrong it can go!
+
+So we query with a success callback of `successQueryDB_ja()` and our all-purpose error
+handler. Note that `successQueryDB_ja()` will be called if the `executeSql()` query is
+valid and executes - which means even if zero results are returned.
+So `successQueryDB_ja()` is going to look like this:
+
+{lang="js"}
+~~~~~~~~
+//Callback for if queryDB_ja() did not error (which includes zero results)
+//Print kanji matches if we have any ELSE try kana matches
+function successQueryDB_ja(tx, results)
+{
+    if(results.rows.length == 0)    //no kanji matches - try kana matches
+    {
+        //console.log('no ja kanji matches');
+
+        //version 1.0, 4 megabytes
+        var db = window.openDatabase("Japxlate", "1.0", "Japxlate DB", 4 * 1024 * 1024);
+
+        db.transaction(queryDB_ja_kana, errorWebSQL);
+    }
+   
+    else
+    {
+        putResultsOnPage(results);
+    } 
+}
+~~~~~~~~
+
+We receive the SQLTransaction and an SQLResultSet.
+We check the `rows.length` property of the resultset to see if we got any matches or not.
+If we have no matches then we open the DB again and run a different query function on it,
+namely `queryDB_ja_kana()` which is going to search for kana matches against
+the search term.
+If we have any matches, we simply call our `putResultsOnPage()` function
+(that we made previously in `search_interface.js`) and pass it the resultset. Then
+we are done with this particular query route.
+OK, we still need to implement `queryDB_ja_kana()`, which - yes you've guessed it -
+is almost identical to `queryDB_ja()` but using the kana field:
+
+{lang="js"}
+~~~~~~~~
+//Search edict for an exact kana match
+function queryDB_ja_kana(tx)
+{
+    var safeQ = global_searchTerm;
+    
+    //use placeholders (so we don't need to escape the query)
+    tx.executeSql("SELECT * FROM edict WHERE kana = ? LIMIT " + global_maxResultsCount, [safeQ], successQueryDB_ja_kana, errorWebSQL);
+}
+~~~~~~~~
+
+We simply print out any and all results that we might have.
+
+We are now ready to give this Japanese query route a test drive! First,
+include the new JavaScript files we've made at the bottom of `index.html`
+so that it looks like this:
 
 {lang="html"}
 ~~~~~~~~
-data-chrome="noheader nofooter"
+.
+.
+<script type="text/javascript" src="js/linguistics.js"></script>
+<script type="text/javascript" src="js/search_interface.js"></script>
+<script type="text/javascript" src="js/websql_edict_inserts.js"></script>
+<script type="text/javascript" src="js/websql_core.js"></script>
+<script type="text/javascript" src="js/websql_search.js"></script>
+<script type="text/javascript" src="js/japxlate.js"></script>
+<script type="text/javascript" src="js/index.js"></script>
+<script type="text/javascript">
+    app.initialize();
+</script>
+.
+.
 ~~~~~~~~
 
-to the \<a> tag will remove the header and footer. ("Chrome" here means the framing and embellishment
-of the widget - not Chrome browser!) 
-Note that the `noscrollbar` option mentioned in the above Twitter documentation will only *visually* remove the scrollbar, scrollability is still present
-and so we will instead remove scrollbars and scrollability with CSS techniques soon.
+Run it! Enter an English search term and click the search button.
+You'll get a console message of "doing as english - exact", and the
+spinner will start to spin and not stop! We've obviously not finished the English
+query route yet.
 
-Add `data-chrome="noheader nofooter"` to the \<a> and running it looks like this:
+Let's check if it is really searching for any entered Japanese terms.
+Go ahead and copy some random text from [http://www.yahoo.co.jp](http://www.yahoo.co.jp) and paste
+it into our app's search box. Click search. You'll probably
+get the "no matches found" message (unless you got really lucky!).
+OK, so that's working. What about an actual match? Open up the `websql_edict_inserts.js`
+file and copy any kanji or kana INSERT value. Search for this on the app
+and you should get the corresponding definition. Nice!
 
-![Figure 38. Embed of headerless and footerless Twitter User timeline widget](images/fig_380.png)
+This is pretty awesome right now. It's beginning to feel like a useful, working app!
+OK, before the very final thing we need to implement for searching (I'll let
+you guess what you think it is ;-)) let's tackle that English searching route.
+Go back to the `else` clause in `doEdictQueryOn()` (in `websql_search.js`) and edit it to
+actually do something:
 
-The widget header and footer have indeed gone, but there is still the scrolling issue. Also, the widget
-is rather narrow and doesn't take up the full width of the screen.
-Debugging in desktop Chrome we can use the "inspect element" tool which is the magnifying glass
-at the bottom of the F12 console. This tells us that the \<a> is replaced with an iframe.
-An iframe is, simplistically, like an embedded browser window in your web page. This
-will have ramifications for our app which we mention later on.
+{lang="js"}
+~~~~~~~~
+.
+.
+if(is_mb(global_searchTerm))    //Japanese (or at least multibyte)
+{
+    //console.log('doing as japanese - kanji');
+    db.transaction(queryDB_ja, errorWebSQL);
+}
 
-The above Twitter documentation for timelines says:
+else       //ie. English (or - as last resort - romaji)
+{
+    console.log('doing as english - exact');
+    db.transaction(queryDB_en, errorWebSQL);
+}
+.
+.
+~~~~~~~~
 
-> "Setting a width is not required, and by default the widget will shrink to the width of its parent element in the page." 
+We do what we do for Japanese just with a different query function called `queryDB_en()`
+which is going to do step [1] of our English route and is like this:
 
-Which implies that if we put the \<a> in a parent div of `width:100%`, then the widget will fill the width
-of the screen. Let's try it. Put the \<a> and \<script> in a parent tag thus:
+{lang="js"}
+~~~~~~~~
+//Search edict for an exact English match
+function queryDB_en(tx)
+{
+    var safeQ = global_searchTerm;
+    
+    //use placeholders (so we don't need to escape the query)
+    tx.executeSql("SELECT * FROM edict WHERE definition LIKE ? LIMIT " + global_maxResultsCount, ['%/' + safeQ + '/%'], successQueryDB_en, errorWebSQL);
+}
+~~~~~~~~
+
+Here we query the definition field of our edict table and note how we use the LIKE
+operator and not, as with the Japanese route queries, the '=' operator.
+LIKE allows us to use wildcard characters which allows us to do a fuzzier search.
+We need that functionality here as we are trying to match only one of
+each database row's many definitions (separated by '/').
+
+What's going on with our 2nd argument where we have to specify the value
+for parameter binding?
+Well, we basically build a LIKE condition that will match, completely, safeQ as ANY one
+of the definition entries - first one, last one or any of the middle ones.
+'%' is the SQL wildcard meaning "match anything" and actually it will match zero
+characters if applicable too! With a definition of:
+
+`"/one/two/three/"`
+
+then the same format of condition like: '%/one/%', '%/two/%', '%/three/%'
+will match each corresponding definition respectively. We simply build this pattern and
+put it in the 2nd argument.
+We use the general error handler again and the success handler is `successQueryDB_en()`:
+
+{lang="js"}
+~~~~~~~~
+//Callback for if queryDB_en() did not error (which includes zero results)
+//Print exact matches if we have any ELSE try partial matches
+function successQueryDB_en(tx, results)
+{
+    if(results.rows.length == 0)    //no exact matches - try partial matches
+    {
+        //console.log('no en exact matches');
+        
+        //version 1.0, 4 megabytes
+        var db = window.openDatabase("Japxlate", "1.0", "Japxlate DB", 4 * 1024 * 1024);
+    
+        db.transaction(queryDB_en_partial, errorWebSQL);
+    }
+   
+    else
+    {
+        putResultsOnPage(results);
+    } 
+}
+~~~~~~~~
+
+This is cut from the same mould as `successQueryDB_en()` that we've just done.
+If we have no results from exact matching, we move on to step [2] which is
+partial matches by calling `queryDB_en_partial()`:
+
+{lang="js"}
+~~~~~~~~
+//Search edict for a partial English match
+function queryDB_en_partial(tx)
+{
+    var safeQ = global_searchTerm;
+    
+    //use placeholders (so we don't need to escape the query)
+    tx.executeSql("SELECT * FROM edict WHERE definition LIKE ? LIMIT " + global_maxResultsCount, ['%' + safeQ + '%'], successQueryDB_en_partial, errorWebSQL);
+}
+~~~~~~~~
+
+This is very very similar to `queryDB_en()`, but the important difference is in
+the LIKE condition. We do not use slashes here which means we are not
+locked down to an exact match and will match any definition list
+where the user's search term *appears*. For example, searching for "user
+interface" will match a definiton of:
+
+`"/graphical user interface/GUI/"`
+
+The success callback here is `successQueryDB_en_partial()` which is
+going to trigger the final step [3] of English searching, or display
+results from this step [2].
+
+It is in the same shape as the other success callbacks so far:
+
+{lang="js"}
+~~~~~~~~
+//Callback for if queryDB_en_partial() did not error (which includes zero results)
+//Print partial matches if we have any ELSE try romaji matches
+function successQueryDB_en_partial(tx, results)
+{
+    if(results.rows.length == 0)    //no partial matches - try as romaji
+    {
+        //console.log('no en partial matches');
+             
+        //version 1.0, 4 megabytes
+        var db = window.openDatabase("Japxlate", "1.0", "Japxlate DB", 4 * 1024 * 1024);
+    
+        db.transaction(queryDB_en_romaji, errorWebSQL);
+    }
+    
+    else
+    {
+        putResultsOnPage(results);
+    } 
+}
+~~~~~~~~
+
+We do step [3] - if we need to - by calling `queryDB_en_romaji()`.
+This is going to be the fiddly step that we mentioned earlier as it will need
+to convert search terms like "sayonara" or "moshimoshi" into phonetic Japanese
+kana so we can then search the database. `queryDB_en_romaji()` is like this:
+
+{lang="js"}
+~~~~~~~~
+//Search edict for a romaji match
+function queryDB_en_romaji(tx)
+{
+    var safeQ = global_searchTerm;
+    var safeQKana = romaji_to_hira(global_searchTerm);
+    
+    //use placeholders (so we don't need to escape the query)
+    tx.executeSql("SELECT * FROM edict WHERE kana LIKE ? LIMIT " + global_maxResultsCount, [safeQKana], successQueryDB_en_romaji, errorWebSQL);
+}
+~~~~~~~~
+
+We convert the search term into hiragana (which is *one* of the Japanese
+phonetic scripts and the most common one used in the kana field of our table) via `romaji_to_hira()` which
+we implement very soon.
+The query is straightforward, but don't forget to implement the success callback of 
+`successQueryDB_en_romaji()` which is a carbon copy of `successQueryDB_ja_kana()`
+but with a different name.
+
+So we've come to a bit of a dead-end as we need to implement the `romaji_to_hira()`
+script conversion function.
+Well, I know from the experience of building the [@japxlate](https://twitter.com/japxlate) bot - and [Mapanese](http://mapanese.info) -
+that we can cover **almost all** cases of Japanese <--> English script conversion
+by simple string replacement operations. For example, we have a table of all
+Japanese characters and then a corresponding table of English spellings
+for those characters. Then we can convert Japanese script to English and vice versa.
+
+JavaScript has a builtin `String.replace()` method, but it works by replacing
+the first (or all) matching regexes in the string with the supplied replacement value.
+We can't give it a list of targets and a list of corresponding replacements.
+We want something a little easier to use, and so we're going to go deep down and dirty
+with some advanced JavaScript. We are going to *prototype* a new method onto the
+String object which means we can add a new method to the String class ONCE and
+it is available to any variable of type string in JavaScript!
+Let's put this in `linguistics.js` (we'll get back to database querying when we've
+got the language conversion all done and dusted). OK, code first explanations second:
+
+{lang="js"}
+~~~~~~~~
+//Here we use prototyping to add a method to the String class to give
+//us the equivalent of PHP's str_replace()
+String.prototype.str_replace = function(find, replace)
+{
+    var replaceString = this;
+    var regex;
+    
+    for (var i = 0; i < find.length; i++) {
+        regex = new RegExp(find[i], "g");
+        replaceString = replaceString.replace(regex, replace[i]);
+    }
+    
+    return replaceString;
+};
+~~~~~~~~
+
+'String' is JavaScript's object name for character strings. Any variable - or literal -
+that's a string will be of object type 'String'. That's how we can run `.replace()` 
+and `.match()` and things like that on any JavaScript string - because they are all String
+objects and the String object has prototypes of those methods.
+
+So the syntax to prototype a new method into the String object is:
+
+{lang="js"}
+~~~~~~~~
+String.prototype.newMethodName = function(any, args, you, need){code; to; do; stuff;};
+~~~~~~~~
+
+We name the method "str_replace" (in honour of PHP ;-)) and define it as a function
+accepting two parameters; find and replace - both of which are character arrays.
+
+In a prototype method, the context of 'this' will refer to the object on which the method was called.
+For example, if calling `myStringVariable.str_replace()`, then in the `str_replace()` protoype,
+'this' will be myStringVariable.
+
+We save the string in `replaceString`. We then loop over each item in the find array
+and **globally** (the 'g' modifier) replace any occurrences of it with the corresponding character
+in the replace array. So yes, the find and replace arrays need to have the same number of
+items in them which we don't explicitly police here.
+
+Before we write `romaji_to_hira()`, we need the character tables that our `String.str_replace()`
+will operate on. I won't dwell on these too much, and it's best to simply paste these
+in to your code as a black box - this isn't a linguistics course! Though the variable
+names and comments will help if you want to read through it. Stick these at the top of `linguistics.js`:
+
+{lang="js"}
+~~~~~~~~
+//----character tables----------------------------------------------------------
+
+//All single character hiragana (in "biggest" first order)
+var coreHiragana =
+[
+    'が', 'ぎ', 'ぐ', 'げ', 'ご',
+    'ざ', 'じ', 'ず', 'ぜ', 'ぞ',
+    'だ', 'ぢ', 'づ', 'で', 'ど',
+    'ば', 'び', 'ぶ', 'べ', 'ぼ',
+    'ぱ', 'ぴ', 'ぷ', 'ぺ', 'ぽ',
+    'か', 'き', 'く', 'け', 'こ',
+    'さ', 'し', 'す', 'せ', 'そ',
+    'た', 'ち', 'つ', 'て', 'と',
+    'な', 'に', 'ぬ', 'ね', 'の',
+    'は', 'ひ', 'ふ', 'へ', 'ほ',
+    'ま', 'み', 'む', 'め', 'も',
+    'や',       'ゆ',       'よ',
+    'ら', 'り', 'る', 'れ', 'ろ',
+    'わ', 'ゐ',       'ゑ', 'を',
+    'ん', 'っ',
+    'あ', 'い', 'う', 'え', 'お',
+    'ゃ',       'ゅ',       'ょ',
+    'ぁ', 'ぃ', 'ぅ', 'ぇ', 'ぉ',
+];
+
+//All single character katakana (in "biggest" first order)
+var coreKatakana =
+[
+    'ガ', 'ギ', 'グ', 'ゲ', 'ゴ',
+    'ザ', 'ジ', 'ズ', 'ゼ', 'ゾ',
+    'ダ', 'ヂ', 'ヅ', 'デ', 'ド',
+    'バ', 'ビ', 'ブ', 'ベ', 'ボ',
+    'パ', 'ピ', 'プ', 'ペ', 'ポ',
+    'カ', 'キ', 'ク', 'ケ', 'コ',
+    'サ', 'シ', 'ス', 'セ', 'ソ',
+    'タ', 'チ', 'ツ', 'テ', 'ト',
+    'ナ', 'ニ', 'ヌ', 'ネ', 'ノ',
+    'ハ', 'ヒ', 'フ', 'ヘ', 'ホ',
+    'マ', 'ミ', 'ム', 'メ', 'モ',
+    'ヤ',       'ユ',       'ヨ',
+    'ラ', 'リ', 'ル', 'レ', 'ロ',
+    'ワ', 'ヰ',       'ヱ', 'ヲ',
+    'ン', 'ッ',
+    'ア', 'イ', 'ウ', 'エ', 'オ',
+    'ャ',       'ュ',       'ョ',
+    'ァ', 'ィ', 'ゥ', 'ェ', 'ォ',
+];
+
+//Transliterations of coreHiragana
+var coreRomaji =
+[
+    'ga', 'gi', 'gu', 'ge', 'go',
+    'za', 'ji', 'zu', 'ze', 'zo',
+    'da', 'di', 'du', 'de', 'do',
+    'ba', 'bi', 'bu', 'be', 'bo',
+    'pa', 'pi', 'pu', 'pe', 'po',
+    'ka', 'ki', 'ku', 'ke', 'ko',
+    'sa', 'shi', 'su', 'se', 'so',
+    'ta', 'chi', 'tsu', 'te', 'to',
+    'na', 'ni', 'nu', 'ne', 'no',
+    'ha', 'hi', 'fu', 'he', 'ho',
+    'ma', 'mi', 'mu', 'me', 'mo',
+    'ya',       'yu',       'yo',
+    'ra', 'ri', 'ru', 're', 'ro',
+    'wa', 'wi',       'we', 'wo',
+    'n',  'ッ',  //preserve chiisai tsu
+    'a',  'i',  'u',  'e',  'o',
+    'ya',       'yu',       'yo',
+    'a',  'i',  'u',  'e',  'o',
+];
+
+//All "combination" katakana
+var comboKatakana =
+[
+    'チャ', 'チュ', 'チェ', 'チョ',
+    'シャ', 'シュ', 'シェ', 'ショ',
+    'ジャ', 'ジュ', 'ジェ', 'ジョ',
+    'キャ', 'キュ',        'キョ',
+    'ギャ', 'ギュ',        'ギョ',
+           'リュ',         'リョ',
+    'ミャ', 'ミュ',         'ミョ',
+    'ヒャ', 'ヒュ',         'ヒョ',
+    'ニャ', 'ニュ',         'ニョ',
+    'ビャ', 'ビュ',         'ビョ',
+    'ピャ', 'ピュ',         'ピョ',
+    'ヂャ', 'ヂュ',         'ヂョ',
+    'ファ', 'フィ', 'フェ', 'フォ',
+           'ウィ', 'ウェ',  'ウォ',
+    'ヴァ', 'ヴィ', 'ヴェ', 'ヴォ',
+           'ティ',
+           'ディ'
+];
+
+//Transliterations of comboKatakana
+var comboRomaji =
+[
+    'cha', 'chu', 'che', 'cho',
+    'sha', 'shu', 'she', 'sho',
+    'ja',  'ju',  'je',  'jo',
+    'kya', 'kyu',        'kyo',
+    'gya', 'gyu',        'gyo',
+           'ryu',        'ryo',
+    'mya', 'myu',        'myo',
+    'hya', 'hyu',        'hyo',
+    'nya', 'nyu',        'nyo',
+    'bya', 'byu',        'byo',
+    'pya', 'pyu',        'pyo',
+    'dya', 'dyu',        'dyo',
+    'fa',  'fi',  'fe',  'fo',
+           'wi',  'we',  'wo',
+    'va',  'vi',  've',  'vo',
+           'ti',
+           'di'
+];
+
+//----/end character tables-----------------------------------------------------
+~~~~~~~~
+
+The "combo" tables represent larger Japanese phonics that are written with two characters.
+We need to search and replace these first in order to prevent splitting any of them up
+by searching and replacing single characters first.
+
+Note that we don't define a "comboHiragana" table because we can get that
+by computing `comboKatakana.str_replace(coreKatakana, coreHiragana);`
+if we need to.
+
+`romaji_to_hira()` is going to now look like this:
+
+{lang="js"}
+~~~~~~~~
+//Convert romaji to hiragana
+function romaji_to_hira(romajiString)
+{
+    //replace combos first
+    var katakana = romajiString
+            .str_replace(comboRomaji, comboKatakana)
+            .str_replace(coreRomaji, coreKatakana);
+    
+    //force hiragana
+    return kata_to_hira(katakana);
+}
+~~~~~~~~
+
+We accept a string in romaji (abc) and then run `String.str_replace()` on it *twice* using
+a technique called chaining. We replace combo characters first and then single
+characters.
+We now have a converted string in katakana, but as the function name implies we want
+to return hiragana. We return the katakana as modified by `kata_to_hira()` which we
+implement, again in `linguistics.js`, thus:
+
+{lang="js"}
+~~~~~~~~
+//Convert katakana to hiragana
+function kata_to_hira(katakanaString)
+{
+    return katakanaString.str_replace(coreKatakana, coreHiragana);
+}
+~~~~~~~~
+
+Here we simply replace all katakana with the corresponding hiragana.
+We don't need to bother with combo characters here as this will
+cover all cases.
+
+The English search route is ready to go! Give it a whirl by searching for some
+words and seeing what - if any - results you get. To be double dog sure
+that we are trying exact definition matches first and then falling back to 
+partial matches, have a peek at the `websql_edict_inserts.sql` file again
+and pick out some definitions to searh for.
+
+In fact, we've not had any screenshots of the app for a while so let's have 
+one for each type of search (kanji, kana, English exact, English partial):
+
+![Figure 31. Respective results for kanji, kana, English (exact matches found) and English (partial matches found) queries](images/fig_310.png)
+
+Great! Though looking at these reminds us that we still need to,
+in `putResultsOnPage()` of `search_interface.js`, somehow convert the kana
+field from the database into romaji to make our result lines easier to understand.
+In that function, change this bit:
+
+{lang="js"}
+~~~~~~~~
+var theRomaji = item.kana;    //TODO
+~~~~~~~~
+
+to this:
+
+{lang="js"}
+~~~~~~~~
+var theRomaji = kana_to_romaji(item.kana);
+~~~~~~~~
+
+Let's implement `kana_to_romaji()` in `linguistics.js` and it will be somewhat the opposite
+of our current `romaji_to_hira()`. `kana_to_romaji()` is like this:
+
+{lang="js"}
+~~~~~~~~
+//Convert kana (hira or kata) to romaji
+function kana_to_romaji(kanaString)
+{
+    //force katakana
+    var kata = hira_to_kata(kanaString);
+    
+    //transliterate
+    var withChiisaiTsu = kata.str_replace(comboKatakana, comboRomaji)
+                            .str_replace(coreKatakana, coreRomaji);
+    
+    //fix any remaining chiisai tsu's
+        //before 'chi' (make "tchi")
+    var romaji = withChiisaiTsu.replace(/ッchi/g, 'tchi');
+        //before anything else (double the consonant)
+    romaji = romaji.replace(/ッ([a-z]{1})/g, "$1$1");
+    
+    //TODO katakana style 'ー' (which might actually be '-' in the input string)
+    romaji = romaji.replace(/([^0-9])[-]([^0-9])/g, "$1ー$2");
+    romaji = romaji.replace(/([a-z]{1})ー/g, "$1$1");
+    
+    return romaji;
+}
+~~~~~~~~
+
+Again it's best to think of this as a black box, but what it's doing is the opposite of 
+`romaji_to_hira()` but with some extra cleanup steps at the end.
+Searching for anything now has romaji (abc) in brackets on each result line:
+
+![Figure 32. We now get each result word spelled out in abc (romaji)](images/fig_320.png)
+
+Sweet!
+
+Before scrolling - which will be epic - there's just one more niggle. You might have noticed so far that we
+can get search results by clicking the search button, but **not** by pressing enter (or equivalent)
+on the on-screen keyboard after we've typed the search term.
+Correctly implemented HTML forms will let you press enter in a text input field
+to submit the form. It will perform the same as clicking the form's submit button.
+We don't technically have a <form> here - as we aren't submitting to a remote server, it's all client-side - but we should emulate this behaviour because:
+
+* Other apps do it
+* It is expected UX and is "normal"
+
+It is surprisingly easy to implement, we simply need a handler for *keypress* events on
+the search input. This event fires every time a character is typed and then inserted into a text
+input or textarea etc. The event will tell us which key was pressed and we simply need to
+treat the ENTER key as a special case because we then want to do some processing (and not put a character
+into the text field).
+
+Stick a:
+
+{lang="js"}
+~~~~~~~~
+configureSearchInput();
+~~~~~~~~
+
+at the bottom of `receivedEvent()` in `index.js`.
+Define this function in `search_interface.js` thus:
+
+{lang="js"}
+~~~~~~~~
+//search box ENTER keypress
+function configureSearchInput()
+{
+    document.getElementById('search-query').addEventListener('keypress', onkeyForSearchInput, false);
+}
+~~~~~~~~
+
+We set `onkeyForSearchInput()` as the keypress handler for our search text input.  
+`onkeyForSearchInput()` also lives in `search_interface.js` and is this:
+
+{lang="js"}
+~~~~~~~~
+//Simulate a "normal" HTML form input by allowing an ENTER press in the
+//query input to perform the same as clicking the search button
+function onkeyForSearchInput(event)
+{
+    //.charCode or .keyCode ??
+    if(event.keyCode == 13) //ENTER key
+    {
+        //trigger the already registered "click" handler
+        document.getElementById('search-button').click();
+    }
+}
+~~~~~~~~
+
+We simply use the keyCode property of the received event to detect an ENTER press
+and then call the already registered click handler for the search button.
+For anything other than ENTER, we "do nothing".
+How we call the click handler manually is worth talking about. We simply
+get the relevant DOM element using `document.getElementById()` (or you could use `document.querySelector()`
+or what-have-you) and then call `.click()` on it. This will trigger the registered click
+handler for that element.
+
+You'll be wondering now "but our click handler for the search button receives a mouse event
+ - a click in fact. What will it receive in this case?"
+Interestingly, after manually calling `.click()` on an element, that element's click handler
+will be triggered with a *dummy* mouse event (where, for example, the x and y coordinates are zero
+and etc). Depending on what you do with the mouse event in the click handler, it may or may
+not make sense to call it manually with `.click()`. In our case, the click handler doesn't
+even use the received event, and so we are fine.
+
+Give it a whirl! You can now search by hitting the ENTER (or equivalent) key after typing a search term. It will work on desktop Chrome or your device!
+Sweet!
+
+
+## Results scrolling {#chapter-8-4}
+
+The final epic thing on our Search tab is results scrolling. You've probably
+already noticed that if your search produces lots of results, it is simply clipped
+at the bottom of the screen (actually just above our footer). If you haven't noticed
+this yet, then try searching for "it's" and you'll see the problem.
+
+With desktop Chrome, you can scroll as per normal with the scrollbar that appears - or your mouse wheel.
+In fact, the search box and search button also scroll
+because this is the `japxlate_app` div that is scrolling,
+due to CSS `overflow:auto;`
+
+So why don't we have scrollbars or scrollability
+on the device?
+It's because the Android WebView browser (and the
+stock browser app) will only allow scrolling when
+the entire html document itself is larger than
+the viewport. Even then it doesn't show scrollbars.
+It would be very very fiddly on a small mobile screen
+if, say, the html document itself was scrollable and then
+a small div inside of that was scrollable too! This
+is why CSS scrolling does not work on WebView.
+
+What we need to do is to use browser events to implement
+our own scrolling for search results. Also, let's limit
+scrollability to our #results-wrapper div so that
+we don't scroll the search box and button.
+
+So, we probably want to detect a finger drag on the results
+and then scroll based on that. And we've just seen that
+the DOM event of "click" (on the search button) worked for
+both mouse clicks and finger taps.
+So, to detect a finger drag on our device we can probably
+just detect a "mousemove" event or something like that huh?
+Annoyingly no. The "traditional" DOM mouse events of
+"mousedown", "mousemove" and "mouseup" do NOT get triggered
+in WebView when putting a finger down, moving and then
+releasing the finger. This is initially very annoying and
+confusing, but it makes sense really because of things
+like multi-finger gestures which obviously have no parallel on a mouse. Maybe in the future there will
+even be pressure sensitive mobile screens?
+
+The events in question are touchstart, touchmove and touchend.
+These somewhat correlate to the mousedown, mousemove, and
+mouseup events. Remembering that the parent #results-wrapper div is actually our
+static "window" on the search results, we need to attach scrolling behaviour to
+#search-results which is where the search result content gets written to.
+
+Mosey on back to `receivedEvent()` in `index.js` and stick a call to:
+
+{lang="js"}
+~~~~~~~~
+configureSearchTouchScrolling();
+~~~~~~~~
+
+at the bottom. And yes, you've guessed it, we are going to define this function in `search_interface.js`
+. thus:
+
+{lang="js"}
+~~~~~~~~
+//configure touch dragging for search results
+function configureSearchTouchScrolling()
+{
+    document.getElementById('search-results')
+            .addEventListener('touchstart', touchstartForSearchResults, false);
+    
+    document.getElementById('search-results')
+            .addEventListener('touchmove', touchmoveForSearchResults, false);
+    
+    document.getElementById('search-results')
+            .addEventListener('touchend', touchendForSearchResults, false);
+}
+~~~~~~~~
+
+We simply register one custom handler function for each of the touch events.
+To get the ball rolling, define placeholders for these handlers - still in `search_interface.js` - thus:
+
+{lang="js"}
+~~~~~~~~
+//Touchstart event handler for search results div - initiates touch scrolling
+function touchstartForSearchResults(event)
+{
+    console.log('touchstart');
+}
+
+//Touchmove event handler for search results div - performs touch scrolling
+function touchmoveForSearchResults(event)
+{
+    console.log('touchmove');
+}
+
+//Touchend event handler for search results div
+function touchendForSearchResults(event)
+{
+    console.log('touchend');
+}
+~~~~~~~~
+
+This is now runnable but note that it won't do anything on your desktop Chrome as
+nothing can trigger touch events! So run this on your device, search for "it's" (a good
+test as it matches a **lot** of entries) and then drag your finger up and down over the results.
+Your Eclipse LogCat will show something like this:
+
+![Figure 33. Touch events captured in LogCat](images/fig_330.png)
+
+Nice! Of interest is that if you *tap* the results, you'll trigger a touchstart immediately followed
+by a touchend. ie. there will be no "move".
+
+Cool, so we are already catching the events that we need for scrolling, we just need to scroll!
+What we'll do is we'll get the y (or vertical) coordinate of wherever the finger was moved to,
+and use that to change the CSS top property of #search-results accordingly. Remember that we
+set #search-results to `position:relative;` which means that we can set its "top" property to any value (in pixels)
+that we like. A negative top will move the results up and a positive top will move the results down.
+Essentially, if a finger touches at y=60 and then moves up to y=30 (a lower y is higher up the screen)
+we know that we should move the results div up by 30; which is to say a top value of -30px.
+
+OK, we've already got three different touch events each with its own handler function.
+I'm thinking already that we are going to need some evil global variables to store
+things that will be shared between these handlers. For example, finger y positions and so on.
+Stick these at the top of `search_interface.js`:
+
+{lang="js"}
+~~~~~~~~
+//start y axis position (in pixels) of the current scroll
+var global_scrollStartY;
+
+//current 'top' css value (in pixels) of our scrollable div
+var global_scrollDivTop;
+
+//height (in pixels) of our viewport over the scrollable div (used to activate scrolling)
+var global_scrollWindowHeight;
+
+//current height (in pixels) of our scrollable div's content (used to activate scrolling and for scroll locking)
+var global_scrollDivHeight;
+~~~~~~~~
+
+For every finger scroll we want to know the start y of the results div and the start y of the finger.
+Then we can find out how far up (or down) the finger moves and simply subtract (or add) this to the
+top value of the results div. We also need to know (a) do we need scrolling at all? and (b) when to
+stop scrolling to prevent content being scrolled off the viewport! For both (a) and (b) we save the height
+of the scrollable content and the height of the scroll viewport.
+We saw earlier from fiddling with the device screen and looking at LogCat that finger scrolling
+is split into three steps; touchstart, touchmove then touchend. We'll map these three different
+events to three different steps for our scrolling. Thus:
+
+* touchstart => finger scrolling *may* start
+* touchmove => finger scrolling happening now!
+* touchend => finger scrolling (if it was happening at all) has stopped
+
+Sidenote now, but have you noticed that we are no longer able to debug results scrolling in
+desktop Chrome? To get rid of this annoyance, we'll implement our touch scrolling in as generic
+a way as possible so that we can - a little bit later in the tutorial - add *simulated* touch
+scrolling by using mouse events instead of touch events.
+
+OK, go back to `touchstartForSearchResults()` and `touchmoveForSearchResults()` and make them look
+a bit like this:
+
+{lang="js"}
+~~~~~~~~
+//Touchstart event handler for search results div - initiates touch scrolling
+function touchstartForSearchResults(event)
+{
+    //console.log('touchstart');
+    
+    touchobj = event.changedTouches[0]; //reference *first* touch point
+  
+    startVerticalDragScrolling(this, touchobj.clientY);
+    
+    event.preventDefault(); //prevent default tap behavior
+}
+
+//Touchmove event handler for search results div - performs touch scrolling
+function touchmoveForSearchResults(event)
+{
+    //console.log('touchmove');
+    
+    touchobj = event.changedTouches[0]; //reference first touch point for this event
+    
+    doVerticalDragScrolling(this, touchobj.clientY);
+    
+    event.preventDefault();
+}
+~~~~~~~~
+
+Well we don't do much in these handler functions themselves, other than call soon-to-be-written
+helper functions and then preventing the default action for the touch event in question.
+We bundle away scroller functionality into helper functions to keep things nice and generic
+which will help us later when we go back and get scrolling working with the mouse.
+As the default behaviour for dragging a finger over some text would be to select that text,
+we prevent this default.
+
+The key point here is how to use the touch event that we receive.
+Touch events contain a `changedTouches` property which is an array of touch objects.
+Each touch object in the array represents a single touch directly involved in
+this event. Which for touchstart means all the fingers that hit the screen, and for
+touchmove means all the fingers that moved.
+
+As we don't need or want to do anything fancy with
+multi touch gestures on Japxlate, we can simply
+access `.changedTouches[0]` and ignore the rest.
+There will always be at least one touch object
+in `changedTouches[0]`, and there may or may not be more.
+
+We pass the clientY property of our touch object to 
+our helper functions. As the first argument, we also pass 'this',
+which if you remember for event handler functions
+means the element that the event triggered on - in this
+case the search results div.
+
+See [http://www.javascriptkit.com/javatutors/touchevents.shtml](http://www.javascriptkit.com/javatutors/touchevents.shtml) for more
+about touch events in JavaScript.
+
+A> NOTETOSELF
+A> SIDENOTE about the different JavaScript event coordinate systems
+A> [dont 4get that for mobile there is one extra which is the current poz of the small device window on the bigger client window
+
+OK, so the meat-and-bones of scrolling are bundled away in helper functions.
+Let's have a look at our scroll initiator - `startVerticalDragScrolling()` - first
+of all:
+
+{lang="js"}
+~~~~~~~~
+//initialise vertical scrolling for ontouchmove
+function startVerticalDragScrolling(elementToScroll, eventClientY)
+{
+    //console.log('initialise scrolling');
+    
+    var theStyle = window.getComputedStyle(elementToScroll);
+    
+    global_scrollDivTop = parseInt(theStyle.top);  //get 'top' value of box
+    global_scrollStartY = parseInt(eventClientY); // get x coord of touch point
+    
+    global_scrollDivHeight = parseInt(theStyle.height); //get 'height' value of box
+    
+    //work out height of #search-results versus height of results
+    //pane (which is .japxlate_app.height - #search-form.height)
+    global_scrollWindowHeight =
+        parseInt(
+            window.getComputedStyle(
+                document.querySelector('.japxlate_app')
+            ).height, 10) -
+            
+            parseInt(
+                window.getComputedStyle(
+                    document.querySelector('#search-form')
+            ).height);
+}
+~~~~~~~~
+
+So we expect to receive an elementToScroll which could be any old element (but with the right CSS
+settings) but in our case will be the search-results div. We also expect an eventClientY value.
+
+All we do in this function is save elementToScroll's CSS top value, and eventClientY to the
+global variables we defined earlier on. The novelty here is the use of `window.getComputedStyle()`
+which will return the CSS style properties of the specified element, but **not** the developer defined
+style as per a CSS stylesheet rule or an inline `style="something"` attribute. Rather this
+will return the CSS properties that the browser's rendering engine has given to the element to
+display it where it is. This method is useful to get *natural* CSS values for elements
+that we haven't styled ourselves very aggressively - or at all.
+
+We also save the height of the results div (global_scrollDivHeight) and the height
+of the results pane. (The results pane being all the space in .japxlate_app div
+*under* the search form). We do this so we can work out if we actually
+need to scroll at all! Note that to get the height of the results pane,
+we subtract the height of the search form from the total height of .japxlate_app.
+We get the height of the search form by getting the height of the #search-form
+wrapper div which we need to implement in `index.html` thus:
 
 {lang="html"}
 ~~~~~~~~
-<div id="twitter-iframe-container">
-    <a>...</a>
-    <script>...</script>
+<div id="search" class="current">
+    <div id="search-form">
+        <button type="button" id="search-button" style="float:right; width:45%; margin-right:1%;">
+            <img src="img/search.png">
+            Search
+            <img id="button-spinner" src="img/spinner.gif" style="visibility:hidden;">
+        </button>
+        <input type="text" id="search-query" placeholder="Japanese or English" size="40"
+               style="width:45%; margin-left:1%;">
+        <br>
+        <span id="loading-text">
+            [Loading core dictionary. This takes a while the first time.
+            <img src="img/spinner.gif">]
+        </span>
+    </div>
+    <div id="results-wrapper">
+    .
+    .
+    </div>
+    .
+    .
 </div>
 ~~~~~~~~
 
-Then style this parent div in `index.css` like this:
+That's the initiator, now on the the actual scroller which is, of course, going to be
+a bit more complex. We need to use the global values we just saved to work out how
+far we've scrolled and then move the results div accordingly. We also should
+check if we need to do any scrolling at all - there might be no overflow of content!
 
-{lang="css"}
+A first bash looks like this:
+
+{lang="js"}
 ~~~~~~~~
-#twitter-iframe-container {
-    position:absolute;  /*can now position relative to .japxlate_app which is*/
-    top:0;              /*this div's first non-static parent*/
-    bottom:0;
-    width:100%;
-    overflow:hidden;    /*clip overflowing content*/
+//do vertical scrolling for ontouchmove
+function doVerticalDragScrolling(elementToScroll, eventClientY)
+{
+    //console.log('do scrolling');
+    
+    //if height of results content is less than height of results pane,
+    //we have no content overflow and so don't need to scroll    
+    if(global_scrollDivHeight < global_scrollWindowHeight)
+    {
+        console.log('no overflow');
+        return;
+    }
+    
+    //calculate distance travelled by touch point
+    var distance = parseInt(eventClientY) - global_scrollStartY;
+    
+    //new CSS top for elementToScroll
+    var newTop = global_scrollDivTop + distance;
+    
+    //set the new top value for the div we are moving
+    elementToScroll.style.top = newTop + 'px';
 }
 ~~~~~~~~
 
-A `position:absolute` element can be positioned relative to its first non-static parent (static being `position:static` or the default position for when position is unspecified).
-For us here that means the .japxlate_app div which slots perfectly between the app header and footer.
-Setting a top and bottom of zero here means our div will stretch to fill the area that .japxlate_app covers.
-(Which conveniently gets rid of the `padding-top:1em;` we gave to .japxlate_app which is less
-than useful here.)
-So this is going to remove the Twitter widget scrolling and width issues you say? Check it out:
+First and foremost, we return immediately if we see that we don't need to do any scrolling
+because the results content div is shorter than the results pane. This prevents the user from
+being able to scroll a single result up and down the pane!
+Next, we have to work out how far away we are from the touch start point. This distance
+becomes the amount we have to add to - or subtract from - the top value of the results
+div.
+We access the CSS top value directly with `elementToScroll.style.top`.
 
-![Figure 39. Widget scrolling removed but only for desktop Chrome](images/fig_390.png)
+This works! Run it on you device! Nice! Just one problem, which we can see with
+these screenshots:
 
-OK, so scrolling is fixed. **But** only on desktop Chrome and not the device. The widget width is also still static:
+![Figure 34. We can scroll content past the top (left) and bottom (right) of the scroll viewport](images/fig_340.png)
 
-![Figure 40. Widget width is fixed and does not fill the available space](images/fig_400.png)
+Currently, we can scroll the content too far in either direction.
+We can fix this by editing `doVerticalDragScrolling()` to look like this:
 
-Well, we've got the perfect size *container* for this widget now, so what about forcing the
-width and height of the generated \<iframe> to the full size of this container? It's actually
-pretty easy to do this by adding some CSS rules for \<iframe>s in our `index.css`:
-
-{lang="css"}
+{lang="js"}
 ~~~~~~~~
-iframe {
-    width:100%;
-    max-height:100%;
+//do vertical scrolling for ontouchmove
+function doVerticalDragScrolling(elementToScroll, eventClientY)
+{
+    //console.log('do scrolling');
+    
+    //if height of results content is less than height of results pane,
+    //we have no content overflow and so don't need to scroll    
+    if(global_scrollDivHeight < global_scrollWindowHeight)
+    {
+        console.log('no overflow');
+        return;
+    }
+    
+    //calculate distance travelled by touch point
+    var distance = parseInt(eventClientY) - global_scrollStartY;
+    
+    //new CSS top for elementToScroll
+    var newTop = global_scrollDivTop + distance;
+    
+    //disallow scrolling bottom of content higher than bottom of results pane
+    //(using height of results pane)
+    if(newTop < ((0 - global_scrollDivHeight) + global_scrollWindowHeight))
+    {
+        console.log('top cushion');
+        return; //return false??
+    }
+    
+    //disallow scrolling top of content lower than top of results pane
+    if(newTop > 0)
+    {
+        console.log('bottom cushion');
+        return; //return false?
+    }
+    
+    //set the new top value for the div we are moving
+    elementToScroll.style.top = newTop + 'px';
 }
 ~~~~~~~~
 
-We simply say that the \<iframe> should fill its parent's width, and should never go taller than
-the parent's height.
-Run this on your device and it works! You can go landscape or portrait and the widget always
-fills the available width and never scrolls.
+(The changes are the two `if` clauses before the final `elementToScroll.style.top`.)
+To stop the top of the results going lower than the top of the results pane, we simply
+prevent the results div's top property from going higher than zero.
+To prevent the bottom of the results from going higher than the bottom of the results pane,
+we have to prevent the top value from going less than negative(results height + results pane
+height). If the height of the results is 1000 pixels, and we set the results div top to -1000 pixels,
+this will put the bottom of the results right at the top of the results pane. From this
+state, adding, to top, the height of the results div will put the bottom of the results at the
+bottom of the results pane. This is the minimum height we enforce here.
+[NOTETOSELF the height of the results div.(?)]
 
-We mentioned earlier some issues with \<iframe>s. Well, the Discover widget timeline contains
-any links that the tweets themselves contain. Also, there are some buttons for Twitter
-"intents" like replying, favouriting and retweeting. Clicking on any link actually opens that
-link in the \<iframe> - replacing the widget - which looks like this:
+Run this on your device and you'll see that scrolling is "locked" and behaves
+more like native Android.
 
-![Figure 41. Links in the User timeline widget can be clicked - opening the page](images/fig_410.png)
+Great, just one more problem which you might already be thinking about.
+Run the app and search for "it's" which produces lots of results. Scroll right to the
+bottom of the results. No problems there. But then do a search that only gives a few results
+like "gas". Eh? Where are the results? Well, when you scrolled to the bottom of the results
+for "it's" you moved the top value of the search results div to quite a high negative number.
+This means that the top of the div is very high up on the page, probably higher
+that the top of the screen! When you search again, the div is still up there and a short
+amount of content will be obscured and not "reach down" to the visible results pane.
+Clearly we need to reset the search result div's top on every display of search results.
+We can do this quite easily by a simple addition to `putResultsOnPage()` in
+our `search_interface.js` file. Edit the start of this function to look like:
 
-Disaster! Clicking one of the Twitter intents (which would actually be kinda
-cool to get working from the app), for example "reply", flows like this:
+{lang="js"}
+~~~~~~~~
+function putResultsOnPage(results)
+{
+    //get search results div
+    var theDiv = document.getElementById('search-results');
+    
+    //clear current content
+    theDiv.innerHTML = '';
+    
+    //reset Y position because it might have changed after some touch scrolling frenzy!
+    theDiv.style.top = '0';
+    .
+    .
+}
+~~~~~~~~
 
-![Figure 42. Flow when clicking "reply" from timeline widget](images/fig_420.png)
+The only change here is the new line setting `style.top` to zero. This is all we need to
+fix the scroll problem we've just experienced. Try it!
 
-So it already sorta kinda works in two different ways, but each has its issues. We are going to let this slide for the first release of the app, but this issue
-really needs to be addressed. Perhaps the widget itself has some useful customisation options?
-Or maybe links could be made to look non-linky by some CSS in our app? Or JavaScript
-click catching?
+Money in the bank! Searching and scrolling is operational now and we are ready
+to move on to the next tab. But do you remember we talked about, for debugging purposes,
+simulating the touch scrolling with mouse events for desktop Chrome? Here's a whistle-stop tour
+on getting that working:
 
-## Extra credit challenges {#chapter-8-2}
+At the top of `search_interface.js` put:
+
+{lang="js"}
+~~~~~~~~
+var global_mouseButtonDown = false;
+~~~~~~~~
+
+At the bottom of `receivedEvent()` in `index.js` put:
+
+{lang="js"}
+~~~~~~~~
+configureSearchMouseScrolling();
+~~~~~~~~
+
+In `search_results.js` add:
+
+{lang="js"}
+~~~~~~~~
+//configure mouse dragging for search results
+function configureSearchMouseScrolling()
+{
+    //simulated touch (ie. mouse) dragging for results
+    document.getElementById('search-results')
+            .addEventListener('mousedown', mousedownForSearchResults, false);
+    
+    document.getElementById('search-results')
+            .addEventListener('mousemove', mousemoveForSearchResults, false);
+    
+    document.getElementById('search-results')
+            .addEventListener('mouseup', mouseupForSearchResults, false);
+}
+~~~~~~~~
+
+In `search_interface.js` add:
+
+{lang="js"}
+~~~~~~~~
+//Mousedown event handler for search results div - initiates simulated touch scrolling
+function mousedownForSearchResults(event)
+{
+    //console.log('mousedown event on scrollable');
+    
+    global_mouseButtonDown = true;  //set global
+    
+    startVerticalDragScrolling(this, event.clientY);
+    
+    event.preventDefault(); //prevent default click behaviour (ie. select text or whatever)
+}
+
+//Mousemove event handler for search results div - performs simulated touch scrolling
+function mousemoveForSearchResults(event)
+{
+    //console.log('mousemove event on scrollable');
+    
+    if(!global_mouseButtonDown)
+    {
+        return false;   //do nothing if the mouse button isn't pressed down
+        //false is ok to return?
+    }
+    
+    doVerticalDragScrolling(this, event.clientY);
+    
+    event.preventDefault();
+}
+
+//Mouseup event handler for search results div
+function mouseupForSearchResults(event)
+{
+    //console.log('mouseup event on scrollable');
+    
+    global_mouseButtonDown = false;
+    event.preventDefault(); //need?
+}
+~~~~~~~~
+
+We simply recycle our existing scrolling helpers. The biggest difference is
+we need to track if the mouse button is down or not as we don't
+want to scroll on a mousemove when the mouse button isn't down.
+
+[NOTETOSELF mention using libraries for mobile touch scrolling etc]
+
+[NOTETOSELF and the android webkit hack that you found]
+
+## Extra credit challenges {#chapter-8-5}
 
 X> Solutions not provided. Try to add:
 X>
-X> 1. Disabling of clickable intents on tweets in the timeline widget OR..
-X> 2. ..Correct functioning of the clickable intents when the Twitter app is selected (and not the browser)
-X> 3. Instead of simply displaying "(network connection required)", use the [Connection API plugin](http://docs.phonegap.com/en/3.1.0/cordova_connection_connection.md.html#Connection) to properly detect if the device is currently online or not. If it's not online, then do something to inform the user that the Discover tab needs the device to be online.
+X> 1. "Content has become scrollable" indicator
+X> 2. "Can't scroll anymore" indicator (the "flare" that native Android scrolling usually has)
+X> 3. Our scrolling lacks the slippy, momentous feel that native Android scrolling usually has. Try to add this (this will be very challenging!).
 

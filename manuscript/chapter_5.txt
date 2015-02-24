@@ -1,396 +1,215 @@
-# First things first: The layout {#chapter-5}
+# Quick run-through of the default app {#chapter-5}
+   
+Our app starts life as the PhoneGap "Hello world" app (unless you went [The fiddly older way](#chapter-4-2) in which case
+it's empty). This is a good starting point and has some things we can build on and learn from.
+Of course we'll need to ditch a lot of it as well!
 
-Japxlate is going to have a single screen or "intent". It won't jump out to, for example, your phone's
-camera intent or "share to" list. The single screen is going to have three tab options - Search, Discover and Write.
-We want the tab navigation and current tab content to all fit on the device display without scrolling.
-OK, the PhoneGap Hello World app we just looked at is a good start, but let's see what tweaks we can do.
+Go ahead, hit CTRL-F11 in Eclipse to run the app on your virtual or actual device. We get a little robot icon
+and a pulsing (via CSS3) "device is ready" message. Rotate your device, it redraws itself accordingly and changes the layout slightly if needed.
+It also doesn't present or allow any kind of scrolling or pinching which is A Good Thing for most apps -
+including Japxlate.
 
-The Japxlate app is a spinoff of the [@japxlate](https://twitter.com/japxlate) Twitter channel, so let's look at that to get some design
-ideas:
+![Figure 1. The default PhoneGap app (landscape)](images/fig_10.png)
+        
+The files that we'll be wanting to edit (CSS, HTML5, JavaScript) to make our own app can be found in the `assets/www`
+folder of our Eclipse project.
 
-![Figure 4. The @japxlate Twitter channel](images/fig_40.png)
-
-OK, so we've got a greyish background. The logo is a red 'J' on a white background. The red is our signature red
-and is actually #990000. The red 'J' on a white background is going to be a good launcher icon for our app which we'll talk about in a later chapter.
-
-Right, so we need three tabs and we have some colour ideas. Here's a quick wireframe:
-
-![Figure 5. Quick wireframe of the Japxlate app layout](images/fig_50.png)
-
-Let's put our tabs at the top so they're out of the way of our device's core Android buttons (back, home, menu / special).
-Let's have a little footer and see if we need that.
-The footer and header have grey backgrounds. The tab content area is bog-standard black text on a white background.
-When a tab is tapped, the header and footer will stay the same (though possibly with some kind of current tab
-highlight) but the content area will load the appropriate content for that tab.
-
-HTML5 gives us `<header>` and `<footer>` elements, so let's try those. Change the `<body>` in `index.html` to look like:
+Let's take a look at the generated `assets/www/index.html` (Apache licence text removed for brevity):
 
 {lang="html"}
 ~~~~~~~~
-<body>
-    <header>
-        header
-    </header>
-    <div class="japxlate_app">    <!--note we've changed the class name-->
-        content area
-    </div>
-    <footer>
-        footer
-    </footer>
-    <!--<script type="text/javascript" src="phonegap.js"></script>-->
-    <script type="text/javascript" src="js/index.js"></script>
-    <script type="text/javascript">
-        app.initialize();
-    </script>
-</body>
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+        <link rel="stylesheet" type="text/css" href="css/index.css" />
+        <title>Hello World</title>
+    </head>
+    <body>
+        <div class="app">
+            <h1>PhoneGap</h1>
+            <div id="deviceready" class="blink">
+                <p class="event listening">Connecting to Device</p>
+                <p class="event received">Device is Ready</p>
+            </div>
+        </div>
+        <script type="text/javascript" src="phonegap.js"></script>
+        <script type="text/javascript" src="js/index.js"></script>
+        <script type="text/javascript">
+            app.initialize();
+        </script>
+    </body>
+</html>
 ~~~~~~~~
 
-Fire this up on your device (or desktop Chrome) and it looks like this:
+I> PhoneGap v3.3.0 adds a comment talking about a workaround for iOS 7.
 
-![Figure 6. Unstyled `<header>` and `<footer>`](images/fig_60.png)
+We've got the simplified "html" DOCTYPE for HTML5.
+We explicity set a charset of utf-8 Unicode which is clearly going to be very important for this app!
+We've got a lot of "viewport" settings which are mostly self-explanatory, but essentially say
+   "this app fills the device display, defaults to 100% zoom and can not be zoomed in or out". This
+is really going to help our PhoneGap app look and feel more like a native app and not a web browser
+view.
 
-Not quite what we had in mind! The `<header>` and `<footer>` are both 100% wide which is great, but we need to give them positions and heights (with tab content
-taking up the remaining space inbetween). Also let's get rid of the PhoneGap background gradient and put our own background
-colours in. Also let's take out the forced uppercase. Change the `body` clause in `index.css` to look like this:
+We then link to some CSS which we'll look at shortly.
+The `<title>` needs updating, but this won't normally be visible to the app user anyway. Especially as
+	PhoneGap build puts a theme setting of `Theme.Black.NoTitleBar` in `AndroidManifest.xml`.
+
+Then the `<body>` starts and we have whatever markup the app needs.
+Just before the `<body>` closes, we have links to some JavaScript (this is debated but considered to be something of a [performance improvement](http://elegantcode.com/2010/03/30/your-javascript-goes-where/)).
+`phonegap.js` (in `assets/www`) is the PhoneGap library and is how we can access phone hardware (ie. camera)
+from JavaScript in our PhoneGap app.
+Commenting out this file will enable you to *somewhat* preview the app just by opening the `index.html` file
+in Chrome desktop browser. We'll talk about this later.
+
+`js/index.js` is JavaScript specifically for this app. We then call `app.initialize()`. The `app` object is in
+`index.js` which we'll look at after taking a quick peek at the key things in the CSS file we mentioned
+a moment ago (Apache licence text removed for brevity):
 
 {lang="css"}
 ~~~~~~~~
+* {
+    -webkit-tap-highlight-color: rgba(0,0,0,0); /* make transparent link selection, adjust last value opacity 0 to 1.0 */
+}
+
 body {
     -webkit-touch-callout: none;                /* prevent callout to copy image, etc when tap to hold */
     -webkit-text-size-adjust: none;             /* prevent webkit from resizing text to fit */
     -webkit-user-select: none;                  /* prevent copy paste, to allow, change 'none' to 'text' */
+    background-color:#E4E4E4;
+    background-image:linear-gradient(top, #A7A7A7 0%, #E4E4E4 51%);
+    background-image:-webkit-linear-gradient(top, #A7A7A7 0%, #E4E4E4 51%);
+    background-image:-ms-linear-gradient(top, #A7A7A7 0%, #E4E4E4 51%);
+    background-image:-webkit-gradient(
+        linear,
+        left top,
+        left bottom,
+        color-stop(0, #A7A7A7),
+        color-stop(0.51, #E4E4E4)
+    );
+    background-attachment:fixed;
     font-family:'HelveticaNeue-Light', 'HelveticaNeue', Helvetica, Arial, sans-serif;
     font-size:12px;
     height:100%;
     margin:0px;
     padding:0px;
+    text-transform:uppercase;
     width:100%;
 }
-~~~~~~~~
 
-Then add a clause for `header` like this:
-
-{lang="css"}
-~~~~~~~~
-header {
-    background-color:#555;  /*medium grey*/
-    color:#ccc;             /*slightly greyish white*/
-    height:40px;
-    line-height:40px;       /*height of a *text* line*/
-}
-~~~~~~~~
-
-Then add a clause for `footer` like this:
-
-{lang="css"}
-~~~~~~~~
-footer {
-    background-color:#555;  /*medium grey*/
-    color:#ccc;             /*slightly greyish white*/
-    height:20px;
-    line-height:20px;
-}
-~~~~~~~~
-
-Running this looks like:
-
-![Figure 7. `<footer>` is too high](images/fig_70.png)
-
-Hmm, the footer isn't at the bottom! Let's position it absolutely and make it flush with the bottom of its parent
-(the document body). Add to the `footer` rule so that it looks like:
-
-{lang="css"}
-~~~~~~~~
-footer {
-    background-color:#555;  /*medium grey*/
-    color:#ccc;             /*slightly greyish white*/
-    height:20px;             
-    line-height:20px;
-    position:absolute;
-    bottom:0;
-    width:100%;             /*no default width for position:absolute*/
-}
-~~~~~~~~
-
-Running this looks like:
-
-![Figure 8. `<footer>` flush with bottom of document body](images/fig_80.png)
-
-Great! Now let's put our three tabs into the header. We'll do it as an unordered list of links. Make
-`<header>` of `index.html` look like this:
-
-{lang="html"}
-~~~~~~~~
-<header>
-    <ul id="tab-bar">
-        <li >
-            <a href="#search">Search</a>
-        </li>
-        <li >
-            <a href="#discover">Discover</a>
-        </li>
-        <li>
-            <a href="#write">Write</a>
-        </li>
-    </ul>
-</header>
-~~~~~~~~
-
-Running this looks like:
-
-![Figure 9. First attempt at tabs](images/fig_90.png)
-
-Clearly a disaster! We need some styling to line up the list items horizontally in the header.
-Add the following three clauses to the CSS file:
-
-{lang="css"}
-~~~~~~~~
-/*entire tab row*/
-#tab-bar {
-    /*clear any inside and outside gap space*/
-    margin:0;
-    padding:0;
+/* Portrait layout (default) */
+.app {
+    background:url(../img/logo.png) no-repeat center top; /* 170px x 200px */
+    position:absolute;             /* position in the center of the screen */
+    left:50%;
+    top:50%;
+    height:50px;                   /* text area height */
+    width:225px;                   /* text area width */
+    text-align:center;
+    padding:180px 0px 0px 0px;     /* image height is 200px (bottom 20px are overlapped with text) */
+    margin:-115px 0px 0px -112px;  /* offset vertical: half of image height and text area height */
+                                   /* offset horizontal: half of text area width */
 }
 
-/*each tab*/
-#tab-bar li {
-    display: inline;    /*prevent each item from newlining*/
-    float:left;         /*stack left*/
-    width: 33.3333%;    /*have a third of total tab-bar space*/
+/* Landscape layout (with min-width) */
+@media screen and (min-aspect-ratio: 1/1) and (min-width:400px) {
+    .app {
+        background-position:left center;
+        padding:75px 0px 75px 170px;  /* padding-top + padding-bottom + text area = image height */
+        margin:-90px 0px 0px -198px;  /* offset vertical: half of image height */
+                                      /* offset horizontal: half of image width and text area width */
+    }
 }
-
-/*tappable link in each tab*/
-#tab-bar li a { 
-    color: #ccc;
-    display: block;         /*make "width-having"*/
-    font-weight: bold;
-    overflow: hidden;       /*so long link text words get cropped*/
-    text-align: center;
-    text-decoration: none;  /*remove default link underline*/
-}
+.
+.
 ~~~~~~~~
 
-Running this looks like:
 
-![Figure 10. Tabs line up horizontally](images/fig_100.png)
+The clause for `*` simply removes, from any element that we might make tappable, the default sickly orange
+highlight that Android WebView gives to links and buttons and things.
 
-Looking good! But the tabs need a few more things to look more useful. Namely, horizontal dividers,
-icons and some kind of current tab highlight.
-For the horizontal dividers, let's try giving the second and third tabs a left border. CSS version 2
-(the latest version being 3) has a nifty selector where we can say "element type Y only where it follows an
-element type X". With this we can target any tab after the first one and apply a left border. Add the
-following clause to the CSS:
+The `body` clause starts by disabling some default Android WebView interations. This makes our PhoneGap
+app feel a bit more nativey.
 
-{lang="css"}
+Then we set a grey gradient as the background.
+
+Then we set the font type and size (12px).
+Height and width are both set to 100% which makes our `<body>` fill the size of the WebView screen.
+We specify no margin (which is gap space *outside* the `<body>`) and no padding (which is gap space *inside* the `<body>`).
+
+In `.app` - our top level div in the markup - we set the layout of our app specific things.
+Portrait orientation is assumed - a safe assumption for most phone apps.
+I won't bore you with this too much (but if you are baffled then please see a CSS refresher) other than to say it pulls some strings with absolute positioning
+and negative margins to centre a background image and some text.
+
+Then we have another `.app` block wrapped in what's called a media query  
+([http://cssmediaqueries.com/what-are-css-media-queries.html](http://cssmediaqueries.com/what-are-css-media-queries.html) is a useful introduction)
+which triggers when the phone is rotated into landscape view. It moves the background image to the left of the text and
+also moves the text such that things are still centred.
+
+
+Right, let's get back to that `js/index.js` file that we've almost forgotten about! (Apache licence text removed for brevity):
+
+{lang="js"}
 ~~~~~~~~
-/*a border-left for the middle and rightmost tab*/
-#tab-bar li + li
-{
-    border-left:1px solid #aaa;    /*light grey*/
-}
-~~~~~~~~
+var app = {
+    // Application Constructor
+    initialize: function() {
+        this.bindEvents();
+    },
+    // Bind Event Listeners
+    //
+    // Bind any events that are required on startup. Common events are:
+    // 'load', 'deviceready', 'offline', and 'online'.
+    bindEvents: function() {
+        document.addEventListener('deviceready', this.onDeviceReady, false);
+    },
+    // deviceready Event Handler
+    //
+    // The scope of 'this' is the event. In order to call the 'receivedEvent'
+    // function, we must explicity call 'app.receivedEvent(...);'
+    onDeviceReady: function() {
+        app.receivedEvent('deviceready');
+    },
+    // Update DOM on a Received Event
+    receivedEvent: function(id) {
+        var parentElement = document.getElementById(id);
+        var listeningElement = parentElement.querySelector('.listening');
+        var receivedElement = parentElement.querySelector('.received');
 
-Running this looks like:
+        listeningElement.setAttribute('style', 'display:none;');
+        receivedElement.setAttribute('style', 'display:block;');
 
-![Figure 11. `<header>` too wide for document body](images/fig_110.png)
-
-Ouch, that's not a good look. What's happened here is that the border has *added* 1px to the total width of the 
-second and third tabs. These tabs are now wider than a 3rd of the `<header>` row and so the last tab gets
-bumped onto the next line. This is A Very Annoying Thing. One cheesy little workaround for this is to
-use a simple background image to simulate the border.
-Make a 1 pixel wide by 16 pixel tall image in [GIMP](http://www.gimp.org/) (or what-have-you) and floodfill with #aaaaaa which
-is a very light grey. Export to a PNG image in `assests/www/img` called `aaaaaa_16_v.png`.
-Then change the previously added CSS clause to look like this:
-
-{lang="css"}
-~~~~~~~~
-/*simulate a border-left for the middle and rightmost tab*/
-#tab-bar li + li
-{
-    background-image:url(../img/aaaaaa_16_v.png);
-    background-repeat:repeat-y;
-    background-position:left;
-}
-~~~~~~~~
-
-Running this looks like:
-
-![Figure 12. `<header>` fits nicely](images/fig_120.png)
-
-Pretty good! OK, we'll do the icons next. We want each tab to have a little icon on it. There are millions of icon sets floating around these days. They tend to be one of three types:
-
-* Always free
-* Free only for personal use (else you should pay)
-* Always paid-for
-
-There's also new school *flat* icons versus traditional deep icons. Design memes come and go but we'll go with
-something a little flat. We'll use these rather nice ones which are royalty-free, free for personal and commercial use:
-
-[http://www.graphicsfuel.com/2013/04/20-flat-icons-psd](http://www.graphicsfuel.com/2013/04/20-flat-icons-psd)
-
-Note that these icons are in PNG format which is a raster format. Raster icons are easy to use, but can only be
-shrunk or enlarged by extracting or guessing information (respectively). This means they only really look good
-at their *native* size which means that, depending on the pixel density of the device display, they might be too tiny
-and hard to make out or really massive and Legoish. But we'll use them for simplicity.
-
-One alternative would be to use a vector format - such as SVG - for the icons which stores the image such that
-it can be scaled up or down without losing information.
-Another new trend is to have the browser load something called an icon font. This is like a normal font but where
-each character is an icon (remember Wingdings?!). This has the advantage that the icons are sizeable just like
-any other text. Also they can be bolded or italicised. **But** they can only be of one colour.
-
-Go ahead and put all of the PNG icons in `assets/www/img` (though we won't use all of them).
-Let's reference some of these icons in our tab markup, change `<header>` in `index.html`
-to look like this:
-
-{lang="css"}
-~~~~~~~~
-<header>
-    <ul id="tab-bar">
-        <li>
-            <a href="#search"><img src="img/search.png"> Search</a>
-        </li>
-        <li>
-            <a href="#discover"><img src="img/chat-bubble.png"> Discover</a>
-        </li>
-        <li>
-            <a href="#write"><img src="img/file.png"> Write</a>
-        </li>
-    </ul>
-</header>
+        console.log('Received Event: ' + id);
+    }
+};
 ~~~~~~~~
 
-Note the space after the image and before the link text. Running this gives:
+All we have is one object called `app` which represents - wait for it! - our PhoneGap app.
+`initialize()` is the constructor. We call this directly from `index.html` if you remember.
+`initialize()` simply calls `app.bindEvents()` which in turn uses a DOM standard way of adding an event listener.
+The event we listen for here is 'deviceready' which is fired from the PhoneGap library when our Android device
+is, well, ready. We specify that this event is to be handled by `app.onDeviceReady()` which simply calls
+`app.receivedEvent('deviceready')`.
 
-![Figure 13. Icons we sourced are way too big](images/fig_130.png)
+`app.receivedEvent('deviceready')` simply hides the "connecting" message and displays the "ready" message
+(which are displayed and hidden, respectively, via the default `index.css`).
 
-Woah, those icons are pretty big eh? The icons are a mix of square, tall or wide, but they all have a biggest
-side of about 128 pixels. That's clearly way too big for us here. Let's use GIMP to resize `search.png`,
-`chat-bubble.png` and `file.png` to have a biggest side of 16px - the same as our app font size (in `index.css`) [NOTETOSELF double check this].
-So go ahead and make those changes and overwrite the original icon files. While you're at it, do the same
-for `paste.png` because we'll be using that later on. (Feel free to trash the other icon files from
-`assets/www/img` as we won't be needing them in this little app.) Those scalable icon formats are looking real
-attractive now huh?
+`someElement.querySelector()` is very interesting here and we'll look at that later.
 
-After changing the icon sizes, it looks like this:
+`console.log(someMessage)` is worth talking about now because we are going to be hammering it during development!
+Basically this logs something to the browser's console without disturbing the user. 
+When running your app via Eclipse's F11, `console.log()` messages that fire on the device will show up in your
+Eclipse's "LogCat" thus:
 
-![Figure 14. Icons at correct size](images/fig_140.png)
+![Figure 2. `console.log()` messages as appearing in Eclipse's LogCat](images/fig_20.png)
 
-Not bad at all. But hmmmm, don't you think the icons look a little out of whack? Like they're slightly
-higher than the line of text? We can remedy this by adding to the CSS:
+Or, if debugging in Chrome desktop, you can see it by pressing F12 on the page in question then clicking the console tab:
 
-{lang="css"}
-~~~~~~~~
-a img {
-    vertical-align:middle;    /*make more sensible relative to text baseline*/
-}
-~~~~~~~~
+![Figure 3. `console.log()` messages as appearing in Chrome desktop's debugger](images/fig_30.png)
 
-(Yes, we could do these icons as CSS background images but what the heck.) That's better.
-We restrict this only to images in `<a>`'s so we don't screw up any other images we might
-have in the markup.
-
-All we need now is a highlight for the currently selected tab, and while we're at it we should
-choose our default tab that we want to be displayed first on app load. Let's plump for the
-Search tab. Add a class name of "current" to the Search tab thus:
-
-{lang="html"}
-~~~~~~~~
-<ul id="tab-bar">
-    <li class="current">
-        <a href="#search"><img src="img/search.png"> Search</a>
-    </li>
-    .
-    .
-</ul>
-~~~~~~~~
-
-Then, in the CSS, modify `#tab-bar li{}` and add `#tab-bar li.current{}` thus:
-
-{lang="css"}
-~~~~~~~~
-/*each tab*/
-#tab-bar li {
-    display: inline;
-    float:left;
-    width: 33.3333%;
-    border-bottom:3px solid #555;   /*same bg as header*/
-}
-
-/*current tab*/
-#tab-bar li.current {
-    border-bottom:3px solid #990000;    /*signature red*/
-}
-~~~~~~~~
-
-We simply add a bottom border, in our signature red, to any tab bar list item that has a class of "current". 
-We also add a border of the same size but using the header's background colour to *non* current tabs.
-This keeps everything looking flush horizontally. Later on (soon actually!) we will use JavaScript
-to detect tap events on the tabs and change the current tab. Running what you have so far looks like:
-
-![Figure 15. Current tab highlight](images/fig_150.png)
-
-Pretty good! Only two little things are bugging us now. The content area text starts a little too
-close to the tab bar, and, thinking about it this app doesn't really need a footer at all!
-Change the HTML footer to simply look like this:
-
-{lang="html"}
-~~~~~~~~
-<footer></footer>
-~~~~~~~~
-
-Then add `.japxlate_app{}` to the CSS and also change the height of `footer{}` thus:
-
-{lang="css"}
-~~~~~~~~
-.japxlate_app {
-    padding-top:1em;        /*move content away from tab bar*/
-}
-
-footer {
-    background-color:#555;
-    color:#ccc;
-    height:2px;             /*down to 2px from 20px*/          
-    line-height:20px;       /*no longer meaningful...*/
-    position:absolute;
-    bottom:0;
-    width:100%;
-}
-~~~~~~~~
-
-Running this looks like:
-
-![Figure 16. Final app layout](images/fig_160.png)
-
-Which we'll stick with for the rest of the tutorial - and app! We have a 2px footer which is
-a bit gimmicky, but will help us a bit with scroll debugging a bit later on. The tab content text is now
-one newline(ish) down from the tab bar.
-
-A> ## To fullscreen or not?
-A>
-A> You might have noticed by now that the default PhoneGap app, and our own app's layout that we've just finished,
-A> fill the *entire* screen of the device. Even the Android status bar (which shows the time, battery charge and
-A> signal strength etc) is obliterated.
-A> 
-A> Game apps tend to fill the entire screen, but almost every utility app out there leaves the status bar.
-A> The good news is that we can get the status bar back quite easily by opening `PROJECTROOT/platforms/android/res/xml/config.xml`
-A> and changing:
-A>
-A> {lang="xml"}
-A> ~~~~~~~~
-A> <preference name="fullscreen" value="true" />
-A> ~~~~~~~~
-A>
-A> to
-A> 
-A> {lang="xml"}
-A> ~~~~~~~~
-A> <preference name="fullscreen" value="false" />
-A> ~~~~~~~~
-A>
-A> and then re-running the app.
-A> 
-A> You can choose which style you like and the rest of this tutorial is valid either way.
-A> Note that figures showing device screenshots *won't* have the status bar.
-
+`console.log()` (and there are actually some other methods) is a general JavaScript development technique that
+isn't specific to mobile development. It works on all major browsers (though IE needs help!).
 

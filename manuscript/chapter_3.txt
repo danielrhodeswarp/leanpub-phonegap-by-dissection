@@ -1,150 +1,25 @@
-# Getting started {#chapter-3}
+# What is PhoneGap {#chapter-3}
 
-There are two routes we can go down to get started with PhoneGap development.
-Both routes require the Android SDK to be installed so let's do that first.
-The easiest way to install the Android SDK is to install the Android Developer Tools (or ADT)
-bundle. This bundle installs the Android SDK **and** Eclipse IDE configured
-for Android (native) development.
+PhoneGap is a way to make apps for mobile devices using standard website frontend technologies.
+Namely HTML5, JavaScript
+and CSS. PhoneGap is free and open source. PhoneGap apps aren't true or *native* apps, but rather they are apps that open up a "WebView"
+on you mobile device - 
+essentially a web browser in fullscreen mode without title bars or bezels - running your
+frontend code. It's not a million miles away from a desktop browser running in fullscreen
+mode (usually accessed by pressing F11). Implemented well, this non-nativeness isn't necessarily a bad thing.
 
-Right, let's install the Android Developer Tools. The easy peasy way is to download and install the
-"ADT Bundle for Linux" from [http://developer.android.com/sdk/index.html](http://developer.android.com/sdk/index.html) which should be worry free.
-
-If you're already using Eclipse IDE, you can simply download the Android Developer Tools plugin for it at
-[http://developer.android.com/tools/index.html](http://developer.android.com/tools/index.html)
-
-A> ## About IDEs
+A> ## PhoneGap versus Cordova
 A>
-A> You aren't forced to use Eclipse IDE for Android development, though it does make a lot of things easier
-A> as it supports direct deploy to an actual Android device and it has a virtual device manager for
-A> deploying to *emulated* Android devices.
-A> 
-A> Myself, I didn't like the way that Eclipse was opening - and highlighting - the various frontend source files
-A> for the app (though I don't doubt that this is configurable in the options somewhere!). There's also the fact that it doesn't *speak* PhoneGap.
-A> I found myself cutting the code in [NetBeans IDE](https://netbeans.org/) and checking in with Eclipse every now and again
-A> to deploy to the actual device (Ctrl-F11) or to check `console.log()` messages in LogCat.
-A> 
-A> Netbeans IDE v7.4 dropped just before I finished this tutorial and interestingly that seems
-A> to have PhoneGap (well, Cordova) support built in! Definitely worth a look.
-A> 
-A> Bizarrely, I found that regardless of the IDE used, I often had to deploy to the device *twice*
-A> in order to have it truly updated. This happened whenever a *resource* file was updated, ie. JavaScript or HTML or CSS.
-A> I notice this doesn't happen when Java sources are edited which indicates some kind of caching issue.
-A> I still haven't got to the bottom of this particular mystery.
-
-
-## The cool new way {#chapter-3-1}
-
-OK, now we can install PhoneGap itself. For some strange reason that I can't figure out (I'm guessing it's just for package management) it
-requires NodeJS so go to [http://nodejs.org](http://nodejs.org) and install it. Then, as we see at [http://phonegap.com/install](http://phonegap.com/install)
-we simply do (on the command line):
-
-{lang="bash"}
-    you@yours$ somewhere]$ sudo npm install -g phonegap
-
-This installs the PhoneGap binaries and commands globally on our system. After that, let's actually create the PhoneGap project where we'll put all of our lovely code for the app.
-There are two slightly different syntaxes for this:
-
-{lang="bash"}   
-    you@yours$ somewhere]$ phonegap create --name "Japxlate" --id "com.drappenheimer.japxlate" japxlate
-or
-
-{lang="bash"}
-    you@yours$ somewhere]$ phonegap create japxlate com.drappenheimer.japxlate "Japxlate"
-
-This will create a PhoneGap project folder structure for building the same code to many different device targets (Android or iOS etc).
-`"Japxlate"` is the name of our app (in quotes). `com.drappenheimer.japxlate` is our app's reverse domain name identifier. All Android apps have a unique identifier like this. `japxlate` is our desired folder name for the project.
-We then want to do:
-
-{lang="bash"}
-    you@yours$ somewhere]$ cd japxlate
-    you@yours$ japxlate]$ phonegap run android
-
-Which will detect your Android SDK and try to run the app on the currently connected device (or configured virtual machine).
-If no Android SDK is found or present, it will try to deploy the app to your account on the
-PhoneGap remote cloud build environment - which is just out of beta at time of writing.
-**But** you'll more than likely need an extra bit of setup to get this `run android` command to work.
-Specifically you'll need to add a couple of folders from the Android SDK install to your PATH.
-The gory details are at [http://docs.phonegap.com/en/edge/guide_platforms_android_index.md.html#Android%20Platform%20Guide](http://docs.phonegap.com/en/edge/guide_platforms_android_index.md.html#Android%20Platform%20Guide),
-but how I did it was to add the following lines to my `~/.bashrc` file:
-
-{lang="bash"} 
-    export ANDROID_SDK_HOME=/wherever/you/installed/it/adt-bundle-linux-x86_64-20130729/sdk
-    export PATH=${PATH}:${ANDROID_SDK_HOME}/platform-tools:${ANDROID_SDK_HOME}/tools
- 
-As well as this I personally needed the Java *development* libraries to be installed.
-
-If the `run android` command still doesn't work after all this configuration, double check your Android SDK Manager which you can reach from the Eclipse IDE.
-
-Note that this `run` command is a shortcut for the `build` followed by `install` commands.
-If you don't want to actually run your PhoneGap app from the command line, you need to at least build it which is like this:
-
-{lang="bash"}
-    you@yours$ japxlate]$ phonegap build android
-
-This will create a `PROJECTROOT/platforms/android` folder with skeleton source files for our app in it.
-And importantly the project files for this to be pickupable as an Android project in Eclipse IDE.
-
-A> ## How many mobile platforms does it take to change a lightbulb?
+A> You've probably come across the term "Cordova" in your research for PhoneGap.
+A> PhoneGap and Cordova are very closely related, and so it's worth explaining the difference.
+A> There's a lot of back-story here which I'll skip, but in a nutshell:
 A>
-A> You might be wondering now, if PhoneGap is supposed to be this amazing tool
-A> that lets us write the same app code for multiple mobile platforms, why would
-A> we want to dive straight in to the `/platforms/android` folder?
-A> How is that going to work on, say, iOS?
-A> 
-A> The answer is simple, PhoneGap is indeed a tool where the same app code can be compiled
-A> for multiple mobile platforms, but - in a nutshell - we are cheating and taking a shortcut!
-A> This tutorial is rather simplified and focuses solely on Android. This is why we dive right in
-A> at `/platforms/android`.
-A> 
-A> If your app needs to work on multiple mobile platforms - as most apps do - then you should really
-A> create your app's code in `PROJECTROOT/www`, specifying any platform-specific
-A> customisations in `PROJECTROOT/merges`, then debug each time for your
-A> platforms with the `build`, `install` and `run` commands.
-A> The excellent blog post at [http://devgirl.org/2013/09/05/phonegap-3-0-stuff-you-should-know/](http://devgirl.org/2013/09/05/phonegap-3-0-stuff-you-should-know/) explains this very well.
-
-Like the `run` command, the `build` command will also fallback to
-the remote cloud build environment. You can disable this fallback with the command
-`phonegap local build android`.
-
-Right, so now you've at least built your app on the command line. You might even have run it from
-the command line! Going forward with this tutorial, let's plug the skeleton code we've just built into
-our Eclipse IDE as an Android project. Follow these steps:
-
-1. Click File => New => Project
-2. Select Android => *Android Project from Existing Code* (note there's also a sample native project in there!)
-3. Browse to `PROJECTROOT/platforms/android` folder (actually just `PROJECTROOT` seems to also work)
-4. Click OK
-5. You'll get an "Import Projects" dialogue now with the project details that you can confirm / change and then click Finish
-
-A> ## Keeping your PhoneGap up-to-date
+A> **PhoneGap** is a software product by Adobe Systems Inc. It is a branded and
+A> maintained distribution of:
 A>
-A> Installing PhoneGap via NodeJS has the nice advantage that you can keep your PhoneGap version up-to-date
-A> by running this command:
+A> [**Cordova**](http://cordova.apache.org/), which is a free and open source project maintained by the Apache Software Foundation (ASF).
 A>
-A> {lang="bash"}
-A> ~~~~~~~~
-A> you@yours$ somewhere]$ sudo npm update -g phonegap
-A> ~~~~~~~~
-
-## The fiddly older way {#chapter-3-2}
-
-An older way of getting started (that PhoneGap up to v2.1.0 used) still works and can
-be useful if you are struggling with the configuration steps details in the above section.
-You'll still need to have Eclipse with the ADT installed first, but you won't have to fiddle around
-with installing NodeJS or altering PATH environment variables.
-
-Simply download - rather than install - the relevant "archive" version of PhoneGap from
-[http://phonegap.com/install](http://phonegap.com/install), and then you can
-follow the steps from "[Setup New Project](http://docs.phonegap.com/en/2.1.0/guide_getting-started_android_index.md.html#Getting+Started+with+Android)" in the PhoneGap documentation.
-**Please note that** these instructions are for older versions of PhoneGap and Eclipse
-and so your mileage with the latest versions may vary.  
-[This page](http://www.adobe.com/devnet/html5/articles/getting-started-with-phonegap-in-eclipse-for-android.html) on the Adobe
-website is also a useful reference.
-
-Sorry but I can't specify exactly how to do it this way as it is not the supported way any more.
-It might stop working for future versions of PhoneGap. Though I could get it working - with a few tweaks - 
-with PhoneGap v3.1.0.
-
-Advantages of this method: You don't have to install PhoneGap or NodeJS or any dependencies.
-Disadvantages of this method: You don't get PhoneGap's latest template for setting up an Android app and you have to do it manually (ie. updating the manifest etc).
+A> At the time of writing, PhoneGap adds a *cloud build* service to basic Cordova. This changes the command line for PhoneGap (versus Cordova) somewhat, though you
+A> should be able to - in theory - follow this tutorial using plain vanilla Cordova instead of PhoneGap.
+A> I also noticed, annoyingly, that a lot of PhoneGap documentation simply points to Cordova documentation which can mean that the command line syntax is wrong.
 

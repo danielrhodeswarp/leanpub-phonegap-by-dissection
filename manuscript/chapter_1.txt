@@ -1,16 +1,49 @@
-# What you'll need {#chapter-1}
-        
-To keep things small and simple we'll focus solely on developing on **Linux** for an app that we'll make for
-**Android**. Though one huge benefit of PhoneGap is that you can package the same(ish) code into a working app
-for many different mobile platforms. We also won't be using any third-party JavaScript or CSS libraries, though
-these will be useful to you going forward with your app development. What you'll need:
+# Introduction {#chapter-1}
 
-* A Linux desktop box
-* PhoneGap (which requires NodeJS) on the above box - at time of writing this tutorial I was using version 3.1.0.
-Don't worry, we'll install this in the [Getting started](#chapter-3) chapter
-* As many Android devices as you can get your hands on! At least one
-* Google's "Android Developer Tools" bundle - or at least Eclipse with the Android plugins. 
-Again we'll cover this in the [Getting started](#chapter-3) chapter
-* At least a lower-intermediate knowledge of HTML5, JavaScript and CSS
-* To not be terrified of the Linux command line!
+This book is going to teach you how to get started with mobile app development using the [PhoneGap](http://phonegap.com) platform. We'll essentially rebuild, from scratch, a basic yet fully-functional app that really exists! It's called Japxlate and can be found [here in the Google Play Store](https://play.google.com/store/apps/details?id=com.drappenheimer.japxlate). The app is a Japanese dictionary that you can search - even if offline. Not to worry though, we won't get bogged down in the nitty gritty of Japanese linguistics. We'll focus on setting up, building and finally deploying the app. You'll laugh, you'll cry, you'll sick a little bit in the back of your throat, but the journey will definitely be worth it...
 
+T> This is version 0.9 of the book, first published February 2015 (v0.9 first published January 2014)
+
+T> Latest source code for the app is at [put link here](put link here)
+
+T> This book was written using PhoneGap v3.1.0, but has been updated to cover anything new or different in v3.3.0
+
+## Conventions used in the text
+
+A command that you need to type on the Linux command line will look like:
+
+{lang="bash"}
+~~~~~~~~
+you@yours$ somewhere]$ some linux command to type
+~~~~~~~~
+
+Code (of any type - CSS, HTML or JavaScript) that you need to type in will look like:
+
+{lang="js"}
+~~~~~~~~
+//does the cursor have random fractals?
+function checkRandomFractals()
+{
+    return something.or.other;
+}
+~~~~~~~~
+
+HTML elements will be referred to like:
+
+<elementname>
+
+Code fragments, variable names, method names etc will look like:
+
+`someMethod();`
+
+File names and folder names will look like:
+
+`/assets/www/some_file.html`
+
+A side note, something tangental to the main text, will look like:
+
+A> I'm hungry but my teeth hurt.
+
+New or updated information relevant for PhoneGap v3.3.0 will look like:
+
+I> PhoneGap v3.3.0 uses the "Plugman" plugin manager.

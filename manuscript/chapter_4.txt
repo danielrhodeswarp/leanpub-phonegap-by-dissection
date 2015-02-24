@@ -1,215 +1,150 @@
-# Quick run-through of the default app {#chapter-4}
-   
-Our app starts life as the PhoneGap "Hello world" app (unless you went [The fiddly older way](#chapter-3-2) in which case
-it's empty). This is a good starting point and has some things we can build on and learn from.
-Of course we'll need to ditch a lot of it as well!
+# Getting started {#chapter-4}
 
-Go ahead, hit CTRL-F11 in Eclipse to run the app on your virtual or actual device. We get a little robot icon
-and a pulsing (via CSS3) "device is ready" message. Rotate your device, it redraws itself accordingly and changes the layout slightly if needed.
-It also doesn't present or allow any kind of scrolling or pinching which is A Good Thing for most apps -
-including Japxlate.
+There are two routes we can go down to get started with PhoneGap development.
+Both routes require the Android SDK to be installed so let's do that first.
+The easiest way to install the Android SDK is to install the Android Developer Tools (or ADT)
+bundle. This bundle installs the Android SDK **and** Eclipse IDE configured
+for Android (native) development.
 
-![Figure 1. The default PhoneGap app (landscape)](images/fig_10.png)
-        
-The files that we'll be wanting to edit (CSS, HTML5, JavaScript) to make our own app can be found in the `assets/www`
-folder of our Eclipse project.
+Right, let's install the Android Developer Tools. The easy peasy way is to download and install the
+"ADT Bundle for Linux" from [http://developer.android.com/sdk/index.html](http://developer.android.com/sdk/index.html) which should be worry free.
 
-Let's take a look at the generated `assets/www/index.html` (Apache licence text removed for brevity):
+If you're already using Eclipse IDE, you can simply download the Android Developer Tools plugin for it at
+[http://developer.android.com/tools/index.html](http://developer.android.com/tools/index.html)
 
-{lang="html"}
-~~~~~~~~
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="utf-8" />
-        <meta name="format-detection" content="telephone=no" />
-        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
-        <link rel="stylesheet" type="text/css" href="css/index.css" />
-        <title>Hello World</title>
-    </head>
-    <body>
-        <div class="app">
-            <h1>PhoneGap</h1>
-            <div id="deviceready" class="blink">
-                <p class="event listening">Connecting to Device</p>
-                <p class="event received">Device is Ready</p>
-            </div>
-        </div>
-        <script type="text/javascript" src="phonegap.js"></script>
-        <script type="text/javascript" src="js/index.js"></script>
-        <script type="text/javascript">
-            app.initialize();
-        </script>
-    </body>
-</html>
-~~~~~~~~
-
-I> PhoneGap v3.3.0 adds a comment talking about a workaround for iOS 7.
-
-We've got the simplified "html" DOCTYPE for HTML5.
-We explicity set a charset of utf-8 Unicode which is clearly going to be very important for this app!
-We've got a lot of "viewport" settings which are mostly self-explanatory, but essentially say
-   "this app fills the device display, defaults to 100% zoom and can not be zoomed in or out". This
-is really going to help our PhoneGap app look and feel more like a native app and not a web browser
-view.
-
-We then link to some CSS which we'll look at shortly.
-The `<title>` needs updating, but this won't normally be visible to the app user anyway. Especially as
-	PhoneGap build puts a theme setting of `Theme.Black.NoTitleBar` in `AndroidManifest.xml`.
-
-Then the `<body>` starts and we have whatever markup the app needs.
-Just before the `<body>` closes, we have links to some JavaScript (this is debated but considered to be something of a [performance improvement](http://elegantcode.com/2010/03/30/your-javascript-goes-where/)).
-`phonegap.js` (in `assets/www`) is the PhoneGap library and is how we can access phone hardware (ie. camera)
-from JavaScript in our PhoneGap app.
-Commenting out this file will enable you to *somewhat* preview the app just by opening the `index.html` file
-in Chrome desktop browser. We'll talk about this later.
-
-`js/index.js` is JavaScript specifically for this app. We then call `app.initialize()`. The `app` object is in
-`index.js` which we'll look at after taking a quick peek at the key things in the CSS file we mentioned
-a moment ago (Apache licence text removed for brevity):
-
-{lang="css"}
-~~~~~~~~
-* {
-    -webkit-tap-highlight-color: rgba(0,0,0,0); /* make transparent link selection, adjust last value opacity 0 to 1.0 */
-}
-
-body {
-    -webkit-touch-callout: none;                /* prevent callout to copy image, etc when tap to hold */
-    -webkit-text-size-adjust: none;             /* prevent webkit from resizing text to fit */
-    -webkit-user-select: none;                  /* prevent copy paste, to allow, change 'none' to 'text' */
-    background-color:#E4E4E4;
-    background-image:linear-gradient(top, #A7A7A7 0%, #E4E4E4 51%);
-    background-image:-webkit-linear-gradient(top, #A7A7A7 0%, #E4E4E4 51%);
-    background-image:-ms-linear-gradient(top, #A7A7A7 0%, #E4E4E4 51%);
-    background-image:-webkit-gradient(
-        linear,
-        left top,
-        left bottom,
-        color-stop(0, #A7A7A7),
-        color-stop(0.51, #E4E4E4)
-    );
-    background-attachment:fixed;
-    font-family:'HelveticaNeue-Light', 'HelveticaNeue', Helvetica, Arial, sans-serif;
-    font-size:12px;
-    height:100%;
-    margin:0px;
-    padding:0px;
-    text-transform:uppercase;
-    width:100%;
-}
-
-/* Portrait layout (default) */
-.app {
-    background:url(../img/logo.png) no-repeat center top; /* 170px x 200px */
-    position:absolute;             /* position in the center of the screen */
-    left:50%;
-    top:50%;
-    height:50px;                   /* text area height */
-    width:225px;                   /* text area width */
-    text-align:center;
-    padding:180px 0px 0px 0px;     /* image height is 200px (bottom 20px are overlapped with text) */
-    margin:-115px 0px 0px -112px;  /* offset vertical: half of image height and text area height */
-                                   /* offset horizontal: half of text area width */
-}
-
-/* Landscape layout (with min-width) */
-@media screen and (min-aspect-ratio: 1/1) and (min-width:400px) {
-    .app {
-        background-position:left center;
-        padding:75px 0px 75px 170px;  /* padding-top + padding-bottom + text area = image height */
-        margin:-90px 0px 0px -198px;  /* offset vertical: half of image height */
-                                      /* offset horizontal: half of image width and text area width */
-    }
-}
-.
-.
-~~~~~~~~
+A> ## About IDEs
+A>
+A> You aren't forced to use Eclipse IDE for Android development, though it does make a lot of things easier
+A> as it supports direct deploy to an actual Android device and it has a virtual device manager for
+A> deploying to *emulated* Android devices.
+A> 
+A> Myself, I didn't like the way that Eclipse was opening - and highlighting - the various frontend source files
+A> for the app (though I don't doubt that this is configurable in the options somewhere!). There's also the fact that it doesn't *speak* PhoneGap.
+A> I found myself cutting the code in [NetBeans IDE](https://netbeans.org/) and checking in with Eclipse every now and again
+A> to deploy to the actual device (Ctrl-F11) or to check `console.log()` messages in LogCat.
+A> 
+A> Netbeans IDE v7.4 dropped just before I finished this tutorial and interestingly that seems
+A> to have PhoneGap (well, Cordova) support built in! Definitely worth a look.
+A> 
+A> Bizarrely, I found that regardless of the IDE used, I often had to deploy to the device *twice*
+A> in order to have it truly updated. This happened whenever a *resource* file was updated, ie. JavaScript or HTML or CSS.
+A> I notice this doesn't happen when Java sources are edited which indicates some kind of caching issue.
+A> I still haven't got to the bottom of this particular mystery.
 
 
-The clause for `*` simply removes, from any element that we might make tappable, the default sickly orange
-highlight that Android WebView gives to links and buttons and things.
+## The cool new way {#chapter-4-1}
 
-The `body` clause starts by disabling some default Android WebView interations. This makes our PhoneGap
-app feel a bit more nativey.
+OK, now we can install PhoneGap itself. For some strange reason that I can't figure out (I'm guessing it's just for package management) it
+requires NodeJS so go to [http://nodejs.org](http://nodejs.org) and install it. Then, as we see at [http://phonegap.com/install](http://phonegap.com/install)
+we simply do (on the command line):
 
-Then we set a grey gradient as the background.
+{lang="bash"}
+    you@yours$ somewhere]$ sudo npm install -g phonegap
 
-Then we set the font type and size (12px).
-Height and width are both set to 100% which makes our `<body>` fill the size of the WebView screen.
-We specify no margin (which is gap space *outside* the `<body>`) and no padding (which is gap space *inside* the `<body>`).
+This installs the PhoneGap binaries and commands globally on our system. After that, let's actually create the PhoneGap project where we'll put all of our lovely code for the app.
+There are two slightly different syntaxes for this:
 
-In `.app` - our top level div in the markup - we set the layout of our app specific things.
-Portrait orientation is assumed - a safe assumption for most phone apps.
-I won't bore you with this too much (but if you are baffled then please see a CSS refresher) other than to say it pulls some strings with absolute positioning
-and negative margins to centre a background image and some text.
+{lang="bash"}   
+    you@yours$ somewhere]$ phonegap create --name "Japxlate" --id "com.drappenheimer.japxlate" japxlate
+or
 
-Then we have another `.app` block wrapped in what's called a media query  
-([http://cssmediaqueries.com/what-are-css-media-queries.html](http://cssmediaqueries.com/what-are-css-media-queries.html) is a useful introduction)
-which triggers when the phone is rotated into landscape view. It moves the background image to the left of the text and
-also moves the text such that things are still centred.
+{lang="bash"}
+    you@yours$ somewhere]$ phonegap create japxlate com.drappenheimer.japxlate "Japxlate"
 
+This will create a PhoneGap project folder structure for building the same code to many different device targets (Android or iOS etc).
+`"Japxlate"` is the name of our app (in quotes). `com.drappenheimer.japxlate` is our app's reverse domain name identifier. All Android apps have a unique identifier like this. `japxlate` is our desired folder name for the project.
+We then want to do:
 
-Right, let's get back to that `js/index.js` file that we've almost forgotten about! (Apache licence text removed for brevity):
+{lang="bash"}
+    you@yours$ somewhere]$ cd japxlate
+    you@yours$ japxlate]$ phonegap run android
 
-{lang="js"}
-~~~~~~~~
-var app = {
-    // Application Constructor
-    initialize: function() {
-        this.bindEvents();
-    },
-    // Bind Event Listeners
-    //
-    // Bind any events that are required on startup. Common events are:
-    // 'load', 'deviceready', 'offline', and 'online'.
-    bindEvents: function() {
-        document.addEventListener('deviceready', this.onDeviceReady, false);
-    },
-    // deviceready Event Handler
-    //
-    // The scope of 'this' is the event. In order to call the 'receivedEvent'
-    // function, we must explicity call 'app.receivedEvent(...);'
-    onDeviceReady: function() {
-        app.receivedEvent('deviceready');
-    },
-    // Update DOM on a Received Event
-    receivedEvent: function(id) {
-        var parentElement = document.getElementById(id);
-        var listeningElement = parentElement.querySelector('.listening');
-        var receivedElement = parentElement.querySelector('.received');
+Which will detect your Android SDK and try to run the app on the currently connected device (or configured virtual machine).
+If no Android SDK is found or present, it will try to deploy the app to your account on the
+PhoneGap remote cloud build environment - which is just out of beta at time of writing.
+**But** you'll more than likely need an extra bit of setup to get this `run android` command to work.
+Specifically you'll need to add a couple of folders from the Android SDK install to your PATH.
+The gory details are at [http://docs.phonegap.com/en/edge/guide_platforms_android_index.md.html#Android%20Platform%20Guide](http://docs.phonegap.com/en/edge/guide_platforms_android_index.md.html#Android%20Platform%20Guide),
+but how I did it was to add the following lines to my `~/.bashrc` file:
 
-        listeningElement.setAttribute('style', 'display:none;');
-        receivedElement.setAttribute('style', 'display:block;');
+{lang="bash"} 
+    export ANDROID_SDK_HOME=/wherever/you/installed/it/adt-bundle-linux-x86_64-20130729/sdk
+    export PATH=${PATH}:${ANDROID_SDK_HOME}/platform-tools:${ANDROID_SDK_HOME}/tools
+ 
+As well as this I personally needed the Java *development* libraries to be installed.
 
-        console.log('Received Event: ' + id);
-    }
-};
-~~~~~~~~
+If the `run android` command still doesn't work after all this configuration, double check your Android SDK Manager which you can reach from the Eclipse IDE.
 
-All we have is one object called `app` which represents - wait for it! - our PhoneGap app.
-`initialize()` is the constructor. We call this directly from `index.html` if you remember.
-`initialize()` simply calls `app.bindEvents()` which in turn uses a DOM standard way of adding an event listener.
-The event we listen for here is 'deviceready' which is fired from the PhoneGap library when our Android device
-is, well, ready. We specify that this event is to be handled by `app.onDeviceReady()` which simply calls
-`app.receivedEvent('deviceready')`.
+Note that this `run` command is a shortcut for the `build` followed by `install` commands.
+If you don't want to actually run your PhoneGap app from the command line, you need to at least build it which is like this:
 
-`app.receivedEvent('deviceready')` simply hides the "connecting" message and displays the "ready" message
-(which are displayed and hidden, respectively, via the default `index.css`).
+{lang="bash"}
+    you@yours$ japxlate]$ phonegap build android
 
-`someElement.querySelector()` is very interesting here and we'll look at that later.
+This will create a `PROJECTROOT/platforms/android` folder with skeleton source files for our app in it.
+And importantly the project files for this to be pickupable as an Android project in Eclipse IDE.
 
-`console.log(someMessage)` is worth talking about now because we are going to be hammering it during development!
-Basically this logs something to the browser's console without disturbing the user. 
-When running your app via Eclipse's F11, `console.log()` messages that fire on the device will show up in your
-Eclipse's "LogCat" thus:
+A> ## How many mobile platforms does it take to change a lightbulb?
+A>
+A> You might be wondering now, if PhoneGap is supposed to be this amazing tool
+A> that lets us write the same app code for multiple mobile platforms, why would
+A> we want to dive straight in to the `/platforms/android` folder?
+A> How is that going to work on, say, iOS?
+A> 
+A> The answer is simple, PhoneGap is indeed a tool where the same app code can be compiled
+A> for multiple mobile platforms, but - in a nutshell - we are cheating and taking a shortcut!
+A> This tutorial is rather simplified and focuses solely on Android. This is why we dive right in
+A> at `/platforms/android`.
+A> 
+A> If your app needs to work on multiple mobile platforms - as most apps do - then you should really
+A> create your app's code in `PROJECTROOT/www`, specifying any platform-specific
+A> customisations in `PROJECTROOT/merges`, then debug each time for your
+A> platforms with the `build`, `install` and `run` commands.
+A> The excellent blog post at [http://devgirl.org/2013/09/05/phonegap-3-0-stuff-you-should-know/](http://devgirl.org/2013/09/05/phonegap-3-0-stuff-you-should-know/) explains this very well.
 
-![Figure 2. `console.log()` messages as appearing in Eclipse's LogCat](images/fig_20.png)
+Like the `run` command, the `build` command will also fallback to
+the remote cloud build environment. You can disable this fallback with the command
+`phonegap local build android`.
 
-Or, if debugging in Chrome desktop, you can see it by pressing F12 on the page in question then clicking the console tab:
+Right, so now you've at least built your app on the command line. You might even have run it from
+the command line! Going forward with this tutorial, let's plug the skeleton code we've just built into
+our Eclipse IDE as an Android project. Follow these steps:
 
-![Figure 3. `console.log()` messages as appearing in Chrome desktop's debugger](images/fig_30.png)
+1. Click File => New => Project
+2. Select Android => *Android Project from Existing Code* (note there's also a sample native project in there!)
+3. Browse to `PROJECTROOT/platforms/android` folder (actually just `PROJECTROOT` seems to also work)
+4. Click OK
+5. You'll get an "Import Projects" dialogue now with the project details that you can confirm / change and then click Finish
 
-`console.log()` (and there are actually some other methods) is a general JavaScript development technique that
-isn't specific to mobile development. It works on all major browsers (though IE needs help!).
+A> ## Keeping your PhoneGap up-to-date
+A>
+A> Installing PhoneGap via NodeJS has the nice advantage that you can keep your PhoneGap version up-to-date
+A> by running this command:
+A>
+A> {lang="bash"}
+A> ~~~~~~~~
+A> you@yours$ somewhere]$ sudo npm update -g phonegap
+A> ~~~~~~~~
+
+## The fiddly older way {#chapter-4-2}
+
+An older way of getting started (that PhoneGap up to v2.1.0 used) still works and can
+be useful if you are struggling with the configuration steps details in the above section.
+You'll still need to have Eclipse with the ADT installed first, but you won't have to fiddle around
+with installing NodeJS or altering PATH environment variables.
+
+Simply download - rather than install - the relevant "archive" version of PhoneGap from
+[http://phonegap.com/install](http://phonegap.com/install), and then you can
+follow the steps from "[Setup New Project](http://docs.phonegap.com/en/2.1.0/guide_getting-started_android_index.md.html#Getting+Started+with+Android)" in the PhoneGap documentation.
+**Please note that** these instructions are for older versions of PhoneGap and Eclipse
+and so your mileage with the latest versions may vary.  
+[This page](http://www.adobe.com/devnet/html5/articles/getting-started-with-phonegap-in-eclipse-for-android.html) on the Adobe
+website is also a useful reference.
+
+Sorry but I can't specify exactly how to do it this way as it is not the supported way any more.
+It might stop working for future versions of PhoneGap. Though I could get it working - with a few tweaks - 
+with PhoneGap v3.1.0.
+
+Advantages of this method: You don't have to install PhoneGap or NodeJS or any dependencies.
+Disadvantages of this method: You don't get PhoneGap's latest template for setting up an Android app and you have to do it manually (ie. updating the manifest etc).
 

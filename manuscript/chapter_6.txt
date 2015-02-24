@@ -1,631 +1,396 @@
-# First things first: The tabbing mechanism {#chapter-6}
+# First things first: The layout {#chapter-6}
 
-The layout is in the bag now, but we need a mechanism to markup the content for our three
-different tabs **and** a way for taps on the tabs to trigger the display of the relevant content.
+Japxlate is going to have a single screen or "intent". It won't jump out to, for example, your phone's
+camera intent or "share to" list. The single screen is going to have three tab options - Search, Discover and Write.
+We want the tab navigation and current tab content to all fit on the device display without scrolling.
+OK, the PhoneGap Hello World app we just looked at is a good start, but let's see what tweaks we can do.
 
-We can markup the content for all three tabs in the HTML file and simply have Discover and Write
-hidden (Search is our default remember) with CSS when the app first starts. Let's do this first before we
-look at any JavaScript. Edit `<div class="japxlate_app">` in `index.html` so that it's contents are like this:
+The Japxlate app is a spinoff of the [@japxlate](https://twitter.com/japxlate) Twitter channel, so let's look at that to get some design
+ideas:
+
+![Figure 4. The @japxlate Twitter channel](images/fig_40.png)
+
+OK, so we've got a greyish background. The logo is a red 'J' on a white background. The red is our signature red
+and is actually #990000. The red 'J' on a white background is going to be a good launcher icon for our app which we'll talk about in a later chapter.
+
+Right, so we need three tabs and we have some colour ideas. Here's a quick wireframe:
+
+![Figure 5. Quick wireframe of the Japxlate app layout](images/fig_50.png)
+
+Let's put our tabs at the top so they're out of the way of our device's core Android buttons (back, home, menu / special).
+Let's have a little footer and see if we need that.
+The footer and header have grey backgrounds. The tab content area is bog-standard black text on a white background.
+When a tab is tapped, the header and footer will stay the same (though possibly with some kind of current tab
+highlight) but the content area will load the appropriate content for that tab.
+
+HTML5 gives us `<header>` and `<footer>` elements, so let's try those. Change the `<body>` in `index.html` to look like:
 
 {lang="html"}
 ~~~~~~~~
-<div class="japxlate_app">
-    <div id="tab-content">
-        <div id="search" class="current">
-            search tab content. search tab content. search tab content.
-            search tab content. search tab content. search tab content.
-            search tab content. search tab content. search tab content.
-            search tab content. search tab content. search tab content.
-        </div>
-        <div id="discover">
-            discover tab content. discover tab content. discover tab content.
-            discover tab content. discover tab content. discover tab content.
-            discover tab content. discover tab content. discover tab content.
-            discover tab content. discover tab content. discover tab content.
-        </div>
-        <div id="write">
-            write tab content.write tab content. write tab content.
-            write tab content.write tab content. write tab content.
-            write tab content.write tab content. write tab content.
-            write tab content.write tab content. write tab content.
-        </div>
+<body>
+    <header>
+        header
+    </header>
+    <div class="japxlate_app">    <!--note we've changed the class name-->
+        content area
     </div>
-</div>
+    <footer>
+        footer
+    </footer>
+    <!--<script type="text/javascript" src="phonegap.js"></script>-->
+    <script type="text/javascript" src="js/index.js"></script>
+    <script type="text/javascript">
+        app.initialize();
+    </script>
+</body>
 ~~~~~~~~
 
-Then let's default to hidden, but with `class="current"` being visible, for these `<div>`s in `#tab-content`. Add the following two clauses to `index.css`:
+Fire this up on your device (or desktop Chrome) and it looks like this:
+
+![Figure 6. Unstyled `<header>` and `<footer>`](images/fig_60.png)
+
+Not quite what we had in mind! The `<header>` and `<footer>` are both 100% wide which is great, but we need to give them positions and heights (with tab content
+taking up the remaining space inbetween). Also let's get rid of the PhoneGap background gradient and put our own background
+colours in. Also let's take out the forced uppercase. Change the `body` clause in `index.css` to look like this:
 
 {lang="css"}
 ~~~~~~~~
-#tab-content > div.current {
-    display:block;
-}
-
-#tab-content > div {
-    display:none;
-}
-~~~~~~~~
-
-Hmm, well running this looks like:
-
-![Figure 17. Tab content spills over the footer](images/fig_170.png)
-
-Search tab is indeed the only visible tab, but if there is a lot of content then it overflows and goes past the footer!
-This will cause our PhoneGap app to be swipe scrollable which is a bad thing! To fix this, let's see what the
-`.japxlate_app` master container `<div>` is doing in relation to the footer when it has both little and lots of content.
-For that let's add this cheeky little debug to the `.japxlate_app{}` CSS:
-
-{lang="css"}
-~~~~~~~~
-.japxlate_app {
-    padding-top:1em;        
-    border:1px solid green; /*debug*/
-}
-~~~~~~~~
-
-This puts a thin green border around the entire div. This is a useful debugging tool **but** note that it will
-add two pixels to the width and two pixels to the height of the div it is applied to. This may make scrollbars
-appear where usually you wouldn't have scrollbars.
-
-Running with both large and small amounts of content looks like this:
-
-![Figure 18. Size of `.japxlate_app` div with large (left) and small (right) content amounts](images/fig_180.png)
-
-So it looks like our master container div doesn't have a fixed height and is as tall as it needs to be for its content.
-We want it to be exactly tall enough to fit perfectly under the header and above the footer.
-Then, if content is lots and it overspills, it will clip above the footer and won't screw up our app's look and
-feel. We may then choose to handle content scrolling manually.
-
-Our `.japxlate_app` master container div has the same parent as the header and footer (ie. `<body>`) so
-we should be able to position it absolutely, tinker with CSS top and bottom properties and "slot"
-it in between the header and footer. Let's change the CSS for `.japxlate_app` to look like this:
-
-{lang="css"}
-~~~~~~~~
-.japxlate_app {
-    padding-top:1em;
-    border:1px solid green;
-    overflow:auto;          /*scrolling functionality *IF* we need it*/
-    position:absolute;
-    top:43px;               /*flush with bottom of header*/
-    bottom:2px;             /*flush with top of footer*/
+body {
+    -webkit-touch-callout: none;                /* prevent callout to copy image, etc when tap to hold */
+    -webkit-text-size-adjust: none;             /* prevent webkit from resizing text to fit */
+    -webkit-user-select: none;                  /* prevent copy paste, to allow, change 'none' to 'text' */
+    font-family:'HelveticaNeue-Light', 'HelveticaNeue', Helvetica, Arial, sans-serif;
+    font-size:12px;
+    height:100%;
+    margin:0px;
+    padding:0px;
     width:100%;
 }
 ~~~~~~~~
 
-Note that we're keeping the debug green border for the moment. Running the app now looks like this:
+Then add a clause for `header` like this:
 
-![Figure 19. Improved `.japxlate_app` div with large (left) and small (right) content amounts](images/fig_190.png)
-
-For the win! Notice how (on desktop Chrome only) we only get the scrollbar when we need it. Notice also how it's a scrollbar
-just for the content div and not a full scrollbar for the entire document. This is great for our app
-because users won't be able to whiz it around the screen like a normal browser page. As we'll see later though,
-we will annoyingly have to implement our own scrolling for this content pane on the device. Go ahead and strip out that
-`border:1px solid green;` statement for the `.japxlate_app{}` rule.
-
-You must be exhausted with CSS things now (I know I am!), so let's move on to the very last first thing
-(say what?!) - which is the behaviour for the tab tapping which we'll implement in good ol' JavaScript.
-We need to do two things here:
-
-1. Detect a tap on a tab
-2. Load / display content for that tab (hiding the previous tab's content at the same time)
-
-If you've been debugging the app in Chrome so far (I have!), here's where we hit a tiny stumbling block.
-If you remember our default `index.js`, all of the magic happens after we catch the `deviceready` event.
-This is a PhoneGap event that desktop browsers won't fire. An advanced way to get around this would
-be to look at something like [Stopgap](https://github.com/alunny/stopgap) (though, at the time of writing, this is looking a bit tumbleweedy)
-or, more straightforwardly, some hacks like at [http://stackoverflow.com/questions/6687099/how-to-fire-deviceready-event-in-chrome-browser-trying-to-debug-phonegap-projec](http://stackoverflow.com/questions/6687099/how-to-fire-deviceready-event-in-chrome-browser-trying-to-debug-phonegap-projec).
-
-What we want to do, for desktop browsers, is to **not** load `phonegap.js`. Then, instead of waiting
-for the `deviceready` event to execute our `x_y_z()`, we simply call `x_y_z()` as soon as the browser DOM is ready.
-Let's use the solution by Chemik at the aforementioned StackOverflow page to only load `phonegap.js`
-on condition of being on a mobile device. We can do this in `index.html` thus:
-
-{lang="html"}
+{lang="css"}
 ~~~~~~~~
-.
-.
-<footer></footer>
-<!--load phonegap.js only if on mobile device-->
-<script type="text/javascript">
-    if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry|IEMobile)/)) {
-        var line = '<script type="text/javascript" src="phonegap.js"' + '></'+'script>';
-        document.writeln(line);
-    }
-</script>
-.
-.
-~~~~~~~~
-
-Note that we break up the ending `</script>` in our string so that it isn't picked up by 
-the (WebView) browser - or our IDE - as an *actual* ending script tag!
-This code will now only load `phonegap.js` for mobile devices. You can test this by - carefully! - inserting
-a cheeky `alert('I am phonegap.js');` right at the top of `phonegap.js`. Don't forget to remove this alert when you've
-finished testing!
-
-So now we only have `phonegap.js` loaded on an actual mobile device. This gives us a little tool to help
-with the `deviceready` event problem. Edit `bindEvents()` and `receivedEvent()` in `index.js` to look like this:
-
-{lang="js"}
-~~~~~~~~
-.
-.
-// Bind Event Listeners
-//
-// Bind any events that are required on startup. Common events are:
-// 'load', 'deviceready', 'offline', and 'online'.
-bindEvents: function() {
-    if (window.cordova) {   //actual app
-        document.addEventListener('deviceready', this.onDeviceReady, false);
-    } else {    //debugging in desktop browser
-        this.onDeviceReady();
-    }
-},
-
-// Update DOM on a Received Event
-receivedEvent: function(id) {
-    console.log('Received Event: ' + id);
-},
-.
-.
-~~~~~~~~
-
-If `phonegap.js` is loaded, it will define the `window.cordova` object which we can test for before setting up
-our event listener. If `phonegap.js` is not loaded, we simply call what the listener calls anyway.
-Running this in both desktop Chrome and your device should produce the eventual `console.log()` message
-(you'll see this via Eclipse's *LogCat* if running on your device).
-
-A> ## All about alerts (and PhoneGap API plugins)
-A>
-A> Since we're talking about debugging and JavaScript `alert()`s and things, let's talk about how we can use
-A> PhoneGap to produce more native-like alerts. JavaScript alerts will definitely give your app that
-A> non-nativey, browser app feel. In fact, using `alert()` even on desktop sites is considered a bit naff
-A> these days!
-A> 
-A> Conveniently, PhoneGap exposes a Notification API for "Visual, audible, and tactile device notifications."
-A> The documentation at [http://docs.phonegap.com/en/3.1.0/cordova_notification_notification.md.html](http://docs.phonegap.com/en/3.1.0/cordova_notification_notification.md.html) says we can use it like
-A> this:
-A>
-A> {lang="js"}
-A> ~~~~~~~~
-A> navigator.notification.alert(message, alertCallback, [title], [buttonName]);
-A> ~~~~~~~~
-A>
-A> So let's try that. Stick `navigator.notification.alert('Some alert message', null);` in the `receivedEvent()` function that we
-A> were just tinkering with. Running this (which obviously won't work in desktop Chrome) gives a spurious error in LogCat:
-A> 
-A> ![Figure 20. Error when attempting `navigator.notification.alert()`](images/fig_200.png)
-A> 
-A> What's going on? Well, it turns out that "As of version 3.0, Cordova implements device-level APIs as plugins".
-A> We have to install whichever APIs we want in our project. This removes bloat as, previously, all
-A> APIs came pre-installed in every PhoneGap project.
-A> I actually found this to be a bit mysterious and poorly documented (I found myself mashing up a mix
-A> of info from Cordova docs and PhoneGap docs). But here's how to add a particular plugin to your PhoneGap
-A> project. Go to anywhere in your project folder structure on the command line and:
-A> 
-A> {lang="bash"}
-A> ~~~~~~~~
-A> you@yours$ japxlate]$ phonegap local plugin add https://git-wip-us.apache.org/repos/asf/cordova-plugin-dialogs.git
-A> ~~~~~~~~
-A>
-A> I> From PhoneGap v3.3.0 you can simply type `phonegap local plugin add org.apache.cordova.dialogs`
-A>
-A> Which should echo:
-A> 
-A> {lang="bash"}
-A> ~~~~~~~~ 
-A> [phonegap] adding the plugin: https://git-wip-us.apache.org/repos/asf/cordova-plugin-dialogs.git
-A> [phonegap] successfully added the plugin
-A> ~~~~~~~~
-A>
-A> (Note that you won't need to run this command, and you won't get the above error, if you've gone down [The
-A> fiddly older way](#chapter-3-2) as that bundles all plugins into your project).
-A> 
-A> You'll get the relevant URL from the docs for whichever plugin at the "API Reference" section at
-A> [http://docs.phonegap.com/en/3.1.0/](http://docs.phonegap.com/en/3.1.0/)
-A> (PhoneGap has a good list of core and 3rd party plugins at
-A> [https://build.phonegap.com/plugins](https://build.phonegap.com/plugins) but the installation
-A> instructions for each one are seemingly out-of-date and mention tinkering with XML config files
-A> which we don't need to do after running the above command.)
-A> The above command has downloaded the source for the plugin and put it in `/assets/www/plugins` (in this case in
-A> `org.apache.cordova.dialogs`)
-A>
-A> I> but diff on v3.3.0 etc.
-A>
-A> It has also added references to the
-A> plugin in `/assets/www/cordova_plugins.js`
-A>  - a file which has been there from the start but just as a placeholder stub.
-A> The `phonegap.js` that we include in our `index.html` actually also
-A> includes `cordova_plugins.js` so after running the
-A> above command, we have all we need to start using `navigator.notification.alert()`! Try it again! It works!:
-A> 
-A> ![Figure 21. Default `navigator.notification.alert()`](images/fig_210.png)
-A>
-A> Great. But hmmm, it looks just the same as a normal JavaScript `alert()`! Currently it does yes, but the advantage is that we can
-A> customise the title and button text. We can also specify a callback function to trigger when the button is tapped.
-A> Try:
-A>
-A> {lang="js"}
-A> ~~~~~~~~
-A> navigator.notification.alert('Some alert message', null, 'The title', 'Oki doki');
-A> ~~~~~~~~ 
-A>
-A> Running this looks like:
-A> 
-A> ![Figure 22. Customised `navigator.notification.alert()`](images/fig_220.png)
-A> 
-A> For the win! If you want to go forward with these customised alerts, keep in mind that they
-A> won't work on desktop Chrome so you may need to write a little wrapper function to still be able to debug on desktop Chrome.
-A> The Japxlate app won't be alerting *anything* to the user on purpose - perhaps just some important error
-A> messages. Therefore we'll go forward in this tutorial with plain vanilla JavaScript `alert()`s. But I wanted to show you the general
-A> plugin mechanism on what is no doubt one of the easier to use plugins. In fact, I'm not done yet!:
-A> 
-A> {lang="bash"}
-A> ~~~~~~~~ 
-A> you@yours$ japxlate]$ phonegap local plugin list
-A> [phonegap] org.apache.cordova.dialogs
-A> ~~~~~~~~
-A> 
-A> This command lists all plugins installed in the current project.
-A> 
-A> {lang="bash"}
-A> ~~~~~~~~
-A> you@yours$ japxlate]$ phonegap local plugin remove org.apache.cordova.dialogs
-A> [phonegap] removing the plugin: org.apache.cordova.dialogs
-A> [phonegap] successfully removed the plugin
-A> ~~~~~~~~
-A> 
-A> This command removes the specified plugin from the current project. You specify the plugin by its
-A> reverse-DNS identifier. You can find these out by issuing the above "list" command.
-A> 
-A> There are plugins to access the mobile device's camera,
-A> accelerometer, phone contacts and many more.
-A> Using these plugins is how we make a *full fat* mobile
-A> app and not just a simple website-in-a-box.
-A> 
-A> I> PhoneGap v3.3.0 also has "Plugman" which is another way of working with plugins.
-A> I> Plugman lets you add or remove plugins for *one specific platform*, whereas the above method will add or remove plugins globally
-A> I> to any and all platforms used in the project. Please see [http://docs.phonegap.com/en/3.3.0/plugin_ref_plugman.md.html](http://docs.phonegap.com/en/3.3.0/plugin_ref_plugman.md.html).
-
-
-We've just been able to simulate our `deviceready` event on desktop Chrome for debugging and we are
-ready to get our tab taps working.
-`receivedEvent()` in `index.js` is where the magic happens because by the time we reach there, the device
-is ready (and the browser DOM is ready as we've put JavaScript includes at the *bottom* of our HTML).
-But let's not go down the route of stuffing all of our JavaScript in `index.js`. Let's go modular - right
-from the start. Create a new JavaScript file called:
-
-`japxlate.js`
-
-in `/assets/www/js`
-
-and include it from `index.html` thus:
-
-{lang="html"}
-~~~~~~~~
-<script type="text/javascript" src="js/japxlate.js"></script>
-<script type="text/javascript" src="js/index.js"></script>
-<script type="text/javascript">
-    app.initialize();
-</script>
-~~~~~~~~
-
-Put a function called `configureTabs()` in the newly created `japxlate.js` thus:
-
-{lang="js}
-~~~~~~~~
-//tab clickability
-function configureTabs()
-{
-    var tabs = document.querySelectorAll("#tab-bar li a");
-    
-    for(var loop = 0; loop < tabs.length; loop++)
-    {
-        var tab = tabs.item(loop);
-        tab.addEventListener('click', function(event){alert(event + ' on ' + this);}, false);
-    }
+header {
+    background-color:#555;  /*medium grey*/
+    color:#ccc;             /*slightly greyish white*/
+    height:40px;
+    line-height:40px;       /*height of a *text* line*/
 }
 ~~~~~~~~
 
-Then modify `index.js` to call this new function in `receivedEvent()` thus:
+Then add a clause for `footer` like this:
 
-{lang="js}
+{lang="css"}
 ~~~~~~~~
-// Update DOM on a Received Event
-receivedEvent: function(id) {
-    console.log('Received Event: ' + id);
-
-    configureTabs();
-},
-~~~~~~~~
-
-Running this, and clicking on one of the tabs results in:
-
-![Figure 23. Debug `alert()` after clicking Discover tab](images/fig_230.png)
-
-We are nearly there! We are detecting tab taps nicely! First let me explain some key points of
-the `configureTabs()` function so far.
-
-{lang="js"}
-~~~~~~~~
-document.querySelectorAll("#tab-bar li a");
+footer {
+    background-color:#555;  /*medium grey*/
+    color:#ccc;             /*slightly greyish white*/
+    height:20px;
+    line-height:20px;
+}
 ~~~~~~~~
 
-This is a great new piece of modern JavaScript that returns to us an array of DOM elements (a "NodeList")
-that match our CSS style selector. (The related `querySelector()` returns the *first* matching element.)
-This is something that has found its way into W3C standard DOMJavaScript based on something
-that jQuery has popularised (but not invented - [Behaviour.js](http://bennolan.com/behaviour) was
-one of the first to do this).
+Running this looks like:
 
-Here we run `querySelectorAll()` on the document object so we are going to get all matches contained in <body>.
-Usefully, it can also be run on an Element object - for example a certain table or form - or a DocumentFragment
-element to only return matching elements in that particular container element.
-`#tab-bar li a` is a CSS style query for "an \<a> in a <li> in any element with id 'tab-bar'".
+![Figure 7. `<footer>` is too high](images/fig_70.png)
 
-We loop over all matching \<a> elements and set a click handler using the DOM standard `addEventListener()`
-(as formally described at  
-[http://www.w3.org/TR/DOM-Level-2-Events/events.html#Events-registration](http://www.w3.org/TR/DOM-Level-2-Events/events.html#Events-registration)).
-Our event handler in this case is a simple anonymous function giving a debug alert.
-In event handler functions, an Event object is passed as a parameter and contains information about
-the particular event that triggered the handler - screen x and y coordinates for mouse events and which key was
-pressed for keyboard events and so on. In event handler functions, `this` refers to the element on which
-the event happened.
+Hmm, the footer isn't at the bottom! Let's position it absolutely and make it flush with the bottom of its parent
+(the document body). Add to the `footer` rule so that it looks like:
 
-Let's replace the dummy click handler with something that we'll actually want to use. 
-But first, remember that in the click handler function we only have the event object and the \<a> object (as `this`)?
-We'll also need to know which content <div> relates to which \<a>, then we can switch the content
-accordingly.
-Modify the header of `index.html` to look like this:
+{lang="css"}
+~~~~~~~~
+footer {
+    background-color:#555;  /*medium grey*/
+    color:#ccc;             /*slightly greyish white*/
+    height:20px;             
+    line-height:20px;
+    position:absolute;
+    bottom:0;
+    width:100%;             /*no default width for position:absolute*/
+}
+~~~~~~~~
+
+Running this looks like:
+
+![Figure 8. `<footer>` flush with bottom of document body](images/fig_80.png)
+
+Great! Now let's put our three tabs into the header. We'll do it as an unordered list of links. Make
+`<header>` of `index.html` look like this:
 
 {lang="html"}
 ~~~~~~~~
 <header>
     <ul id="tab-bar">
-        <li class="current">
-            <a href="#search" data-div-id="search"><img src="img/search.png"> Search</a>
+        <li >
+            <a href="#search">Search</a>
+        </li>
+        <li >
+            <a href="#discover">Discover</a>
         </li>
         <li>
-            <a href="#discover" data-div-id="discover"><img src="img/chat-bubble.png"> Discover</a>
-        </li>
-        <li>
-            <a href="#write" data-div-id="write"><img src="img/file.png"> Write</a>
+            <a href="#write">Write</a>
         </li>
     </ul>
 </header>
 ~~~~~~~~
 
-HTML5 allows us to use custom or "data" attributes where we can add any attribute and value we like
-to any particular element. The attribute names start with "data-".
-Here we simply link each \<a> to its matching content <div> id. We'll use this attribute (soon)
-in the click handler for tabs.
+Running this looks like:
 
-OK, next strip out the dummy handler from `addEventListener()` and make it look like this:
+![Figure 9. First attempt at tabs](images/fig_90.png)
 
-{lang="js"}
+Clearly a disaster! We need some styling to line up the list items horizontally in the header.
+Add the following three clauses to the CSS file:
+
+{lang="css"}
 ~~~~~~~~
-tab.addEventListener('click', onclickForTab, false);
+/*entire tab row*/
+#tab-bar {
+    /*clear any inside and outside gap space*/
+    margin:0;
+    padding:0;
+}
+
+/*each tab*/
+#tab-bar li {
+    display: inline;    /*prevent each item from newlining*/
+    float:left;         /*stack left*/
+    width: 33.3333%;    /*have a third of total tab-bar space*/
+}
+
+/*tappable link in each tab*/
+#tab-bar li a { 
+    color: #ccc;
+    display: block;         /*make "width-having"*/
+    font-weight: bold;
+    overflow: hidden;       /*so long link text words get cropped*/
+    text-align: center;
+    text-decoration: none;  /*remove default link underline*/
+}
 ~~~~~~~~
 
-This will call the `onclickForTab()` function as a click handler. We define the `onclickForTab()` function, in `japxlate.js`
-thus:
+Running this looks like:
 
-{lang="js"}
+![Figure 10. Tabs line up horizontally](images/fig_100.png)
+
+Looking good! But the tabs need a few more things to look more useful. Namely, horizontal dividers,
+icons and some kind of current tab highlight.
+For the horizontal dividers, let's try giving the second and third tabs a left border. CSS version 2
+(the latest version being 3) has a nifty selector where we can say "element type Y only where it follows an
+element type X". With this we can target any tab after the first one and apply a left border. Add the
+following clause to the CSS:
+
+{lang="css"}
 ~~~~~~~~
-//set up and display a newly tapped tab
-function onclickForTab(event)
+/*a border-left for the middle and rightmost tab*/
+#tab-bar li + li
 {
-    //to prevent URL from changing and browse history building up
-    event.preventDefault();
-    
-    //-------tab display logic---
-    var lastTab = document.querySelector('li.current a');
-    
-    //NOP if clicking current tab again
-    if(lastTab == this)
-    {
-        return false;
-    }
-    
-    lastTab.parentNode.className = ''; //undisplay
-    
-    this.parentNode.className = 'current';
-    //---------------------------
-    
-    //-----content div display logic---
-    var lastDiv = document.querySelector('div.current');
-    lastDiv.className = ''; //undisplay
-    
-    var matchingDiv = this.getAttribute('data-div-id');
-    
-    var thisDiv = document.getElementById(matchingDiv);
-    
-    thisDiv.className = 'current';
-    //-----------
-    
-    //get tab div id from tab link
-    var divId = this.getAttribute('data-div-id');
+    border-left:1px solid #aaa;    /*light grey*/
 }
 ~~~~~~~~
 
-Let's go through this code, which looks fiddly at first, but basically tinkers with CSS class names
-such that things turn on and off as we want.
+Running this looks like:
 
-The first thing we do is the DOM standard `preventDefault()` which prevents the browser's
-default action for the event from triggering. The default browser action for clicking
-on a link is to:
+![Figure 11. `<header>` too wide for document body](images/fig_110.png)
 
-1. Change URL in address bar to that of link target
-2. Add new URL to browsing history
-3. Load new URL
+Ouch, that's not a good look. What's happened here is that the border has *added* 1px to the total width of the 
+second and third tabs. These tabs are now wider than a 3rd of the `<header>` row and so the last tab gets
+bumped onto the next line. This is A Very Annoying Thing. One cheesy little workaround for this is to
+use a simple background image to simulate the border.
+Make a 1 pixel wide by 16 pixel tall image in [GIMP](http://www.gimp.org/) (or what-have-you) and floodfill with #aaaaaa which
+is a very light grey. Export to a PNG image in `assests/www/img` called `aaaaaa_16_v.png`.
+Then change the previously added CSS clause to look like this:
 
-As our links are simply triggers to load tabs and not *proper* links, we don't want any
-of these steps to happen. Step [2] is especially annoying. If we don't call `preventDefault()` for our tab taps,
-if we open our app and click on the tabs ten times, we will have to use the device's BACK button
-ten times to exit the app!
-
-Next we use `querySelector()` to get the *single* current tab link. Because 'this' in our click handler
-will be the clicked element, we can do a check to see if this is the same as the previous current tab.
-And if so, do a "no operation" (NOP). We then manipulate classnames to activate only the clicked tab.
-
-Similarly, we use `querySelector()` to get the currently active content <div>. We activate the content <div> for the clicked tab by retreiving data-div-id from the clicked \<a> and using that to get the correct div.
-
-Anyway, this all works!
-
-![Figure 24. Initial `configureTabs()` is working well](images/fig_240.png)
-
-Thinking deeper and keeping an open mind, there's more to our tabs than just displaying the relevant
-content. A given tab might have to do some one-off initialising of a resource - perhaps a database.
-Or some per-load checking of, eg, network availability on the device. We also might like to add new tabs
-in future as users request more features. We might simply just want to change the default tab based on
-user complaints!
-
-We can cover all of these bases with a few simple steps. First, alter the bottom of `onclickForTab()`
-to look like:
-
-{lang="js"}
+{lang="css"}
 ~~~~~~~~
-.
-.
-    //get tab div id from tab link
-    var divId = this.getAttribute('data-div-id');
-
-    onclickForNamedTab(divId);
-}
-~~~~~~~~
-
-`onclickForTab()` is a generic handler for any tab tap, but we are adding `onclickForNamedTab()` to handle
-tab specific initialisation. Put `onclickForNamedTab()` in `japxlate.js` and it looks like this:
-
-{lang="js"}
-~~~~~~~~
-//Do the one-off loading and everytime setup for whichever tab
-function onclickForNamedTab(divId)
+/*simulate a border-left for the middle and rightmost tab*/
+#tab-bar li + li
 {
-    if(divId == 'discover')
-    {
-        onclickForTab_Discover();
-    }
-    
-    else if(divId == 'search')
-    {
-        onclickForTab_Search();
-    }
-    
-    else if(divId == 'write')
-    {
-        onclickForTab_Write();
-    }
+    background-image:url(../img/aaaaaa_16_v.png);
+    background-repeat:repeat-y;
+    background-position:left;
 }
 ~~~~~~~~
 
-We simply switch on the tab content <div> id, calling the appropriate `onclickForTab_theTab()`. Yes, you've guessed it,
-if you want to add more tabs to the app, you will have to update this switch case (and add the corresponding 
-`onclickForTab_theNewTab()`). This function is a simple dispatcher to other functions that are going
-to do the actual one-off and per-load initialisations for tabs.
+Running this looks like:
 
-For a "one-off" initialisation, we are going to have to somehow record which tabs have been opened so far.
-We'll do this using a global variable. Eek! Global variables are not current best practice for JavaScript,
-but we'll do it to keep this small and simple app, er, small and simple. Put this at the top of `japxlate.js`:
+![Figure 12. `<header>` fits nicely](images/fig_120.png)
 
-{lang="js"}
+Pretty good! OK, we'll do the icons next. We want each tab to have a little icon on it. There are millions of icon sets floating around these days. They tend to be one of three types:
+
+* Always free
+* Free only for personal use (else you should pay)
+* Always paid-for
+
+There's also new school *flat* icons versus traditional deep icons. Design memes come and go but we'll go with
+something a little flat. We'll use these rather nice ones which are royalty-free, free for personal and commercial use:
+
+[http://www.graphicsfuel.com/2013/04/20-flat-icons-psd](http://www.graphicsfuel.com/2013/04/20-flat-icons-psd)
+
+Note that these icons are in PNG format which is a raster format. Raster icons are easy to use, but can only be
+shrunk or enlarged by extracting or guessing information (respectively). This means they only really look good
+at their *native* size which means that, depending on the pixel density of the device display, they might be too tiny
+and hard to make out or really massive and Legoish. But we'll use them for simplicity.
+
+One alternative would be to use a vector format - such as SVG - for the icons which stores the image such that
+it can be scaled up or down without losing information.
+Another new trend is to have the browser load something called an icon font. This is like a normal font but where
+each character is an icon (remember Wingdings?!). This has the advantage that the icons are sizeable just like
+any other text. Also they can be bolded or italicised. **But** they can only be of one colour.
+
+Go ahead and put all of the PNG icons in `assets/www/img` (though we won't use all of them).
+Let's reference some of these icons in our tab markup, change `<header>` in `index.html`
+to look like this:
+
+{lang="css"}
 ~~~~~~~~
-//Has the first load of each tab happened yet?
-var global_pagesLoaded = {discover:false, search:false, write:false};
+<header>
+    <ul id="tab-bar">
+        <li>
+            <a href="#search"><img src="img/search.png"> Search</a>
+        </li>
+        <li>
+            <a href="#discover"><img src="img/chat-bubble.png"> Discover</a>
+        </li>
+        <li>
+            <a href="#write"><img src="img/file.png"> Write</a>
+        </li>
+    </ul>
+</header>
 ~~~~~~~~
 
-We can then check - and set - these values in our `onclickForTab_theTabName()` functions that our `onclickForNamedTab()`
-dispatcher calls. Let's get started with the first of these functions for our Discover tab. Put this in
- `japxlate.js`:
+Note the space after the image and before the link text. Running this gives:
 
-{lang="js"}
+![Figure 13. Icons we sourced are way too big](images/fig_130.png)
+
+Woah, those icons are pretty big eh? The icons are a mix of square, tall or wide, but they all have a biggest
+side of about 128 pixels. That's clearly way too big for us here. Let's use GIMP to resize `search.png`,
+`chat-bubble.png` and `file.png` to have a biggest side of 16px - the same as our app font size (in `index.css`) [NOTETOSELF double check this].
+So go ahead and make those changes and overwrite the original icon files. While you're at it, do the same
+for `paste.png` because we'll be using that later on. (Feel free to trash the other icon files from
+`assets/www/img` as we won't be needing them in this little app.) Those scalable icon formats are looking real
+attractive now huh?
+
+After changing the icon sizes, it looks like this:
+
+![Figure 14. Icons at correct size](images/fig_140.png)
+
+Not bad at all. But hmmmm, don't you think the icons look a little out of whack? Like they're slightly
+higher than the line of text? We can remedy this by adding to the CSS:
+
+{lang="css"}
 ~~~~~~~~
-//One-off loading and each time setup for discover tab
-function onclickForTab_Discover()
-{
-    //console.log('click on discover tab');
-
-    if(!global_pagesLoaded.discover)
-    {
-        firstLoadForTab_Discover();
-    }
-    
-    //each time setup to go here
+a img {
+    vertical-align:middle;    /*make more sensible relative to text baseline*/
 }
 ~~~~~~~~
 
-We simply check if `global_pagesLoaded.discover` is false and if so call `firstLoadForTab_Discover()`.
-We also have a space here for any "each time" setup of the Discover tab. Go ahead and create
-functions, using this one as a template, for the Search and Write tabs (do a copy paste and then
-change 'Discover' to 'Search' and 'discover' to 'search' and etc). We'll modify these functions
-later if we need to.
+(Yes, we could do these icons as CSS background images but what the heck.) That's better.
+We restrict this only to images in `<a>`'s so we don't screw up any other images we might
+have in the markup.
 
-OK, we still need `firstLoadForTab_Discover()` which will perform one-off initialisation for the Discover tab.
-Do it like this, again in `japxlate.js`:
+All we need now is a highlight for the currently selected tab, and while we're at it we should
+choose our default tab that we want to be displayed first on app load. Let's plump for the
+Search tab. Add a class name of "current" to the Search tab thus:
 
-{lang="js"}
+{lang="html"}
 ~~~~~~~~
-//One-off loading for discover tab
-function firstLoadForTab_Discover()
-{
-    //console.log('first load for discover tab');
-    
-    global_pagesLoaded.discover = true;
-    
-    //one-off setup to go here
+<ul id="tab-bar">
+    <li class="current">
+        <a href="#search"><img src="img/search.png"> Search</a>
+    </li>
+    .
+    .
+</ul>
+~~~~~~~~
+
+Then, in the CSS, modify `#tab-bar li{}` and add `#tab-bar li.current{}` thus:
+
+{lang="css"}
+~~~~~~~~
+/*each tab*/
+#tab-bar li {
+    display: inline;
+    float:left;
+    width: 33.3333%;
+    border-bottom:3px solid #555;   /*same bg as header*/
+}
+
+/*current tab*/
+#tab-bar li.current {
+    border-bottom:3px solid #990000;    /*signature red*/
 }
 ~~~~~~~~
 
-All we do is set `global_pagesLoaded.discover` to true so that this function does not get called again
-from `onclickForTab_Discover()` when the tab is tapped a subsequent time. At the moment this is just a placeholder for whatever we might need
-down the line. Like we just did for `onclickForTab_*()`, replicate this function for the Search and Write tabs.
+We simply add a bottom border, in our signature red, to any tab bar list item that has a class of "current". 
+We also add a border of the same size but using the header's background colour to *non* current tabs.
+This keeps everything looking flush horizontally. Later on (soon actually!) we will use JavaScript
+to detect tap events on the tabs and change the current tab. Running what you have so far looks like:
 
-If we temporarily uncomment the `console.log()` calls, running this - and clicking tabs randomly - shows that we do indeed have a first load
-that fires only once and a click that fires each time.
+![Figure 15. Current tab highlight](images/fig_150.png)
 
-![Figure 25. One-off tab loading is confirmed](images/fig_250.png)
+Pretty good! Only two little things are bugging us now. The content area text starts a little too
+close to the tab bar, and, thinking about it this app doesn't really need a footer at all!
+Change the HTML footer to simply look like this:
 
-Done and dusted. Money in the bank. Move along, nothing to see here... right? Well there's just one thing
-missing. If you've really really been paying attention and thinking one or two steps ahead perhaps,
-you may have noted that our setups (one-off and each time) for the default Search tab are only fired
-if we click off that tab and then back on it. Clearly this is not useful and whichever tab is set
-to be the default needs to have its setups run right off the bat.
-Let's solve this problem by, on `deviceready`, calling a little function to retreive the current tab
-and calling our already existing `onclickForNamedTab()` dispatcher for that tab.
-Add a call to `initialiseDefaultTab()` at the bottom of `receivedEvent()` in `index.js` so that it now looks
-like this:
-
-{lang="js"}
+{lang="html"}
 ~~~~~~~~
-// Update DOM on a Received Event
-receivedEvent: function(id) {
-    console.log('Received Event: ' + id);
-    
-    configureTabs();
-    
-    //load and show whatever we've set the initial tab to be
-    initialiseDefaultTab();
+<footer></footer>
+~~~~~~~~
+
+Then add `.japxlate_app{}` to the CSS and also change the height of `footer{}` thus:
+
+{lang="css"}
+~~~~~~~~
+.japxlate_app {
+    padding-top:1em;        /*move content away from tab bar*/
+}
+
+footer {
+    background-color:#555;
+    color:#ccc;
+    height:2px;             /*down to 2px from 20px*/          
+    line-height:20px;       /*no longer meaningful...*/
+    position:absolute;
+    bottom:0;
+    width:100%;
 }
 ~~~~~~~~
 
-Then define `initialiseDefaultTab()` in `japxlate.js` thus:
+Running this looks like:
 
-{lang="js"}
-~~~~~~~~
-//Load and show our default initial tab
-function initialiseDefaultTab()
-{
-    var defaultTab = document.querySelector('div.current');
-    
-    var divId = defaultTab.id;
-    
-    onclickForNamedTab(divId);
-}
-~~~~~~~~
+![Figure 16. Final app layout](images/fig_160.png)
 
-We use `querySelector()` to get whichever content <div> has been set as current in the HTML markup. We could in theory
-select the *tab* that has been marked as current but, as that will be in sync with the content div anyway, it
-is academic.
+Which we'll stick with for the rest of the tutorial - and app! We have a 2px footer which is
+a bit gimmicky, but will help us a bit with scroll debugging a bit later on. The tab content text is now
+one newline(ish) down from the tab bar.
 
-Congratulations, you have just built a working infrastructure for the Japxlate app!
-This is a good starting point for *any* simple PhoneGap app.
+A> ## To fullscreen or not?
+A>
+A> You might have noticed by now that the default PhoneGap app, and our own app's layout that we've just finished,
+A> fill the *entire* screen of the device. Even the Android status bar (which shows the time, battery charge and
+A> signal strength etc) is obliterated.
+A> 
+A> Game apps tend to fill the entire screen, but almost every utility app out there leaves the status bar.
+A> The good news is that we can get the status bar back quite easily by opening `PROJECTROOT/platforms/android/res/xml/config.xml`
+A> and changing:
+A>
+A> {lang="xml"}
+A> ~~~~~~~~
+A> <preference name="fullscreen" value="true" />
+A> ~~~~~~~~
+A>
+A> to
+A> 
+A> {lang="xml"}
+A> ~~~~~~~~
+A> <preference name="fullscreen" value="false" />
+A> ~~~~~~~~
+A>
+A> and then re-running the app.
+A> 
+A> You can choose which style you like and the rest of this tutorial is valid either way.
+A> Note that figures showing device screenshots *won't* have the status bar.
+
 
