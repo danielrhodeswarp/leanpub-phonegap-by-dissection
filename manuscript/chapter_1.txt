@@ -2,9 +2,9 @@
 
 This book is going to teach you how to get started with mobile app development using the [PhoneGap](http://phonegap.com) platform. We'll essentially rebuild, from scratch, a basic yet fully-functional app that really exists! It's called Japxlate and can be found [here in the Google Play Store](https://play.google.com/store/apps/details?id=com.drappenheimer.japxlate). The app is a Japanese dictionary that you can search - even if offline. Not to worry though, we won't get bogged down in the nitty gritty of Japanese linguistics. We'll focus on setting up, building and finally deploying the app. You'll laugh, you'll cry, you'll sick a little bit in the back of your throat, but the journey will definitely be worth it...
 
-T> This is version 0.9 of the book, first published February 2015 (v0.9 first published January 2014)
+T> This is version 1.0 of the book, first published February 2015 (v0.9 first published January 2014)
 
-T> Latest source code for the app is at [put link here](put link here)
+T> Latest source code for the app is at [https://github.com/danielrhodeswarp/japxlate-android](https://github.com/danielrhodeswarp/japxlate-android)
 
 T> This book was written using PhoneGap v3.1.0, but has been updated to cover anything new or different in v3.3.0
 

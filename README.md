@@ -19,7 +19,7 @@ The tutorial assumes nothing and is very hand-holdy. It includes a lot of screen
 * Some bits missing
 * Some bits unclear
 * Doesn't properly mention screen DPI and font size etc
-* The typographic distinction between code and file/folder (that the original at [PUT LINK HERE] had) has been lost
+* The typographic distinction between code and file/folder (that the original at https://github.com/danielrhodeswarp/phonegap-by-dissection had) has been lost
 * Japanese characters don't seem to survive Leanpub.com's XSLT / LaTeX fandanglery :-(
 * Chapter 14 is listed and present, but doesn't come out at the Leanpub end ??
 
