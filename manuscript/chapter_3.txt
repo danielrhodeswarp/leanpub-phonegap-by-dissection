@@ -138,7 +138,8 @@ Simply download - rather than install - the relevant "archive" version of PhoneG
 follow the steps from "[Setup New Project](http://docs.phonegap.com/en/2.1.0/guide_getting-started_android_index.md.html#Getting+Started+with+Android)" in the PhoneGap documentation.
 **Please note that** these instructions are for older versions of PhoneGap and Eclipse
 and so your mileage with the latest versions may vary.  
-[http://www.adobe.com/devnet/html5/articles/getting-started-with-phonegap-in-eclipse-for-android.html](http://www.adobe.com/devnet/html5/articles/getting-started-with-phonegap-in-eclipse-for-android.html) is also a useful reference.
+[This page](http://www.adobe.com/devnet/html5/articles/getting-started-with-phonegap-in-eclipse-for-android.html) on the Adobe
+website is also a useful reference.
 
 Sorry but I can't specify exactly how to do it this way as it is not the supported way any more.
 It might stop working for future versions of PhoneGap. Though I could get it working - with a few tweaks - 
