@@ -268,7 +268,7 @@ canvas.style.position = 'relative';
 
 and put that in the `canvas{}` rule in `index.css` as that makes more sense.
 
-Next, mosey on over to `firstLoadForTab_Write()` in `japxlate.js` and add a call to
+Next, mosey on over to `firstLoadForTab_Write()` in `japxlate.js` and add a call to  
 `adjustCanvas()` thus:
 
 {lang="js"}

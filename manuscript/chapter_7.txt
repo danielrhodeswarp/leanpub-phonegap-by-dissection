@@ -595,7 +595,8 @@ function configureSearchButton()
 }
 ~~~~~~~~
 
-We define `onclickForSearchButton()` as the click handler for the search button. `onclickForSearchButton()`, also in `search_interface.js`, is
+We define `onclickForSearchButton()` as the click handler for the search button.  
+`onclickForSearchButton()`, also in `search_interface.js`, is
 like this:
 
 {lang="js"}
@@ -1070,7 +1071,7 @@ but with a different name.
 So we've come to a bit of a dead-end as we need to implement the `romaji_to_hira()`
 script conversion function.
 Well, I know from the experience of building the [@japxlate](https://twitter.com/japxlate) bot - and [Mapanese](http://mapanese.info) -
-that we can cover **almost all** cases of Japanese <=> English script conversion
+that we can cover **almost all** cases of Japanese <--> English script conversion
 by simple string replacement operations. For example, we have a table of all
 Japanese characters and then a corresponding table of English spellings
 for those characters. Then we can convert Japanese script to English and vice versa.
@@ -1397,7 +1398,7 @@ function configureSearchInput()
 }
 ~~~~~~~~
 
-We set `onkeyForSearchInput()` as the keypress handler for our search text input.
+We set `onkeyForSearchInput()` as the keypress handler for our search text input.  
 `onkeyForSearchInput()` also lives in `search_interface.js` and is this:
 
 {lang="js"}
