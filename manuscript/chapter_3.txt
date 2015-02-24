@@ -135,7 +135,7 @@ with installing NodeJS or altering PATH environment variables.
 
 Simply download - rather than install - the relevant "archive" version of PhoneGap from
 [http://phonegap.com/install](http://phonegap.com/install), and then you can
-follow the steps from "Setup New Project" at [http://docs.phonegap.com/en/2.1.0/guide_getting-started_android_index.md.html#Getting%20Started%20with%20Android](http://docs.phonegap.com/en/2.1.0/guide_getting-started_android_index.md.html#Getting%20Started%20with%20Android).
+follow the steps from "Setup New Project" at [http://docs.phonegap.com/en/2.1.0/guide_getting-started_android_index.md.html#Getting+Started+with+Android](http://docs.phonegap.com/en/2.1.0/guide_getting-started_android_index.md.html#Getting+Started+with+Android).
 **Please note that** these instructions are for older versions of PhoneGap and Eclipse
 and so your mileage with the latest versions may vary.
 [http://www.adobe.com/devnet/html5/articles/getting-started-with-phonegap-in-eclipse-for-android.html](http://www.adobe.com/devnet/html5/articles/getting-started-with-phonegap-in-eclipse-for-android.html) is also a useful reference.
