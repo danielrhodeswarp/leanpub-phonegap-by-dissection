@@ -30,7 +30,7 @@ function checkRandomFractals()
 
 HTML elements will be referred to like:
 
-<elementname>
+\<elementname>
 
 Code fragments, variable names, method names etc will look like:
 
