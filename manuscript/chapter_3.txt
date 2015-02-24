@@ -110,8 +110,8 @@ Right, so now you've at least built your app on the command line. You might even
 the command line! Going forward with this tutorial, let's plug the skeleton code we've just built into
 our Eclipse IDE as an Android project. Follow these steps:
 
-1. Click File --> New --> Project
-2. Select Android --> *Android Project from Existing Code* (note there's also a sample native project in there!)
+1. Click File => New => Project
+2. Select Android => *Android Project from Existing Code* (note there's also a sample native project in there!)
 3. Browse to `PROJECTROOT/platforms/android` folder (actually just `PROJECTROOT` seems to also work)
 4. Click OK
 5. You'll get an "Import Projects" dialogue now with the project details that you can confirm / change and then click Finish
@@ -135,7 +135,7 @@ with installing NodeJS or altering PATH environment variables.
 
 Simply download - rather than install - the relevant "archive" version of PhoneGap from
 [http://phonegap.com/install](http://phonegap.com/install), and then you can
-follow the steps from "Setup New Project" at [http://docs.phonegap.com/en/2.1.0/guide_getting-started_android_index.md.html#Getting+Started+with+Android](http://docs.phonegap.com/en/2.1.0/guide_getting-started_android_index.md.html#Getting+Started+with+Android).
+follow the steps from "[Setup New Project](http://docs.phonegap.com/en/2.1.0/guide_getting-started_android_index.md.html#Getting+Started+with+Android)" in the PhoneGap documentation.
 **Please note that** these instructions are for older versions of PhoneGap and Eclipse
 and so your mileage with the latest versions may vary.
 [http://www.adobe.com/devnet/html5/articles/getting-started-with-phonegap-in-eclipse-for-android.html](http://www.adobe.com/devnet/html5/articles/getting-started-with-phonegap-in-eclipse-for-android.html) is also a useful reference.

@@ -166,7 +166,8 @@ A>
 A> ### What would be some alternatives?
 A>
 A> Ignoring PhoneGap and the world of mobile apps, Indexed DB
-A> (a W3C standard at [http://www.w3.org/TR/IndexedDB/](http://www.w3.org/TR/IndexedDB/)) looks
+A> (a W3C standard at  
+A> [http://www.w3.org/TR/IndexedDB/](http://www.w3.org/TR/IndexedDB/)) looks
 A> to be picking up steam. Though [caniuse.com](http://caniuse.com) tells me that support is currently *less* than that of
 A> Web SQL. Also it hasn't made its way into PhoneGap at the time of writing.
 A> Indexed DB mirrors the more modern style of NoSQL databases closely.
@@ -176,7 +177,8 @@ A>
 A> I> PhoneGap v3.3.0 now supports Indexed DB, **but only if the underlying WebView supports it**.
 A> I> At the time of writing this means only Windows Phone 8 and BlackBerry 10.
 
-PhoneGap's (well actually Cordova's) Web SQL docs are at [http://docs.phonegap.com/en/3.1.0/cordova_storage_storage.md.html](http://docs.phonegap.com/en/3.1.0/cordova_storage_storage.md.html)
+PhoneGap's (well actually Cordova's) Web SQL docs are at  
+[http://docs.phonegap.com/en/3.1.0/cordova_storage_storage.md.html](http://docs.phonegap.com/en/3.1.0/cordova_storage_storage.md.html)
 As you can see, it's a fairly small implementation of an SQL database. But writing for it in JavaScript
 with callbacks was a novelty for this grizzled MySQL hacker!
 
@@ -220,7 +222,8 @@ Then we call `transaction()` on the returned database to run the query or querie
 `checkDB()` function that we're about to implement.
 
 Now's a good time to talk about the schema we'll use for the dictionary table. We'll call
-the table "edict" as that's the name of the Japanese dictionary that powers it (at [http://www.csse.monash.edu.au/~jwb/wwwjdicinf.html#dicfil_tag](http://www.csse.monash.edu.au/~jwb/wwwjdicinf.html#dicfil_tag))
+the table "edict" as that's the name of the Japanese dictionary that powers it  
+(at [http://www.csse.monash.edu.au/~jwb/wwwjdicinf.html#dicfil_tag](http://www.csse.monash.edu.au/~jwb/wwwjdicinf.html#dicfil_tag))
 and the fields will be:
 
 `edict(id unique, kanji, kana, definition)`
@@ -231,7 +234,7 @@ Finally "definition" will hold one or more English language definitions for the 
 
 Our `checkDB()` function needs to know if the edict table exists and is full. If not, create it and fill it.
 
-The `checkDB()` function will receive a SQLTransaction object as a parameter from `db.transaction()`
+The `checkDB()` function will receive a SQLTransaction object as a parameter from `db.transaction()`.
 Again in `websql_core.js`, make `checkDB()` look like this:
 
 {lang="js"}
@@ -639,7 +642,7 @@ So we need a way to detect if the query is Japanese or English.
 
 A> ## Why two search querying routes?
 A>
-A> We could get away with not detecting the input query's language  and having this kind of logic:
+A> We could get away with not detecting the input query's language by having this kind of logic:
 A>
 A> > "Assume the query is English, do a search, if no results then assume it's Japanese and search again"
 A>
@@ -1067,7 +1070,7 @@ but with a different name.
 So we've come to a bit of a dead-end as we need to implement the `romaji_to_hira()`
 script conversion function.
 Well, I know from the experience of building the [@japxlate](https://twitter.com/japxlate) bot - and [Mapanese](http://mapanese.info) -
-that we can cover **almost all** cases of Japanese <--> English script conversion
+that we can cover **almost all** cases of Japanese <=> English script conversion
 by simple string replacement operations. For example, we have a table of all
 Japanese characters and then a corresponding table of English spellings
 for those characters. Then we can convert Japanese script to English and vice versa.

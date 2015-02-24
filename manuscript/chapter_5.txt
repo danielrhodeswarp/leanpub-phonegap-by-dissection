@@ -302,7 +302,6 @@ Search tab. Add a class name of "current" to the Search tab thus:
     </li>
     .
     .
-    .
 </ul>
 ~~~~~~~~
 

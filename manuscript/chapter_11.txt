@@ -9,7 +9,7 @@ size for that density.
 
 [http://developer.android.com/design/style/iconography.html](http://developer.android.com/design/style/iconography.html) is a useful design and technical reference.
 
-Note that you *might*, in order for the icon to update on deploy to the device, need to do a Project --> Clean in Eclipse IDE.
+Note that you *might*, in order for the icon to update on deploy to the device, need to do a Project => Clean in Eclipse IDE.
 
 I> The PhoneGap / Cordova documentation for v3.3.0 now has a useful summary section on [Icons and Splash Screens](http://docs.phonegap.com/en/3.3.0/config_ref_images.md.html#Icons%20and%20Splash%20Screens).
 

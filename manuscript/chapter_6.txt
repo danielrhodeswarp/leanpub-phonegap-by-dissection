@@ -150,7 +150,6 @@ with the `deviceready` event problem. Edit `bindEvents()` and `receivedEvent()` 
 ~~~~~~~~
 .
 .
-.
 // Bind Event Listeners
 //
 // Bind any events that are required on startup. Common events are:
@@ -167,7 +166,6 @@ bindEvents: function() {
 receivedEvent: function(id) {
     console.log('Received Event: ' + id);
 },
-.
 .
 .
 ~~~~~~~~
@@ -365,7 +363,8 @@ element to only return matching elements in that particular container element.
 `#tab-bar li a` is a CSS style query for "an \<a> in a <li> in any element with id 'tab-bar'".
 
 We loop over all matching \<a> elements and set a click handler using the DOM standard `addEventListener()`
-(as formally described at [http://www.w3.org/TR/DOM-Level-2-Events/events.html#Events-registration](http://www.w3.org/TR/DOM-Level-2-Events/events.html#Events-registration)).
+(as formally described at  
+[http://www.w3.org/TR/DOM-Level-2-Events/events.html#Events-registration](http://www.w3.org/TR/DOM-Level-2-Events/events.html#Events-registration)).
 Our event handler in this case is a simple anonymous function giving a debug alert.
 In event handler functions, an Event object is passed as a parameter and contains information about
 the particular event that triggered the handler - screen x and y coordinates for mouse events and which key was

@@ -124,7 +124,6 @@ body {
 }
 .
 .
-.
 ~~~~~~~~
 
 
@@ -145,7 +144,8 @@ Portrait orientation is assumed - a safe assumption for most phone apps.
 I won't bore you with this too much (but if you are baffled then please see a CSS refresher) other than to say it pulls some strings with absolute positioning
 and negative margins to centre a background image and some text.
 
-Then we have another `.app` block wrapped in what's called a media query ([http://cssmediaqueries.com/what-are-css-media-queries.html](http://cssmediaqueries.com/what-are-css-media-queries.html) is a useful introduction)
+Then we have another `.app` block wrapped in what's called a media query  
+([http://cssmediaqueries.com/what-are-css-media-queries.html](http://cssmediaqueries.com/what-are-css-media-queries.html) is a useful introduction)
 which triggers when the phone is rotated into landscape view. It moves the background image to the left of the text and
 also moves the text such that things are still centred.
 

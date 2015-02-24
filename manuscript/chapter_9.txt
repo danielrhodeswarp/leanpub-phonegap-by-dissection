@@ -322,7 +322,8 @@ for every resize - big or small - of the browser window.
 This includes the resize that our device will do to the
 WebView when we rotate the device.
 
-OK, let's get the ball rolling (or should that be rotating? LOL). Stick a call to `configureCanvasRotationAdjustment();`
+OK, let's get the ball rolling (or should that be rotating? LOL). Stick a call to  
+`configureCanvasRotationAdjustment();`
 at the bottom of `receivedEvent()` in `index.js`.
 We define this function in `canvas.js`:
 
@@ -756,7 +757,8 @@ function mouseupForCanvas(event)
 ~~~~~~~~
 
 `mousedownForCanvas()` simply sets our recycled global_mouseButtonDown to true.
-In `mousemoveForCanvas()` we receive the mouse event and, if the mouse button is
+In  
+`mousemoveForCanvas()` we receive the mouse event and, if the mouse button is
 down, call `doDrawOnCanvas()` with canvas space x and y coordinates.
 Specifically we pass it offsetX and offsetY of the mouse event. 
 In Chrome (and also Opera but definitely not Firefox), this is the xy coords
@@ -875,7 +877,8 @@ and generally looks jaggedy.
 
 Digging deeper into the canvas API, we have some interesting properties to change the
 brush drawing style.
-The lineJoin property of the canvas ([http://www.html5canvastutorials.com/tutorials/html5-canvas-line-joins](http://www.html5canvastutorials.com/tutorials/html5-canvas-line-joins) is a useful page) specifies how we want to draw the "join"
+The lineJoin property of the canvas  
+([http://www.html5canvastutorials.com/tutorials/html5-canvas-line-joins](http://www.html5canvastutorials.com/tutorials/html5-canvas-line-joins) is a useful page) specifies how we want to draw the "join"
 between two lines which in our case basically means the point where
 we change the direction of drawing with our brush.
 The default is "miter" which is a very sharp join. You can see this on the above

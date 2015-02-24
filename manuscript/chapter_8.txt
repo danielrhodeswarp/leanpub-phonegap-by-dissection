@@ -13,7 +13,7 @@ Note that, to speed up development and debugging, we can temporarily set the Dis
 be the app's default tab. This saves you having to tap on the tab every time you run the app when following
 this chapter. Simply move the `class="current"`s off the Search tab and content div and onto the Discover tab and content div.
 
-Conveniently, anyone with a Twitter account can go into Settings --> Widgets
+Conveniently, anyone with a Twitter account can go into Settings => Widgets
 and create embeddable timeline widgets - of their own feed or anyone else's - 
 based on User timeline, Favourites, List or Search.
 
