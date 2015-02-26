@@ -1,0 +1,8 @@
+# That's all folks! {#chapter-14}
+
+[NOTETOSELF this is going to be a wrapping up chat. talk about the app's pros and cons, PhoneGap
+pros and cons. And talk about what they need to do and research going forward with their app development. strongly recommend
+libraries like Sencha Touch, jQuery Mobile and iScroll especially as doing scrolling from scratch took 
+me more than 50% of total development time which is ridiculous!]
+
+TODO useful references
