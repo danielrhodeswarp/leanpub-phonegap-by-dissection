@@ -2,7 +2,7 @@
 
 ## What is it?
 
-Sources for "PhoneGap by Dissection" free book as on Leanpub.com. [Put LINK HERE]
+Sources for "PhoneGap by Dissection" free book as on Leanpub.com. [https://leanpub.com/phonegapbydissection]
 Which is a step-by-step tutorial for PhoneGap beginners. Follow this tutorial to build a complete app from scratch. You should know a little bit about JavaScript, CSS and HTML.
 
 The tutorial assumes nothing and is very hand-holdy. It includes a lot of screenshots. Try it!
